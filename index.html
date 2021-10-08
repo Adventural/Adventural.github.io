@@ -360,8 +360,15 @@
       
         
           
-            
           
+          
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2021/10/08/test/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -479,24 +486,18 @@
       
         
           
-            <h3 id="PART1：前言"><a href="#PART1：前言" class="headerlink" title="PART1：前言"></a>PART1：前言</h3><p>int n指令的格式为：int n，n为中断类型码<br>cpu执行int中断，实际上就相当于引发一个n号中断的中断过程，他的大致执行过程如下：</p>
-<ol>
-<li>取中断类型n</li>
-<li>标志寄存器入栈，置IF=0,TF=0 <code>(为什么要这一步，后面有解释)</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 这一步可以模拟为</span><br><span class="line">pushf 	//标志寄存器入栈</span><br><span class="line">;下面的步骤完成置IF和TF</span><br><span class="line">pushf</span><br><span class="line">pop ax</span><br><span class="line">and ax,11111100B</span><br><span class="line">push ax</span><br><span class="line">popf	//置IF=0,TF=0</span><br></pre></td></tr></table></figure></li>
-<li>CS和IP入栈</li>
-<li>令IP=(n*4)，CS=(n*4+2)<br><code> 8086的中断向量表是放在0地址处的，而每一个中断向量由两个字组成，低位字存放IP值，高位字存放CS值，所以上面的赋值就完成了跳转到中断处理程序的功能</code><h4 id="为什么中断时要处理TF和IF的值"><a href="#为什么中断时要处理TF和IF的值" class="headerlink" title="为什么中断时要处理TF和IF的值?"></a>为什么中断时要处理<code>TF</code>和<code>IF</code>的值?</h4><h5 id="TF位-CPU提供的单步中断支持"><a href="#TF位-CPU提供的单步中断支持" class="headerlink" title="TF位:CPU提供的单步中断支持"></a><code>TF位</code>:CPU提供的单步中断支持</h5>cpu在执行完一次指令后，如果检测到标志寄存器TF=1，则产生单步中断，引发中断过程。<code>单步中断的中断类型码为1</code>,也就是说：<strong>cpu在执行完一条指令后，如果检测到TF=1，那么就会转去执行1号中断处理程序</strong>。<br>作用：为单步调试程序提供支持，例如debug的t命令<h5 id="IF位-外中断之可屏蔽中断与不可屏蔽中断"><a href="#IF位-外中断之可屏蔽中断与不可屏蔽中断" class="headerlink" title="IF位:外中断之可屏蔽中断与不可屏蔽中断"></a><code>IF位</code>:外中断之可屏蔽中断与不可屏蔽中断</h5></li>
-</ol>
-<ul>
-<li><h5 id="可屏蔽中断：cpu可以不响应的外中断，具体响不响应看IF的值"><a href="#可屏蔽中断：cpu可以不响应的外中断，具体响不响应看IF的值" class="headerlink" title="可屏蔽中断：cpu可以不响应的外中断，具体响不响应看IF的值"></a>可屏蔽中断：cpu可以不响应的外中断，具体响不响应看IF的值</h5></li>
-<li><h5 id="不可屏蔽中断：cpu必须立即响应的外中断，cpu会在当前指令执行完后立即响应该中断，不可屏蔽中断的类型码固定为2"><a href="#不可屏蔽中断：cpu必须立即响应的外中断，cpu会在当前指令执行完后立即响应该中断，不可屏蔽中断的类型码固定为2" class="headerlink" title="不可屏蔽中断：cpu必须立即响应的外中断，cpu会在当前指令执行完后立即响应该中断，不可屏蔽中断的类型码固定为2"></a>不可屏蔽中断：cpu必须立即响应的外中断，cpu会在当前指令执行完后立即响应该中断，不可屏蔽中断的类型码固定为2</h5></li>
-</ul>
-<p><strong>IF=1：CPU在执行完一条指令后会检测有无外中断产生，并且响应这个外中断，如键盘鼠标等的输入</strong><br><strong>IF=0：CPU在执行完一条指令不会响应可屏蔽中断</strong></p>
-<h5 id="相关指令"><a href="#相关指令" class="headerlink" title="相关指令"></a>相关指令</h5><p><code>sti    设置IF=1</code><br><code>cli     设置IF=0 (close interupt)</code></p>
-<h3 id="PART2：编写并安装0号中断处理程序（除法溢出中断程序）"><a href="#PART2：编写并安装0号中断处理程序（除法溢出中断程序）" class="headerlink" title="PART2：编写并安装0号中断处理程序（除法溢出中断程序）"></a>PART2：编写并安装0号中断处理程序（除法溢出中断程序）</h3><p>本来是想写9号中断处理程序的，有一些错误没处理好</p>
-<h4 id="1-安装"><a href="#1-安装" class="headerlink" title="1.安装"></a>1.安装</h4><p><img src="https://img-blog.csdnimg.cn/20200815000529441.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FkdmVudHVyYWw=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>安装过程就是，先保存原来的中断处理程序的CS和IP，然后通过movsb指令将我们写的程序传送到0000:0200处，然后更改0号中断向量表的地址指向我们安装的程序地址。<img src="https://img-blog.csdnimg.cn/20200815000907968.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FkdmVudHVyYWw=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>s段就是我们自己写的中断处理程序，当发生溢出时会在屏幕上打印一个绿色的a，最后三行是通过<code>retf</code>指令调用了原来的0号中断处理程序</p>
-<h4 id="2-执行"><a href="#2-执行" class="headerlink" title="2.执行"></a>2.执行</h4><p><img src="https://img-blog.csdnimg.cn/20200815001202270.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FkdmVudHVyYWw=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
+          PART1：前言int n指令的格式为：int n，n为中断类型码cpu执行int中断，实际上就相当于引发一个n号中断的中断过程，他的大致执行过程如下：
 
-          
+取中断类型n
+标志寄存器入栈，置IF=0,TF=0 (为什么要这一步，后面有解释)12345678// 这一步可以模拟为pushf 	//标志寄
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2021/10/08/8086%E4%B8%AD%E6%96%AD%E7%9F%A5%E8%AF%86%E4%BB%A5%E5%8F%8A%E7%BC%96%E5%86%990%E5%8F%B7%E4%B8%AD%E6%96%AD%E5%A4%84%E7%90%86%E7%A8%8B%E5%BA%8F/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -614,8 +615,15 @@
       
         
           
-            
           
+          
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2021/10/07/My-New-Post/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -733,21 +741,15 @@
       
         
           
-            <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
-          
+          Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in 
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2021/10/07/hello-world/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
