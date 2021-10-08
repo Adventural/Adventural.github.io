@@ -79,13 +79,21 @@
 
 
 
-<meta property="og:type" content="website">
+<meta name="description" content="PART1：前言int n指令的格式为：int n，n为中断类型码cpu执行int中断，实际上就相当于引发一个n号中断的中断过程，他的大致执行过程如下：  取中断类型n 标志寄存器入栈，置IF&#x3D;0,TF&#x3D;0 (为什么要这一步，后面有解释)12345678&#x2F;&#x2F; 这一步可以模拟为pushf 	&#x2F;&#x2F;标志寄存器入栈;下面的步骤完成置IF和TFpushfpop axand ax,11111100Bpush">
+<meta property="og:type" content="article">
 <meta property="og:title" content="Adventural">
-<meta property="og:url" content="http://example.com/index.html">
+<meta property="og:url" content="http://example.com/2021/10/08/8086%E4%B8%AD%E6%96%AD%E7%9F%A5%E8%AF%86%E4%BB%A5%E5%8F%8A%E7%BC%96%E5%86%990%E5%8F%B7%E4%B8%AD%E6%96%AD%E5%A4%84%E7%90%86%E7%A8%8B%E5%BA%8F/index.html">
 <meta property="og:site_name" content="Adventural">
+<meta property="og:description" content="PART1：前言int n指令的格式为：int n，n为中断类型码cpu执行int中断，实际上就相当于引发一个n号中断的中断过程，他的大致执行过程如下：  取中断类型n 标志寄存器入栈，置IF&#x3D;0,TF&#x3D;0 (为什么要这一步，后面有解释)12345678&#x2F;&#x2F; 这一步可以模拟为pushf 	&#x2F;&#x2F;标志寄存器入栈;下面的步骤完成置IF和TFpushfpop axand ax,11111100Bpush">
 <meta property="og:locale">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200815000529441.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FkdmVudHVyYWw=,size_16,color_FFFFFF,t_70#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200815000907968.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FkdmVudHVyYWw=,size_16,color_FFFFFF,t_70#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200815001202270.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FkdmVudHVyYWw=,size_16,color_FFFFFF,t_70#pic_center">
+<meta property="article:published_time" content="2021-10-08T02:00:43.842Z">
+<meta property="article:modified_time" content="2021-10-08T01:41:14.423Z">
 <meta property="article:author" content="John Doe">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20200815000529441.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FkdmVudHVyYWw=,size_16,color_FFFFFF,t_70#pic_center">
 
 
 
@@ -115,13 +123,13 @@
 
 
 
-  <link rel="canonical" href="http://example.com/"/>
+  <link rel="canonical" href="http://example.com/2021/10/08/8086中断知识以及编写0号中断处理程序/"/>
 
 
 
 
 
-  <title>Adventural</title>
+  <title> | Adventural</title>
   
 
 
@@ -140,8 +148,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -274,9 +281,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -306,9 +313,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/10/08/8086%E4%B8%AD%E6%96%AD%E7%9F%A5%E8%AF%86%E4%BB%A5%E5%8F%8A%E7%BC%96%E5%86%990%E5%8F%B7%E4%B8%AD%E6%96%AD%E5%A4%84%E7%90%86%E7%A8%8B%E5%BA%8F/" itemprop="url">未命名</a></h1>
+          <h1 class="post-title" itemprop="name headline"></h1>
         
 
         <div class="post-meta">
@@ -358,9 +363,7 @@
       
 
       
-        
-          
-            <h2 id="PART1：前言"><a href="#PART1：前言" class="headerlink" title="PART1：前言"></a>PART1：前言</h2><p>int n指令的格式为：int n，n为中断类型码<br>cpu执行int中断，实际上就相当于引发一个n号中断的中断过程，他的大致执行过程如下：</p>
+        <h2 id="PART1：前言"><a href="#PART1：前言" class="headerlink" title="PART1：前言"></a>PART1：前言</h2><p>int n指令的格式为：int n，n为中断类型码<br>cpu执行int中断，实际上就相当于引发一个n号中断的中断过程，他的大致执行过程如下：</p>
 <ol>
 <li>取中断类型n</li>
 <li>标志寄存器入栈，置IF=0,TF=0 <code>(为什么要这一步，后面有解释)</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 这一步可以模拟为</span><br><span class="line">pushf 	//标志寄存器入栈</span><br><span class="line">;下面的步骤完成置IF和TF</span><br><span class="line">pushf</span><br><span class="line">pop ax</span><br><span class="line">and ax,11111100B</span><br><span class="line">push ax</span><br><span class="line">popf	//置IF=0,TF=0</span><br></pre></td></tr></table></figure></li>
@@ -377,8 +380,6 @@
 <h4 id="1-安装"><a href="#1-安装" class="headerlink" title="1.安装"></a>1.安装</h4><p><img src="https://img-blog.csdnimg.cn/20200815000529441.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FkdmVudHVyYWw=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>安装过程就是，先保存原来的中断处理程序的CS和IP，然后通过movsb指令将我们写的程序传送到0000:0200处，然后更改0号中断向量表的地址指向我们安装的程序地址。<img src="https://img-blog.csdnimg.cn/20200815000907968.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FkdmVudHVyYWw=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>s段就是我们自己写的中断处理程序，当发生溢出时会在屏幕上打印一个绿色的a，最后三行是通过<code>retf</code>指令调用了原来的0号中断处理程序</p>
 <h4 id="2-执行"><a href="#2-执行" class="headerlink" title="2.执行"></a>2.执行</h4><p><img src="https://img-blog.csdnimg.cn/20200815001202270.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FkdmVudHVyYWw=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
 
-          
-        
       
     </div>
     
@@ -395,131 +396,28 @@
       
 
       
-
-      
-
       
       
-        <div class="post-eof"></div>
+
       
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/08/test/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Adventural">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/10/08/test/" itemprop="url">test</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
             
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-10-08T09:48:42+08:00">
-                2021-10-08
-              </time>
+              <a href="/2021/10/08/test/" rel="next" title="test">
+                <i class="fa fa-chevron-left"></i> test
+              </a>
             
+          </div>
 
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
             
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
+          </div>
         </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
       
 
       
-        
-          
-            
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -529,261 +427,11 @@
   </article>
 
 
-    
-      
 
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/07/My-New-Post/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Adventural">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/10/07/My-New-Post/" itemprop="url">My New Post</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-10-07T19:18:42+08:00">
-                2021-10-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            
-          
-        
+    <div class="post-spread">
       
     </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
   </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/07/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Adventural">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/10/07/hello-world/" itemprop="url">Hello World</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-10-07T17:11:06+08:00">
-                2021-10-07
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-  </section>
-
-  
 
 
           </div>
@@ -791,6 +439,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -811,8 +463,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -863,6 +524,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#PART1%EF%BC%9A%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">PART1：前言</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%AD%E6%96%AD%E6%97%B6%E8%A6%81%E5%A4%84%E7%90%86TF%E5%92%8CIF%E7%9A%84%E5%80%BC"><span class="nav-number">1.0.1.</span> <span class="nav-text">为什么中断时要处理TF和IF的值?</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#TF%E4%BD%8D-CPU%E6%8F%90%E4%BE%9B%E7%9A%84%E5%8D%95%E6%AD%A5%E4%B8%AD%E6%96%AD%E6%94%AF%E6%8C%81"><span class="nav-number">1.0.1.1.</span> <span class="nav-text">TF位:CPU提供的单步中断支持</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#IF%E4%BD%8D-%E5%A4%96%E4%B8%AD%E6%96%AD%E4%B9%8B%E5%8F%AF%E5%B1%8F%E8%94%BD%E4%B8%AD%E6%96%AD%E4%B8%8E%E4%B8%8D%E5%8F%AF%E5%B1%8F%E8%94%BD%E4%B8%AD%E6%96%AD"><span class="nav-number">1.0.1.2.</span> <span class="nav-text">IF位:外中断之可屏蔽中断与不可屏蔽中断</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%AF%E5%B1%8F%E8%94%BD%E4%B8%AD%E6%96%AD%EF%BC%9Acpu%E5%8F%AF%E4%BB%A5%E4%B8%8D%E5%93%8D%E5%BA%94%E7%9A%84%E5%A4%96%E4%B8%AD%E6%96%AD%EF%BC%8C%E5%85%B7%E4%BD%93%E5%93%8D%E4%B8%8D%E5%93%8D%E5%BA%94%E7%9C%8BIF%E7%9A%84%E5%80%BC"><span class="nav-number">1.0.1.3.</span> <span class="nav-text">可屏蔽中断：cpu可以不响应的外中断，具体响不响应看IF的值</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%8D%E5%8F%AF%E5%B1%8F%E8%94%BD%E4%B8%AD%E6%96%AD%EF%BC%9Acpu%E5%BF%85%E9%A1%BB%E7%AB%8B%E5%8D%B3%E5%93%8D%E5%BA%94%E7%9A%84%E5%A4%96%E4%B8%AD%E6%96%AD%EF%BC%8Ccpu%E4%BC%9A%E5%9C%A8%E5%BD%93%E5%89%8D%E6%8C%87%E4%BB%A4%E6%89%A7%E8%A1%8C%E5%AE%8C%E5%90%8E%E7%AB%8B%E5%8D%B3%E5%93%8D%E5%BA%94%E8%AF%A5%E4%B8%AD%E6%96%AD%EF%BC%8C%E4%B8%8D%E5%8F%AF%E5%B1%8F%E8%94%BD%E4%B8%AD%E6%96%AD%E7%9A%84%E7%B1%BB%E5%9E%8B%E7%A0%81%E5%9B%BA%E5%AE%9A%E4%B8%BA2"><span class="nav-number">1.0.1.4.</span> <span class="nav-text">不可屏蔽中断：cpu必须立即响应的外中断，cpu会在当前指令执行完后立即响应该中断，不可屏蔽中断的类型码固定为2</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E6%8C%87%E4%BB%A4"><span class="nav-number">1.0.1.5.</span> <span class="nav-text">相关指令</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PART2%EF%BC%9A%E7%BC%96%E5%86%99%E5%B9%B6%E5%AE%89%E8%A3%850%E5%8F%B7%E4%B8%AD%E6%96%AD%E5%A4%84%E7%90%86%E7%A8%8B%E5%BA%8F%EF%BC%88%E9%99%A4%E6%B3%95%E6%BA%A2%E5%87%BA%E4%B8%AD%E6%96%AD%E7%A8%8B%E5%BA%8F%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">PART2：编写并安装0号中断处理程序（除法溢出中断程序）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%AE%89%E8%A3%85"><span class="nav-number">2.0.1.</span> <span class="nav-text">1.安装</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E6%89%A7%E8%A1%8C"><span class="nav-number">2.0.2.</span> <span class="nav-text">2.执行</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -996,6 +673,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
