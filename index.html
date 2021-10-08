@@ -5,7 +5,7 @@
   
 
 
-<html class="theme-next muse use-motion" lang="zh-Hans">
+<html class="theme-next mist use-motion" lang="zh-Hans">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -93,7 +93,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '',
-    scheme: 'Muse',
+    scheme: 'Mist',
     version: '5.1.4',
     sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
     fancybox: true,
@@ -479,8 +479,7 @@
       
         
           
-            <p>﻿## PART1：前言</p>
-<p>int n指令的格式为：int n，n为中断类型码<br>cpu执行int中断，实际上就相当于引发一个n号中断的中断过程，他的大致执行过程如下：</p>
+            <h3 id="PART1：前言"><a href="#PART1：前言" class="headerlink" title="PART1：前言"></a>PART1：前言</h3><p>int n指令的格式为：int n，n为中断类型码<br>cpu执行int中断，实际上就相当于引发一个n号中断的中断过程，他的大致执行过程如下：</p>
 <ol>
 <li>取中断类型n</li>
 <li>标志寄存器入栈，置IF=0,TF=0 <code>(为什么要这一步，后面有解释)</code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 这一步可以模拟为</span><br><span class="line">pushf 	//标志寄存器入栈</span><br><span class="line">;下面的步骤完成置IF和TF</span><br><span class="line">pushf</span><br><span class="line">pop ax</span><br><span class="line">and ax,11111100B</span><br><span class="line">push ax</span><br><span class="line">popf	//置IF=0,TF=0</span><br></pre></td></tr></table></figure></li>
@@ -493,7 +492,7 @@
 </ul>
 <p><strong>IF=1：CPU在执行完一条指令后会检测有无外中断产生，并且响应这个外中断，如键盘鼠标等的输入</strong><br><strong>IF=0：CPU在执行完一条指令不会响应可屏蔽中断</strong></p>
 <h5 id="相关指令"><a href="#相关指令" class="headerlink" title="相关指令"></a>相关指令</h5><p><code>sti    设置IF=1</code><br><code>cli     设置IF=0 (close interupt)</code></p>
-<h2 id="PART2：编写并安装0号中断处理程序（除法溢出中断程序）"><a href="#PART2：编写并安装0号中断处理程序（除法溢出中断程序）" class="headerlink" title="PART2：编写并安装0号中断处理程序（除法溢出中断程序）"></a>PART2：编写并安装0号中断处理程序（除法溢出中断程序）</h2><p>本来是想写9号中断处理程序的，有一些错误没处理好</p>
+<h3 id="PART2：编写并安装0号中断处理程序（除法溢出中断程序）"><a href="#PART2：编写并安装0号中断处理程序（除法溢出中断程序）" class="headerlink" title="PART2：编写并安装0号中断处理程序（除法溢出中断程序）"></a>PART2：编写并安装0号中断处理程序（除法溢出中断程序）</h3><p>本来是想写9号中断处理程序的，有一些错误没处理好</p>
 <h4 id="1-安装"><a href="#1-安装" class="headerlink" title="1.安装"></a>1.安装</h4><p><img src="https://img-blog.csdnimg.cn/20200815000529441.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FkdmVudHVyYWw=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>安装过程就是，先保存原来的中断处理程序的CS和IP，然后通过movsb指令将我们写的程序传送到0000:0200处，然后更改0号中断向量表的地址指向我们安装的程序地址。<img src="https://img-blog.csdnimg.cn/20200815000907968.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FkdmVudHVyYWw=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"><br>s段就是我们自己写的中断处理程序，当发生溢出时会在屏幕上打印一个绿色的a，最后三行是通过<code>retf</code>指令调用了原来的0号中断处理程序</p>
 <h4 id="2-执行"><a href="#2-执行" class="headerlink" title="2.执行"></a>2.执行</h4><p><img src="https://img-blog.csdnimg.cn/20200815001202270.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FkdmVudHVyYWw=,size_16,color_FFFFFF,t_70#pic_center" alt="在这里插入图片描述"></p>
 
@@ -896,7 +895,7 @@
 
 
 
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
 
 
 
