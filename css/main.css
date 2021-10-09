@@ -1281,7 +1281,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #ff6fff;
+  background: #4467d0;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
@@ -2255,7 +2255,7 @@ ul.breadcrumb li + li:last-child {
   color: var(--link-hover-color) !important;
 }
 body {
-  background: url("/images/background2.jpg");
+  background: url("https://source.unsplash.com/random/4092x2095");
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-position: 50% 50%;
