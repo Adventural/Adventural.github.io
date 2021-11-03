@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="点开看看吧~">
+<meta property="og:type" content="article">
+<meta property="og:title" content="https与https代理">
+<meta property="og:url" content="http://example.com/2021/11/02/https%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="记录日常">
+<meta property="og:description" content="点开看看吧~">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="g:/blog/source_posts/https详解/959982414-5e11d6393cab7.png">
+<meta property="og:image" content="g:/blog/source_posts/https详解/209007-20190319141821083-811147624.png">
+<meta property="og:image" content="g:/blog/source_posts/https详解/2641864607-5e11d65c74244.png">
+<meta property="og:image" content="g:/blog/source_posts/https详解/image-20211103104230953.png">
+<meta property="og:image" content="g:/blog/source_posts/https详解/image-20211102212732279.png">
+<meta property="article:published_time" content="2021-11-02T07:28:10.000Z">
+<meta property="article:modified_time" content="2021-11-03T08:56:50.062Z">
+<meta property="article:author" content="adventural">
+<meta property="article:tag" content="default">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="g:/blog/source_posts/https详解/959982414-5e11d6393cab7.png">
+
+<link rel="canonical" href="http://example.com/2021/11/02/https%E8%AF%A6%E8%A7%A3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>https与https代理 | 记录日常</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">记录日常</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/adventural" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/02/https%E8%AF%A6%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="adventural">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录日常">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          https与https代理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-02 15:28:10" itemprop="dateCreated datePublished" datetime="2021-11-02T15:28:10+08:00">2021-11-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-11-03 16:56:50" itemprop="dateModified" datetime="2021-11-03T16:56:50+08:00">2021-11-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/default/" itemprop="url" rel="index"><span itemprop="name">default</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>14k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>13 分钟</span>
+            </span>
+            <div class="post-description">点开看看吧~</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>HTTP下数据传输是明文的，所有数据直接暴露在网络下，非常不安全。</p>
+<p>HTTPS在HTTP的基础上增加了一层加密，所有数据通过加密算法加密后再和服务器进行通信。</p>
+<h3 id="加密方法"><a href="#加密方法" class="headerlink" title="加密方法"></a>加密方法</h3><p>数据加密方式有两种，一种是对称加密如AES、DES、SM4，对称加密的加密密钥和解密密钥相同，使用对称加密的优缺点如下：</p>
+<ul>
+<li>优点：算法公开、计算量小、加密速度快适合于大量数据加密</li>
+<li>缺点：<ul>
+<li>加解密的双方需要持有相同的密钥，攻击者获取了密钥即可解密出所有会话。</li>
+<li>每次会话都需要协商密钥，会导致密钥数急剧增长，管理困难。</li>
+</ul>
+</li>
+</ul>
+<p>另一种加密方法是非对称加密，典型的有RSA。非对称加密的加密密钥和解密密钥不相同，非对称加密的加密方法是甲方先生成一对公私密钥，然后将公钥发送给乙方，私钥自己保存，后面的通信中甲方使用私钥对自己的消息进行签名，乙方收到消息后使用公钥对消息进行解密。使用RSA的优缺点为：</p>
+<ul>
+<li>优点：算法公开、加解密密钥分开，私钥不需要进行网络传输，保障了安全性。</li>
+<li>缺点：加解密计算量大，速度慢。</li>
+</ul>
+<h3 id="HTTPS使用的加密方法"><a href="#HTTPS使用的加密方法" class="headerlink" title="HTTPS使用的加密方法"></a>HTTPS使用的加密方法</h3><p>对称加密速度快但是不安全，非对称加密安全但是加解密速度慢。综合两种加密方式的优缺点，https使用的加密方式为：<strong>在数据传输的过程中仍然使用对称加密，对称加密的密钥协商过程中使用非对称加密加密对称密钥</strong></p>
+<p><img src="G:\blog\source_posts\https详解\959982414-5e11d6393cab7.png" alt="959982414-5e11d6393cab7"></p>
+<ol>
+<li>服务器生成一对公私钥，接到客户端的请求后将公钥返给客户端</li>
+<li>客户端接收到公钥后，生成一个对称加密密钥key，使用公钥对key进行加密发送给服务器</li>
+<li>服务器使用私钥解密客户端消息，得到对称密钥key</li>
+<li>后续通信使用对称密钥key进行加解密</li>
+</ol>
+<p>这种方式即便在攻击者截获到了服务器下发的公钥也无法完成攻击，因为对称密钥key是由客户端生成的，攻击者只能拿到公钥，在不知道私钥的情况下是无法解密消息获取加密密钥key的。</p>
+<h4 id="中间人攻击"><a href="#中间人攻击" class="headerlink" title="中间人攻击"></a>中间人攻击</h4><p>上面的方法是HTTPS使用到的加密方法雏形，这种加密方式虽然可以抵御一定程度的攻击，但是其完全无法抵御中间人攻击。在本地请求被劫持（如DNS劫持）的情况下，攻击者可以窃取通信的全部内容。</p>
+<p>在DNS劫持的情况下，所有请求被导向到攻击者服务器，攻击者服务器存在于真实的客户端和服务器之间，客户端无法分辨与自己通信的是攻击者还是真实的服务器。其攻击过程如下：</p>
+<ol>
+<li>本地请求被劫持（如 DNS 劫持等），所有请求均发送到中间人的服务器</li>
+<li>中间人服务器返回自己的密钥</li>
+<li>客户端创建对称密钥key，通过中间人证书的公钥对key加密后传送给中间人，密钥key作为通信密钥</li>
+<li>中间人因为拥有客户端的key，可以通过对称加密算法进行内容解密</li>
+<li>中间人以客户端的请求内容再向服务器发起请求</li>
+<li>因为中间人与服务器的通信过程是合法的，服务器通过建立的安全通道返回加密后的数据</li>
+<li>中间人凭借与服务器协商的对称加密密钥对内容进行解密</li>
+<li>中间人通过与客户端建立的对称加密密钥key对正规内容返回的数据进行加密传输</li>
+<li>客户端通过与中间人建立的对称加密算法对返回结果数据进行解密</li>
+</ol>
+<p><img src="G:\blog\source_posts\https详解\209007-20190319141821083-811147624.png" alt="209007-20190319141821083-811147624"></p>
+<h3 id="HTTPS认证原理"><a href="#HTTPS认证原理" class="headerlink" title="HTTPS认证原理"></a>HTTPS认证原理</h3><p>HTTPS (Hypertext Transfer Protocol Secure) 是基于 HTTP 的扩展，用于计算机网络的安全通信，已经在互联网得到广泛应用。在 HTTPS 中，原有的 HTTP 协议会得到 TLS (安全传输层协议) 或其前身 SSL (安全套接层) 的加密。因此 HTTPS 也常指 HTTP over TLS 或 HTTP over SSL。</p>
+<p><img src="G:\blog\source_posts\https详解\2641864607-5e11d65c74244.png" alt="2641864607-5e11d65c74244"></p>
+<p>中间人攻击的本质是因为客户端无法确认和自己通信的是真实的服务端还是劫持通信的中间人，如果能有一种方法认证和自己通信的服务器身份，那么这次通信就可以认为是安全的。</p>
+<h4 id="数字证书"><a href="#数字证书" class="headerlink" title="数字证书"></a>数字证书</h4><p>数字证书的格式以及如何查看其内容参见附录。</p>
+<p>HTTPS使用<strong>数字证书</strong>来验证服务器的身份，数字证书中包含了：</p>
+<ul>
+<li>服务器<strong>公钥</strong>；</li>
+<li>持有者信息；</li>
+<li>证书认证机构（CA）的信息；</li>
+<li>CA 对这份文件的<strong>数字签名</strong>；</li>
+<li>CA数字签名使用的算法；</li>
+<li>证书有效期；</li>
+<li>其他额外信息；</li>
+</ul>
+<p>数字证书相当于服务器的<strong>身份证</strong>，包含了服务器的一些指纹信息。HTTPS下服务端在收到客户端的请求后会先将自己的数字证书发给客户端，客户端完成数字证书的校验，确定对方的身份后再进行之后的数据传输。如果无法验证身份则弹出下面这样的HTTPS警告。</p>
+<p><img src="G:\blog\source_posts\https详解\image-20211103104230953.png" alt="image-20211103104230953"></p>
+<p>Question1：服务器的数字证书是公开的，攻击者使用服务器的数字证书不就可以伪造身份了？</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">使用数字证书，即便在攻击者截获了数字证书的情况下仍然是可以保证安全的。因为数字证书包含了服务器的公钥，攻击者在没有私钥的情况下即便劫持了客户端的通信也无法解密出客户端的内容。无法获取到任何消息。</span><br></pre></td></tr></table></figure>
+
+<p>Question2：攻击者使用服务器的数字证书，然后将其中的公钥替换成自己的公钥不就可以解密了？</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">数字证书是不可以篡改的。</span><br><span class="line">数字证书的内容了包含了明文编码的服务器指纹信息（域名、持有者信息、公钥等），还包含了CA对这些信息的数字签名字段——CA首先对明文字段计算一个Hash1值，然后使用CA自己的私钥对这个Hash1值加密生成一个Certificate Signature，和服务器明文信息一起编码形成一个数字证书。</span><br><span class="line">客户端收到数字证书后先解码得到服务器明文信息和Certificate Signature，客户端操作系统或者浏览器中内置了CA的根证书，根证书中包含了CA的公钥，客户端使用此公钥对Certificate Signature解密得到Hash1，然后再使用同样的算法计算出服务器明文信息的Hash2，如果Hash1 = Hash2则证明这一部分明文信息是未经篡改的。</span><br><span class="line">这一过程基于信任链机制，只要客户信任CA根证书，就应当信任由CA签发的数字证书。</span><br></pre></td></tr></table></figure>
+
+<h5 id="数字证书如何生成"><a href="#数字证书如何生成" class="headerlink" title="数字证书如何生成"></a>数字证书如何生成</h5><p>获取数字证书之前需要先生成CSR（Certificate Signing Request）文件，即证书签名请求。CSR 文件包含了申请者公钥和申请者信息的数据文件，申请者生成CSR 文件，发送给 CA，CA 会根据 CSR 文件中的内容签发数字证书。</p>
+<p>CSR文件生成：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成CSR文件需要先生成一个私钥</span></span><br><span class="line">openssl genrsa -out private.key 2048</span><br><span class="line"><span class="comment"># 使用私钥 private.key 生成 CSR 文件 server.csr</span></span><br><span class="line">openssl req -new -key private.key -out server.csr</span><br><span class="line"><span class="comment"># 填上相关信息</span></span><br></pre></td></tr></table></figure>
+
+<p> CSR 文件提交给 CA 申请证书，经过 CA 身份对申请者身份进行审核后，CA使用自己的私钥来给CSR签名，生成数字证书。</p>
+<p>CA使用自己的私钥ca.key给CSR签名</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl x509 -req -<span class="keyword">in</span> server.csr -out server.crt -signke ca.key -days 3650</span><br></pre></td></tr></table></figure>
+
+<p>也可以用自签名的方法生成数字证书</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">penssl req -new -x509 -days 3650 -key server.key -out server.crt -subj <span class="string">&quot;/C=CN/ST=mykey/L=mykey/O=mykey/OU=mykey/CN=domain1/CN=domain2/CN=domain3&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h5 id="中间证书"><a href="#中间证书" class="headerlink" title="中间证书"></a>中间证书</h5><p>为什么要设计中间证书这个环节？直接使用根证书进行签发不好吗？</p>
+<p>这是因为根证书的私钥安全性至关重要，一旦被泄露，将引起巨大的安全问题。</p>
+<p>所以，根证书的私钥都是被保存在离线的计算机中，有严格的操作规章，每次需要使用时，会有专人将数据通过 USB 拷贝过去，操作完了以后，再将数据带出来。</p>
+<p>在这套流程下，直接将根证书用于签发普通证书是不现实的。想想这个世界上有多少网站，每天对证书的需求量都是巨大的，根证书的操作效率无法满足要求，因为不能批量和自动化。</p>
+<p>同时，对根证书私钥的操作越多，泄露的风险也就越大，因此，人们就发明了中间证书。</p>
+<p>使用根证书签发一些中间证书，这些中间证书就可以用来签发大量的叶证书，这个过程完全可以是自动化的。</p>
+<p>同时，即便中间证书的私钥泄露了也不要紧，可以使用根证书把它们撤销掉。</p>
+<p>通过使用中间证书，我们就可以做到既方便快捷，又安全。</p>
+<h5 id="浏览器获取中间证书"><a href="#浏览器获取中间证书" class="headerlink" title="浏览器获取中间证书"></a>浏览器获取中间证书</h5><p>一般来说，服务器会将中间证书一并发送过来。也就是说，当我们访问某个网站时，收到的不是一个证书，而是一系列证书。当然，这不是强制要求，在服务器不发送的情况下，浏览器也会使用一些方法去定位中间证书，比如使用缓存的证书或者数字证书当中描述的上级证书信息去下载上级证书</p>
+<h4 id="CA（Certificate-Authority）"><a href="#CA（Certificate-Authority）" class="headerlink" title="CA（Certificate Authority）"></a>CA（Certificate Authority）</h4><h3 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h3><h4 id="查看数字证书的内容"><a href="#查看数字证书的内容" class="headerlink" title="查看数字证书的内容"></a>查看数字证书的内容</h4><p>数字证书是类似这样的一串代码，其信息是经过编码的，一般通过ASN.1解码后会出现XML格式的数据</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">-----BEGIN CERTIFICATE-----</span><br><span class="line">MIIDCTCCAfGgAwIBAgIUELE5wFsZ/wFU+<span class="number">72</span>t0PuHfYBp9+<span class="number">0</span>wDQYJKoZIhvcNAQEL</span><br><span class="line">BQAwFDESMBAGA1UEAwwJcHJveHkyIENBMB4XDTIxMTEwMTEyMDY1M1oXDTMxMTAz</span><br><span class="line">MDEyMDY1M1owFDESMBAGA1UEAwwJcHJveHkyIENBMIIBIjANBgkqhkiG9w0BAQEF</span><br><span class="line">AAOCAQ8AMIIBCgKCAQEAp0lX3201eBtCrM+rCqrfYDE8bI+uWaZNW3vtUW+/HWE2</span><br><span class="line">+<span class="number">2f</span>wwwCgyiE01POQYffDU3HS8hsrO8hONzieKs0NwwGqUcr9WVCxFdUTRTiRIAm6</span><br><span class="line">sUttDXddA4HUEZ/EZajWAMdjDp5xg2Z9ZFRc2hwtGqDZeFlMH8RkQtzMOqSsZFbR</span><br><span class="line">pMwnxIHZV+Itsu7rbnbrR6RhR51dogA+XD4wP5Rj62<span class="comment">//GEzzH9gYE7hGkOy4DOrI</span></span><br><span class="line">TPtQ1BvRSeqfK87lW7n1AI8TSkJThWiLzQpTm8rsOREp0s94mGhgSnMbsUonWJ9R</span><br><span class="line"><span class="number">0</span>msYW9hMzKHcl+<span class="number">8B</span>+ath204zbcVDd8XABFTmjCSRJwIDAQABo1MwUTAdBgNVHQ4E</span><br><span class="line">FgQUiLXFyzgdK/slgkF1LdWfCU6oCu8wHwYDVR0jBBgwFoAUiLXFyzgdK/slgkF1</span><br><span class="line">LdWfCU6oCu8wDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEAGRZR</span><br><span class="line">LyEFT8NOSCHGEu4UfPOUEuO3EUoDry23NMI4kwjcMk8KAtDGXQP/+h+<span class="number">7</span>oC4mdpC3</span><br><span class="line">fIgCAJCnAJ10IbxQEtzupkTIQWtg9n3l11fpNwnvQi8hlJXjTjfVzB82aZXdLIx5</span><br><span class="line">nEH56gKSYZF6ZeIiXXaU/BhUZaW5aLfMrcpkLK2zXyGPfa57BLAFC20U5Oevmk7n</span><br><span class="line">fyX3bzBj84hSvcWcGF9qTqlSljYmGRG9new5iIVhi4USbVq4e3qDlNmmnAMWLRbr</span><br><span class="line">UWBET0yOVOV4VAaNzCGPWdbQDWnjlildgUP8GPqzbtybYPEUNvEPQ0/Dd3uyH2HO</span><br><span class="line">DFlNNXJ0OqzTfuCCgQ==</span><br><span class="line">-----END CERTIFICATE-----</span><br></pre></td></tr></table></figure>
+
+<p><strong>ASN.1解码信息</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">NODE</span> <span class="attr">Sign</span>=<span class="string">&quot;a0&quot;</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">INTEGER</span>&gt;</span>2<span class="tag">&lt;/<span class="name">INTEGER</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">NODE</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">INTEGER</span>&gt;</span>0x10B139C05B19FF0154FBBDADD0FB877D8069F7ED<span class="tag">&lt;/<span class="name">INTEGER</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">OBJECT_IDENTIFIER</span> <span class="attr">Comment</span>=<span class="string">&quot;PKCS #1&quot;</span> <span class="attr">Description</span>=<span class="string">&quot;sha256WithRSAEncryption&quot;</span>&gt;</span>1.2.840.113549.1.1.11<span class="tag">&lt;/<span class="name">OBJECT_IDENTIFIER</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">NULL</span>/&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">SET</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">OBJECT_IDENTIFIER</span> <span class="attr">Comment</span>=<span class="string">&quot;X.520 DN component&quot;</span> <span class="attr">Description</span>=<span class="string">&quot;commonName&quot;</span>&gt;</span>2.5.4.3<span class="tag">&lt;/<span class="name">OBJECT_IDENTIFIER</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">UTF8_STRING</span>&gt;</span>proxy2 CA<span class="tag">&lt;/<span class="name">UTF8_STRING</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">SET</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">UTC_TIME</span>&gt;</span>2021/11/1 下午8:06:53<span class="tag">&lt;/<span class="name">UTC_TIME</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">UTC_TIME</span>&gt;</span>2031/10/30 下午8:06:53<span class="tag">&lt;/<span class="name">UTC_TIME</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">SET</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">OBJECT_IDENTIFIER</span> <span class="attr">Comment</span>=<span class="string">&quot;X.520 DN component&quot;</span> <span class="attr">Description</span>=<span class="string">&quot;commonName&quot;</span>&gt;</span>2.5.4.3<span class="tag">&lt;/<span class="name">OBJECT_IDENTIFIER</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">UTF8_STRING</span>&gt;</span>proxy2 CA<span class="tag">&lt;/<span class="name">UTF8_STRING</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">SET</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">OBJECT_IDENTIFIER</span> <span class="attr">Comment</span>=<span class="string">&quot;PKCS #1&quot;</span> <span class="attr">Description</span>=<span class="string">&quot;rsaEncryption&quot;</span>&gt;</span>1.2.840.113549.1.1.1<span class="tag">&lt;/<span class="name">OBJECT_IDENTIFIER</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">NULL</span>/&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">BIT_STRING</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">INTEGER</span>&gt;</span>0x00A74957DF6D35781B42ACCFAB0AAADF60313C6C8FAE59A64D5B7BED516FBF1D6136FB67F0C300A0CA2134D4F39061F7C35371D2F21B2B3BC84E37389E2ACD0DC301AA51CAFD5950B115D5134538912009BAB14B6D0D775D0381D4119FC465A8D600C7630E9E7183667D64545CDA1C2D1AA0D978594C1FC46442DCCC3AA4AC6456D1A4CC27C481D957E22DB2EEEB6E76EB47A461479D5DA2003E5C3E303F9463EB6FFF184CF31FD81813B84690ECB80CEAC84CFB50D41BD149EA9F2BCEE55BB9F5008F134A425385688BCD0A539BCAEC391129D2CF789868604A731BB14A27589F51D26B185BD84CCCA1DC97EF01F9AB61DB4E336DC54377C5C00454E68C249127<span class="tag">&lt;/<span class="name">INTEGER</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">INTEGER</span>&gt;</span>65537<span class="tag">&lt;/<span class="name">INTEGER</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">BIT_STRING</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">NODE</span> <span class="attr">Sign</span>=<span class="string">&quot;a3&quot;</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">OBJECT_IDENTIFIER</span> <span class="attr">Comment</span>=<span class="string">&quot;X.509 extension&quot;</span> <span class="attr">Description</span>=<span class="string">&quot;subjectKeyIdentifier&quot;</span>&gt;</span>2.5.29.14<span class="tag">&lt;/<span class="name">OBJECT_IDENTIFIER</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">OCTET_STRING</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">OCTET_STRING</span>&gt;</span>0x88B5C5CB381D2BFB258241752DD59F094EA80AEF<span class="tag">&lt;/<span class="name">OCTET_STRING</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;/<span class="name">OCTET_STRING</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">OBJECT_IDENTIFIER</span> <span class="attr">Comment</span>=<span class="string">&quot;X.509 extension&quot;</span> <span class="attr">Description</span>=<span class="string">&quot;authorityKeyIdentifier&quot;</span>&gt;</span>2.5.29.35<span class="tag">&lt;/<span class="name">OBJECT_IDENTIFIER</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">OCTET_STRING</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">NODE</span> <span class="attr">Sign</span>=<span class="string">&quot;80&quot;</span>&gt;</span>0x88B5C5CB381D2BFB258241752DD59F094EA80AEF<span class="tag">&lt;/<span class="name">NODE</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;/<span class="name">OCTET_STRING</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">OBJECT_IDENTIFIER</span> <span class="attr">Comment</span>=<span class="string">&quot;X.509 extension&quot;</span> <span class="attr">Description</span>=<span class="string">&quot;basicConstraints&quot;</span>&gt;</span>2.5.29.19<span class="tag">&lt;/<span class="name">OBJECT_IDENTIFIER</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">BOOLEAN</span>&gt;</span>true<span class="tag">&lt;/<span class="name">BOOLEAN</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">OCTET_STRING</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">BOOLEAN</span>&gt;</span>true<span class="tag">&lt;/<span class="name">BOOLEAN</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;/<span class="name">OCTET_STRING</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">NODE</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">OBJECT_IDENTIFIER</span> <span class="attr">Comment</span>=<span class="string">&quot;PKCS #1&quot;</span> <span class="attr">Description</span>=<span class="string">&quot;sha256WithRSAEncryption&quot;</span>&gt;</span>1.2.840.113549.1.1.11<span class="tag">&lt;/<span class="name">OBJECT_IDENTIFIER</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">NULL</span>/&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">BIT_STRING</span>&gt;</span>0x001916512F21054FC34E4821C612EE147CF39412E3B7114A03AF2DB734C2389308DC324F0A02D0C65D03FFFA1FBBA02E267690B77C88020090A7009D7421BC5012DCEEA644C8416B60F67DE5D757E93709EF422F219495E34E37D5CC1F366995DD2C8C799C41F9EA029261917A65E2225D7694FC185465A5B968B7CCADCA642CADB35F218F7DAE7B04B0050B6D14E4E7AF9A4EE77F25F76F3063F38852BDC59C185F6A4EA9529636261911BD9DEC398885618B85126D5AB87B7A8394D9A69C03162D16EB5160444F4C8E54E57854068DCC218F59D6D00D69E396295D8143FC18FAB36EDC9B60F11436F10F434FC3777BB21F61CE0C594D3572743AACD37EE08281<span class="tag">&lt;/<span class="name">BIT_STRING</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">SEQUENCE</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>使用openssl解码（www_baidu_com.crt是自签名的证书）</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl x509 -noout -text -<span class="keyword">in</span> www_baidu_com.crt</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">Certificate:</span><br><span class="line">    Data:</span><br><span class="line">        Version: 3 (0x2)</span><br><span class="line">        Serial Number:</span><br><span class="line">            0f:fe:b2:f6:d7:<span class="built_in">cd</span>:c0:05:47:4a:70:17:42:1d:6b:dc:0a:f2:71:19:72</span><br><span class="line">        Signature Algorithm: sha256WithRSAEncryption</span><br><span class="line">        Issuer: CN = proxy2 CA</span><br><span class="line">        Validity</span><br><span class="line">            Not Before: Oct 30 03:20:46 2021 GMT</span><br><span class="line">            Not After : Nov  2 03:20:46 2022 GMT</span><br><span class="line">        Subject: C = IN, ST = AP, L = 127.0.0.1, O = TProxy, OU = www.baidu.com</span><br><span class="line">        Subject Public Key Info:</span><br><span class="line">            Public Key Algorithm: rsaEncryption</span><br><span class="line">                RSA Public-Key: (2048 bit)</span><br><span class="line">                Modulus:</span><br><span class="line">                    00:b5:d4:c0:0d:50:7a:6a:cf:b7:16:71:63:6c:bb:</span><br><span class="line">                    67:f9:47:87:e8:80:cc:f8:17:fa:92:0b:15:48:12:</span><br><span class="line">                    03:46:b4:dd:40:68:70:ba:e2:2b:7f:5c:aa:9d:7f:</span><br><span class="line">                    dc:65:e4:60:0f:3c:7b:68:42:1a:63:dd:1b:f4:f0:</span><br><span class="line">                    34:a3:af:43:f9:3d:d0:7b:e9:e6:3e:69:48:72:5a:</span><br><span class="line">                    af:10:47:55:ee:8a:fb:e0:e9:3f:94:54:14:bf:ed:</span><br><span class="line">                    2e:6c:b2:bd:d9:73:48:b7:6a:eb:60:03:57:7e:51:</span><br><span class="line">                    7c:19:db:32:9f:8c:38:a4:4d:9b:ee:b8:b9:24:b5:</span><br><span class="line">                    93:bf:55:37:4d:bb:9f:c5:89:19:28:82:9e:a5:c0:</span><br><span class="line">                    0f:bb:9b:a5:19:12:8f:d2:d3:80:b8:5b:63:8a:bd:</span><br><span class="line">                    f5:7b:2e:8b:b0:49:a0:7f:4f:9a:44:60:ed:2e:63:</span><br><span class="line">                    e8:e4:01:e9:b0:<span class="built_in">fc</span>:6b:6f:48:f4:17:29:a4:b5:0e:</span><br><span class="line">                    2b:fe:bd:a6:91:4d:0a:3b:ca:4b:fd:c8:bf:bb:57:</span><br><span class="line">                    0b:45:7c:2c:61:49:59:72:a1:c4:56:8e:d4:2b:49:</span><br><span class="line">                    45:92:77:b7:0a:10:4d:49:ac:55:1a:6b:32:5f:f0:</span><br><span class="line">                    2d:b7:bf:4f:b4:e3:ab:de:a2:<span class="built_in">fc</span>:a5:24:c8:32:4a:</span><br><span class="line">                    26:ce:ea:06:ed:97:04:63:29:80:0e:69:49:f8:2d:</span><br><span class="line">                    62:ab</span><br><span class="line">                Exponent: 65537 (0x10001)</span><br><span class="line">        X509v3 extensions:</span><br><span class="line">            X509v3 Subject Alternative Name: critical</span><br><span class="line">                DNS:www.baidu.com</span><br><span class="line">    Signature Algorithm: sha256WithRSAEncryption</span><br><span class="line">         7e:a6:02:1d:fb:03:ea:1a:f7:5b:62:e5:d8:56:f8:56:91:bf:</span><br><span class="line">         b4:78:92:99:12:aa:40:6b:dc:55:29:6c:b2:1b:df:b2:87:6e:</span><br><span class="line">         16:df:b8:e2:dc:ee:f0:36:4a:b1:77:d3:fb:e3:e2:0a:45:6a:</span><br><span class="line">         9e:c3:aa:ae:24:cf:16:ae:d0:20:35:1a:3f:0d:5c:bb:4a:46:</span><br><span class="line">         ec:1a:d3:6e:a2:7e:bb:c2:29:02:19:82:e6:a0:4e:95:3b:d4:</span><br><span class="line">         b6:c3:8b:29:38:ef:bc:a4:37:c8:b2:98:84:ba:e2:47:ad:e8:</span><br><span class="line">         ea:3b:18:42:9d:a8:40:8d:3e:c6:7c:4b:d1:e3:56:50:45:fd:</span><br><span class="line">         66:a4:69:f5:4b:b2:d8:52:23:b5:af:00:cc:d9:6c:52:5d:f9:</span><br><span class="line">         6c:33:ea:8b:64:<span class="built_in">cd</span>:ba:91:11:62:25:7b:43:9d:a9:67:71:49:</span><br><span class="line">         9f:f3:a0:64:d0:dc:ee:66:53:9e:0b:0d:35:22:31:e3:9f:12:</span><br><span class="line">         0b:12:1a:e0:70:47:d7:23:89:20:d0:80:f9:8c:8d:fe:3d:58:</span><br><span class="line">         65:9e:30:23:ee:5f:6d:57:50:b0:5e:5e:0d:04:aa:0b:be:e3:</span><br><span class="line">         40:b2:25:e4:a6:c3:1a:6c:9c:f8:d0:5f:30:08:9c:bf:07:92:</span><br><span class="line">         12:5d:a8:0b:3a:45:8f:ad:54:c1:00:1a:d9:db:90:64:db:b0:</span><br><span class="line">         70:f2:62:f6</span><br></pre></td></tr></table></figure>
+
+<h4 id="客户端验证签名过程"><a href="#客户端验证签名过程" class="headerlink" title="客户端验证签名过程"></a>客户端验证签名过程</h4><p>www_baidu_com.crt上面的Signature Algorithm及之后的字段描述了自签名的算法和签名信息，hash算法为sha256，hash之后的数据通过CA的RSA私钥加密。对www_baidu_com.crt数字证书的手动验证过程如下：</p>
+<p><strong>Step1：提取数字签名字段的内容</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">openssl x509 -<span class="keyword">in</span> www_baidu_com.crt -text -noout -certopt ca_default -certopt no_validity -certopt no_serial -certopt no_subject -certopt no_extensions -certopt no_signame | grep -v <span class="string">&#x27;Signature Algorithm&#x27;</span> | tr -d <span class="string">&#x27;[:space:]:&#x27;</span> | xxd -r -p &gt; root-signature.bin</span><br><span class="line"></span><br><span class="line">hexdump root-signature.bin </span><br><span class="line">0000000 a67e 1d02 03fb 1aea 5bf7 e562 56d8 56f8</span><br><span class="line">0000010 bf91 78b4 9992 aa12 6b40 55dc 6c29 1bb2</span><br><span class="line">0000020 b2df 6e87 df16 e2b8 eedc 36f0 b14a d377</span><br><span class="line">0000030 e3fb 0ae2 6a45 c39e aeaa cf24 ae16 20d0</span><br><span class="line">0000040 1a35 0d3f bb5c 464a 1aec 6ed3 7ea2 c2bb</span><br><span class="line">0000050 0229 8219 a0e6 954e d43b c3b6 298b ef38</span><br><span class="line">0000060 a4bc c837 98b2 ba84 47e2 e8ad 3bea 4218</span><br><span class="line">0000070 a89d 8d40 c63e 4b7c e3d1 5056 fd45 a466</span><br><span class="line">0000080 f569 b24b 52d8 b523 00af d9cc 526c f95d</span><br><span class="line">0000090 336c 8bea cd64 91ba 6211 7b25 9d43 67a9</span><br><span class="line">00000a0 4971 f39f 64a0 dcd0 66ee 9e53 0d0b 2235</span><br><span class="line">00000b0 e331 129f 120b e01a 4770 23d7 2089 80d0</span><br><span class="line">00000c0 8cf9 fe8d 583d 9e65 2330 5fee 576d b050</span><br><span class="line">00000d0 5e5e 040d 0baa e3be b240 e425 c3a6 6c1a</span><br><span class="line">00000e0 f89c 5fd0 0830 bf9c 9207 5d12 0ba8 453a</span><br><span class="line">00000f0 ad8f c154 1a00 dbd9 6490 b0db f270 f662</span><br><span class="line">0000100</span><br></pre></td></tr></table></figure>
+
+<p><strong>Step2：提取CA根证书当中的公钥信息（CA根证书验证自己签发的数字证书www_baidu_com.crt）</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">openssl x509 -<span class="keyword">in</span> ca.crt -noout -pubkey &gt; root-pub.pem</span><br><span class="line"></span><br><span class="line"><span class="comment"># 公钥信息</span></span><br><span class="line">-----BEGIN PUBLIC KEY-----</span><br><span class="line">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp0lX3201eBtCrM+rCqrf</span><br><span class="line">YDE8bI+uWaZNW3vtUW+/HWE2+2fwwwCgyiE01POQYffDU3HS8hsrO8hONzieKs0N</span><br><span class="line">wwGqUcr9WVCxFdUTRTiRIAm6sUttDXddA4HUEZ/EZajWAMdjDp5xg2Z9ZFRc2hwt</span><br><span class="line">GqDZeFlMH8RkQtzMOqSsZFbRpMwnxIHZV+Itsu7rbnbrR6RhR51dogA+XD4wP5Rj</span><br><span class="line">62//GEzzH9gYE7hGkOy4DOrITPtQ1BvRSeqfK87lW7n1AI8TSkJThWiLzQpTm8rs</span><br><span class="line">OREp0s94mGhgSnMbsUonWJ9R0msYW9hMzKHcl+8B+ath204zbcVDd8XABFTmjCSR</span><br><span class="line">JwIDAQAB</span><br><span class="line">-----END PUBLIC KEY-----</span><br></pre></td></tr></table></figure>
+
+<p><strong>Step3：使用公钥解密数字证书的签名</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl rsautl -verify -inkey root-pub.pem -<span class="keyword">in</span> root-signature.bin -pubin &gt; root-signature-decrypted.bin</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">openssl asn1parse -inform DER -<span class="keyword">in</span> root-signature-decrypted.bin</span><br><span class="line"><span class="comment"># 结果</span></span><br><span class="line">    0:d=0  hl=2 l=  49 cons: SEQUENCE          </span><br><span class="line">    2:d=1  hl=2 l=  13 cons: SEQUENCE          </span><br><span class="line">    4:d=2  hl=2 l=   9 prim: OBJECT            :sha256</span><br><span class="line">   15:d=2  hl=2 l=   0 prim: NULL              </span><br><span class="line">   17:d=1  hl=2 l=  32 prim: OCTET STRING      [HEX DUMP]:38E325D620630136A6C8715470E6CFF565EA28BD49E68AD915CAFB0849546D1D</span><br></pre></td></tr></table></figure>
+
+<p>可以看到解密后的hash信息为38E325D620630136A6C8715470E6CFF565EA28BD49E68AD915CAFB0849546D1D</p>
+<p><strong>Step4：提取数字证书非签名字段的内容</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl asn1parse -<span class="keyword">in</span> www_baidu_com.crt -strparse 4 -out root-body.bin &amp;&gt; /dev/null</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">openssl dgst -sha256 root-body.bin</span><br><span class="line"><span class="comment"># 结果</span></span><br><span class="line">SHA256(root-body.bin)= 38e325d620630136a6c8715470e6cff565ea28bd49e68ad915cafb0849546d1d</span><br></pre></td></tr></table></figure>
+
+<p>验证的hash结果一致。</p>
+<h4 id="X-509-数字证书结构图"><a href="#X-509-数字证书结构图" class="headerlink" title="X.509 数字证书结构图"></a>X.509 数字证书结构图</h4><p><img src="G:\blog\source_posts\https详解\image-20211102212732279.png" alt="image-20211102212732279"></p>
+<p>版本 1 字段</p>
+<table>
+<thead>
+<tr>
+<th align="center">字段</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">版本</td>
+<td align="center">指定所编码证书的版本号。 当前，此字段的可能值为 0、1 或 2。</td>
+</tr>
+<tr>
+<td align="center">序列号</td>
+<td align="center">包含证书颁发机构 (CA) 分配给证书的一个唯一正整数。</td>
+</tr>
+<tr>
+<td align="center">签名算法</td>
+<td align="center">包含一个对象标识符 (OID)，指定 CA 用于对证书进行签名的算法。 例如，1.2.840.113549.1.1.5 指定 SHA-1 哈希算法与来自 RSA 实验室的 RSA 加密算法结合使用。</td>
+</tr>
+<tr>
+<td align="center">颁发者</td>
+<td align="center">包含创建和签名证书的 CA 的 X.500 可分辨名称 (DN)。</td>
+</tr>
+<tr>
+<td align="center">有效期</td>
+<td align="center">指定证书有效的时间间隔。 到 2049 年末之前的日期使用协调世界时（格林威治标准时间）格式 (yymmddhhmmssz)。 2050 年 1 月 1 日开始的日期使用普通时间格式 (yyyymmddhhmmssz)。</td>
+</tr>
+<tr>
+<td align="center">使用者</td>
+<td align="center">包含实体的 X.500 可分辨名称，该实体与证书中包含的公钥相关联。</td>
+</tr>
+<tr>
+<td align="center">公钥</td>
+<td align="center">包含公钥和关联的算法信息。</td>
+</tr>
+</tbody></table>
+<p>版本 2 字段</p>
+<p>X.509 版本 2 证书包含版本 1 中定义的基本字段并添加了以下字段。</p>
+<table>
+<thead>
+<tr>
+<th align="center">字段</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">颁发者唯一标识符</td>
+<td align="center">包含一个唯一值，在一段时间内由不同的实体重用时可用于唯一标记证书颁发机构的 X.500 名称。</td>
+</tr>
+<tr>
+<td align="center">使用者唯一标识符</td>
+<td align="center">包含一个唯一值，在一段时间内由不同的实体重用时可用于唯一标记证书使用者的 X.500 名称。</td>
+</tr>
+</tbody></table>
+<p>版本 3 扩展</p>
+<p>X.509 版本 3 证书包含版本 1 和版本 2 中定义的字段并添加了证书扩展。</p>
+<table>
+<thead>
+<tr>
+<th align="center">字段</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">授权密钥标识符</td>
+<td align="center">标识证书颁发机构 (CA) 公钥，与用于签署证书的 CA 私钥对应。</td>
+</tr>
+<tr>
+<td align="center">基本约束</td>
+<td align="center">指定实体是否可用作 CA，如果可以，则指定在证书链中该 CA 下可以存在的从属 CA 的数量。</td>
+</tr>
+<tr>
+<td align="center">证书策略</td>
+<td align="center">指定颁发证书的策略和使用证书的目的。</td>
+</tr>
+<tr>
+<td align="center">CRL 分发点</td>
+<td align="center">包含基本证书吊销列表 (CRL) 的 URI。</td>
+</tr>
+<tr>
+<td align="center">增强型密钥用法</td>
+<td align="center">指定证书中包含的公钥的使用方式。</td>
+</tr>
+<tr>
+<td align="center">颁发者备用名称</td>
+<td align="center">为证书请求颁发者指定一个或多个备用名称形式。</td>
+</tr>
+<tr>
+<td align="center">密钥用法</td>
+<td align="center">指定证书中包含的公钥可以执行的操作的限制。</td>
+</tr>
+<tr>
+<td align="center">名称约束</td>
+<td align="center">指定证书层次结构中所有使用者名称必须位于的命名空间。 扩展仅在 CA 证书中使用。</td>
+</tr>
+<tr>
+<td align="center">策略约束</td>
+<td align="center">通过禁止策略映射或通过要求层次结构中的每个证书包含一个可接受的策略标识符来约束路径验证。 扩展仅在 CA 证书中使用。</td>
+</tr>
+<tr>
+<td align="center">策略映射</td>
+<td align="center">指定与发证 CA 中的策略对应的从属 CA 中的策略。</td>
+</tr>
+<tr>
+<td align="center">私钥使用周期</td>
+<td align="center">为私钥指定与私钥关联的证书不同的验证周期。</td>
+</tr>
+<tr>
+<td align="center">使用者可选名称</td>
+<td align="center">为证书请求使用者指定一个或多个备用名称形式。 示例备用形式包括电子邮件地址、DNS 名称、IP 地址和 URI。</td>
+</tr>
+<tr>
+<td align="center">使用目录属性</td>
+<td align="center">传达标识属性，如证书使用者的国籍。 扩展值是 OID 值对序列。</td>
+</tr>
+<tr>
+<td align="center">使用者密钥标识符</td>
+<td align="center">区分证书使用者持有的多个公钥。 扩展值一般是密钥的 SHA-1 哈希。</td>
+</tr>
+</tbody></table>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/default/" rel="tag"># default</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/10/27/bugku-Simple-SSTI-1/" rel="prev" title="bugku-Simple_SSTI_1">
+      <i class="fa fa-chevron-left"></i> bugku-Simple_SSTI_1
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86%E6%96%B9%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">加密方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTPS%E4%BD%BF%E7%94%A8%E7%9A%84%E5%8A%A0%E5%AF%86%E6%96%B9%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">HTTPS使用的加密方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%AD%E9%97%B4%E4%BA%BA%E6%94%BB%E5%87%BB"><span class="nav-number">3.1.</span> <span class="nav-text">中间人攻击</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTPS%E8%AE%A4%E8%AF%81%E5%8E%9F%E7%90%86"><span class="nav-number">4.</span> <span class="nav-text">HTTPS认证原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6"><span class="nav-number">4.1.</span> <span class="nav-text">数字证书</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6%E5%A6%82%E4%BD%95%E7%94%9F%E6%88%90"><span class="nav-number">4.1.1.</span> <span class="nav-text">数字证书如何生成</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%B8%AD%E9%97%B4%E8%AF%81%E4%B9%A6"><span class="nav-number">4.1.2.</span> <span class="nav-text">中间证书</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E8%8E%B7%E5%8F%96%E4%B8%AD%E9%97%B4%E8%AF%81%E4%B9%A6"><span class="nav-number">4.1.3.</span> <span class="nav-text">浏览器获取中间证书</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CA%EF%BC%88Certificate-Authority%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">CA（Certificate Authority）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%84%E5%BD%95"><span class="nav-number">5.</span> <span class="nav-text">附录</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6%E7%9A%84%E5%86%85%E5%AE%B9"><span class="nav-number">5.1.</span> <span class="nav-text">查看数字证书的内容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E9%AA%8C%E8%AF%81%E7%AD%BE%E5%90%8D%E8%BF%87%E7%A8%8B"><span class="nav-number">5.2.</span> <span class="nav-text">客户端验证签名过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#X-509-%E6%95%B0%E5%AD%97%E8%AF%81%E4%B9%A6%E7%BB%93%E6%9E%84%E5%9B%BE"><span class="nav-number">5.3.</span> <span class="nav-text">X.509 数字证书结构图</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">adventural</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/adventural" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;adventural" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jiaxgong@163.com" title="E-Mail → mailto:jiaxgong@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">adventural</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">24k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">22 分钟</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
