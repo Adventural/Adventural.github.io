@@ -27,18 +27,18 @@
 <meta property="og:site_name" content="记录日常">
 <meta property="og:description" content="点开看看吧~">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="g:/blog/source_posts/https详解/959982414-5e11d6393cab7.png">
-<meta property="og:image" content="g:/blog/source_posts/https详解/209007-20190319141821083-811147624.png">
-<meta property="og:image" content="g:/blog/source_posts/https详解/2641864607-5e11d65c74244.png">
-<meta property="og:image" content="g:/blog/source_posts/https详解/image-20211103104230953.png">
-<meta property="og:image" content="g:/blog/source_posts/https详解/image-20211103170526865.png">
-<meta property="og:image" content="g:/blog/source_posts/https详解/image-20211102212732279.png">
+<meta property="og:image" content="http://example.com/2021/11/02/https%E8%AF%A6%E8%A7%A3/.%5C959982414-5e11d6393cab7.png">
+<meta property="og:image" content="http://example.com/2021/11/02/https%E8%AF%A6%E8%A7%A3/.%5C209007-20190319141821083-811147624.png">
+<meta property="og:image" content="http://example.com/2021/11/02/https%E8%AF%A6%E8%A7%A3/.%5C2641864607-5e11d65c74244.png">
+<meta property="og:image" content="http://example.com/2021/11/02/https%E8%AF%A6%E8%A7%A3/.%5Cimage-20211103104230953.png">
+<meta property="og:image" content="http://example.com/2021/11/02/https%E8%AF%A6%E8%A7%A3/.%5Cimage-20211103170526865.png">
+<meta property="og:image" content="http://example.com/2021/11/02/https%E8%AF%A6%E8%A7%A3/.%5Cimage-20211102212732279.png">
 <meta property="article:published_time" content="2021-11-02T07:28:10.000Z">
-<meta property="article:modified_time" content="2021-11-03T12:37:39.215Z">
+<meta property="article:modified_time" content="2021-11-06T08:27:54.428Z">
 <meta property="article:author" content="adventural">
 <meta property="article:tag" content="default">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="g:/blog/source_posts/https详解/959982414-5e11d6393cab7.png">
+<meta name="twitter:image" content="http://example.com/2021/11/02/https%E8%AF%A6%E8%A7%A3/.%5C959982414-5e11d6393cab7.png">
 
 <link rel="canonical" href="http://example.com/2021/11/02/https%E8%AF%A6%E8%A7%A3/">
 
@@ -205,7 +205,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-11-03 20:37:39" itemprop="dateModified" datetime="2021-11-03T20:37:39+08:00">2021-11-03</time>
+                <time title="修改时间：2021-11-06 16:27:54" itemprop="dateModified" datetime="2021-11-06T16:27:54+08:00">2021-11-06</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -267,7 +267,7 @@
 <li>缺点：加解密计算量大，速度慢。</li>
 </ul>
 <h3 id="HTTPS使用的加密方法"><a href="#HTTPS使用的加密方法" class="headerlink" title="HTTPS使用的加密方法"></a>HTTPS使用的加密方法</h3><p>对称加密速度快但是不安全，非对称加密安全但是加解密速度慢。综合两种加密方式的优缺点，https使用的加密方式为：<strong>在数据传输的过程中仍然使用对称加密，对称加密的密钥协商过程中使用非对称加密加密对称密钥</strong></p>
-<p><img src="G:\blog\source_posts\https详解\959982414-5e11d6393cab7.png" alt="959982414-5e11d6393cab7"></p>
+<p><img src=".%5C959982414-5e11d6393cab7.png" alt="959982414-5e11d6393cab7"></p>
 <ol>
 <li>服务器生成一对公私钥，接到客户端的请求后将公钥返给客户端</li>
 <li>客户端接收到公钥后，生成一个对称加密密钥key，使用公钥对key进行加密发送给服务器</li>
@@ -288,9 +288,9 @@
 <li>中间人通过与客户端建立的对称加密密钥key对正规内容返回的数据进行加密传输</li>
 <li>客户端通过与中间人建立的对称加密算法对返回结果数据进行解密</li>
 </ol>
-<p><img src="G:\blog\source_posts\https详解\209007-20190319141821083-811147624.png" alt="209007-20190319141821083-811147624"></p>
+<p><img src=".%5C209007-20190319141821083-811147624.png" alt="209007-20190319141821083-811147624"></p>
 <h3 id="HTTPS认证原理"><a href="#HTTPS认证原理" class="headerlink" title="HTTPS认证原理"></a>HTTPS认证原理</h3><p>HTTPS (Hypertext Transfer Protocol Secure) 是基于 HTTP 的扩展，用于计算机网络的安全通信，已经在互联网得到广泛应用。在 HTTPS 中，原有的 HTTP 协议会得到 TLS (安全传输层协议) 或其前身 SSL (安全套接层) 的加密。因此 HTTPS 也常指 HTTP over TLS 或 HTTP over SSL。</p>
-<p><img src="G:\blog\source_posts\https详解\2641864607-5e11d65c74244.png" alt="2641864607-5e11d65c74244"></p>
+<p><img src=".%5C2641864607-5e11d65c74244.png" alt="2641864607-5e11d65c74244"></p>
 <p>中间人攻击的本质是因为客户端无法确认和自己通信的是真实的服务端还是劫持通信的中间人，如果能有一种方法认证和自己通信的服务器身份，那么这次通信就可以认为是安全的。</p>
 <h4 id="数字证书"><a href="#数字证书" class="headerlink" title="数字证书"></a>数字证书</h4><p>数字证书的格式以及如何查看其内容参见附录。</p>
 <p>HTTPS使用<strong>数字证书</strong>来验证服务器的身份，数字证书中包含了：</p>
@@ -304,7 +304,7 @@
 <li>其他额外信息；</li>
 </ul>
 <p>数字证书相当于服务器的<strong>身份证</strong>，包含了服务器的一些指纹信息。HTTPS下服务端在收到客户端的请求后会先将自己的数字证书发给客户端，客户端完成数字证书的校验，确定对方的身份后再进行之后的数据传输。如果无法验证身份则弹出下面这样的HTTPS警告。</p>
-<p><img src="G:\blog\source_posts\https详解\image-20211103104230953.png" alt="image-20211103104230953"></p>
+<p><img src=".%5Cimage-20211103104230953.png" alt="image-20211103104230953"></p>
 <p>Question1：服务器的数字证书是公开的，攻击者使用服务器的数字证书不就可以伪造身份了？</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">使用数字证书，即便在攻击者截获了数字证书的情况下仍然是可以保证安全的。因为数字证书包含了服务器的公钥，攻击者在没有私钥的情况下即便劫持了客户端的通信也无法解密出客户端的内容。无法获取到任何消息。</span><br></pre></td></tr></table></figure>
 
@@ -323,7 +323,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">penssl req -new -x509 -days 3650 -key server.key -out server.crt -subj <span class="string">&quot;/C=CN/ST=mykey/L=mykey/O=mykey/OU=mykey/CN=domain1/CN=domain2/CN=domain3&quot;</span></span><br></pre></td></tr></table></figure>
 
 <h5 id="中间证书"><a href="#中间证书" class="headerlink" title="中间证书"></a>中间证书</h5><p>证书的验证过程中还存在一个证书信任链的问题，因为我们向 CA 申请的证书一般不是根证书签发的，而是由中间证书签发的，如百度的证书，证书的层级有三级：</p>
-<p><img src="G:\blog\source_posts\https详解\image-20211103170526865.png" alt="image-20211103170526865"></p>
+<p><img src=".%5Cimage-20211103170526865.png" alt="image-20211103170526865"></p>
 <p>这种三级层级关系的证书的验证过程是逐级的：</p>
 <ol>
 <li>客户端收到百度的证书发现这个证书的签发者不是根证书。但是百度数字证书中描述了证书的签发者是 “GlobalSign Organization Validation CA - SHA256 - G2”，这个证书可能在访问百度的时候随百度的数字证书一起返回，也可能存在浏览器的缓存中，如果都没有，浏览器会根据签发者的描述向CA请求此证书。</li>
@@ -371,7 +371,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">openssl dgst -sha256 root-body.bin</span><br><span class="line"><span class="comment"># 结果</span></span><br><span class="line">SHA256(root-body.bin)= 38e325d620630136a6c8715470e6cff565ea28bd49e68ad915cafb0849546d1d</span><br></pre></td></tr></table></figure>
 
 <p>验证的hash结果一致。</p>
-<h4 id="X-509-数字证书结构图"><a href="#X-509-数字证书结构图" class="headerlink" title="X.509 数字证书结构图"></a>X.509 数字证书结构图</h4><p><img src="G:\blog\source_posts\https详解\image-20211102212732279.png" alt="image-20211102212732279"></p>
+<h4 id="X-509-数字证书结构图"><a href="#X-509-数字证书结构图" class="headerlink" title="X.509 数字证书结构图"></a>X.509 数字证书结构图</h4><p><img src=".%5Cimage-20211102212732279.png" alt="image-20211102212732279"></p>
 <p>版本 1 字段</p>
 <table>
 <thead>
