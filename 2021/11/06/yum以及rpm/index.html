@@ -28,7 +28,7 @@
 <meta property="og:description" content="点开看看吧~">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-11-06T09:15:52.000Z">
-<meta property="article:modified_time" content="2021-11-08T12:31:34.815Z">
+<meta property="article:modified_time" content="2021-11-08T13:41:51.897Z">
 <meta property="article:author" content="adventural">
 <meta property="article:tag" content="default">
 <meta name="twitter:card" content="summary">
@@ -198,7 +198,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-11-08 20:31:34" itemprop="dateModified" datetime="2021-11-08T20:31:34+08:00">2021-11-08</time>
+                <time title="修改时间：2021-11-08 21:41:51" itemprop="dateModified" datetime="2021-11-08T21:41:51+08:00">2021-11-08</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -223,14 +223,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.6k</span>
+              <span>2.6k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>2 分钟</span>
             </span>
             <div class="post-description">点开看看吧~</div>
 
@@ -279,8 +279,26 @@
 <p><strong>–replacefiles：强制替换发生冲突的文件</strong></p>
 <p>–replacepkgs选项允许将包安装在“自身之上”，但–replacefiles 用于允许包覆盖另一个不同包的文件。</p>
 <blockquote>
-<p>将 RPM 与许多其他包管理器区分开来的一件事是它跟踪它安装在数据库中的所有文件。每个文件的数据库条目都包含有关该文件的各种信息，包括总结文件内容的方法。 [<a target="_blank" rel="noopener" href="http://ftp.rpm.org/max-rpm/s1-rpm-install-additional-options.html#FTN.AEN970">1]</a> 通过使用这些称为<em>MD5 校验和的</em>摘要，RPM 可以确定特定文件是否将被具有相同名称但内容不同的文件替换。</p>
+<p> RPM 与许多其他包管理器区分别的地方是它会跟踪它安装在数据库中的所有文件。每个文件的数据库条目都包含有关该文件的各种信息，包括总结文件内容的方法。 通过使用MD5 校验和的摘要，RPM 可以确定特定文件是否将被具有相同名称但内容不同的文件替换。</p>
 </blockquote>
+<p>当软件包A安装了一个文件后（/bin/foo.bar）,RPM数据库就会记录/bin/foo.bar这个文件，包括MD5校验和。</p>
+<p>如果此时安装软件包B，B也想在/bin目录下安装foo.bar的文件，由于两个文件的MD5不一样，就会出现一个文件冲突。</p>
+<h6 id="注：RPM文件冲突检测严格基于文件名、文件所在目录和文件的-MD5-校验和，并不依赖于两个包，也就是RPM不会检测两个包是否具有关联性，如一个包是另一个包的升级版本等"><a href="#注：RPM文件冲突检测严格基于文件名、文件所在目录和文件的-MD5-校验和，并不依赖于两个包，也就是RPM不会检测两个包是否具有关联性，如一个包是另一个包的升级版本等" class="headerlink" title="注：RPM文件冲突检测严格基于文件名、文件所在目录和文件的 MD5 校验和，并不依赖于两个包，也就是RPM不会检测两个包是否具有关联性，如一个包是另一个包的升级版本等"></a>注：RPM文件冲突检测严格基于文件名、文件所在目录和文件的 MD5 校验和，并不依赖于两个包，也就是RPM不会检测两个包是否具有关联性，如一个包是另一个包的升级版本等</h6><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> rpm -iv cdp-0.33-2.i386.rpm</span></span><br><span class="line">安装 cdp-0.33-2.i386.rpm</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> rpm -iv cdp-0.33-3.i386.rpm</span></span><br><span class="line">安装 cdp-0.33-3.i386.rpm</span><br><span class="line">/usr/bin/cdp 与来自 cdp-0.33-2 的文件冲突</span><br><span class="line">错误：无法安装cdp-0.33-3.i386.rpm</span><br><span class="line"></span><br><span class="line">// 强制替换文件</span><br><span class="line"><span class="meta">#</span><span class="bash"> rpm -iv --replacefiles cdp-0.33-3.i386.rpm</span></span><br><span class="line">安装 cdp-0.33-3.i386.rpm</span><br><span class="line"><span class="meta">#</span></span><br></pre></td></tr></table></figure>
+
+<h6 id="注：强制替换文件后cdp-0-33-2-i386软件已经发生损坏，-usr-bin-cdp直到卸载前会一直归属于cdp-0-33-3-i386软件包，在cdp-0-33-3-i386卸载后，可以使用rpm-i-–replacepkgs修复cdp-0-33-2-i386软件"><a href="#注：强制替换文件后cdp-0-33-2-i386软件已经发生损坏，-usr-bin-cdp直到卸载前会一直归属于cdp-0-33-3-i386软件包，在cdp-0-33-3-i386卸载后，可以使用rpm-i-–replacepkgs修复cdp-0-33-2-i386软件" class="headerlink" title="注：强制替换文件后cdp-0.33-2.i386软件已经发生损坏，/usr/bin/cdp直到卸载前会一直归属于cdp-0.33-3.i386软件包，在cdp-0.33-3.i386卸载后，可以使用rpm -i –replacepkgs修复cdp-0.33-2.i386软件"></a>注：强制替换文件后cdp-0.33-2.i386软件已经发生损坏，/usr/bin/cdp直到卸载前会一直归属于cdp-0.33-3.i386软件包，在cdp-0.33-3.i386卸载后，可以使用rpm -i –replacepkgs修复cdp-0.33-2.i386软件</h6><p>文件冲突常出现在</p>
+<ul>
+<li>不删除旧版本的情况下安装更新版本的软件包，RPM 有一个特殊的选项 ( rpm -U )专门用于升级</li>
+<li>包的设计不佳</li>
+</ul>
+<h5 id="–nodeps：不执行依赖检查"><a href="#–nodeps：不执行依赖检查" class="headerlink" title="–nodeps：不执行依赖检查"></a>–nodeps：不执行依赖检查</h5><p>使用RPM安装包时，可能会出现以下的问题</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># rpm -i blather-7.9-1.i386.rpm</span></span><br><span class="line">failed dependencies:</span><br><span class="line">        bother &gt;= 3.1 is needed by blather-7.9-1</span><br><span class="line"><span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+<p>一个软件包的运行很可能会依赖其他软件，这些依赖关系在RPM文件包内都有详细的描述，在安装时RPM会自动检查当前环境下是否可以满足包中列出的依赖关系，使用yum或者apt等前端工具一般会自动下载不满足的依赖关系，但是RPM不会自动处理依赖，只会抛出一个安装错误。</p>
+<p>使用–nodeps可以忽略软件包的依赖问题，但是软件包安装后很可能无法工作</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># rpm -i --nodeps blather-7.9-1.i386.rpm</span></span><br><span class="line"><span class="comment"># </span></span><br></pre></td></tr></table></figure>
+
+<h5 id="–force"><a href="#–force" class="headerlink" title="–force"></a>–force</h5><p>等同于–replacepkgs和–replacefiles，相当于强制安装，除非出现了依赖冲突。</p>
+<p><strong>–noscripts：不执行安装前和安装后脚本</strong></p>
 <h3 id="RPM删除软件包"><a href="#RPM删除软件包" class="headerlink" title="RPM删除软件包"></a>RPM删除软件包</h3><h3 id="RPM安装包制作"><a href="#RPM安装包制作" class="headerlink" title="RPM安装包制作"></a>RPM安装包制作</h3><p>参考文献： <a target="_blank" rel="noopener" href="http://ftp.rpm.org/max-rpm">http://ftp.rpm.org/max-rpm</a></p>
 
     </div>
@@ -362,7 +380,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux%E7%AE%A1%E7%90%86%E8%BD%AF%E4%BB%B6%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">Linux管理软件的方式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%A0%BC%E5%BC%8F"><span class="nav-number">1.0.1.</span> <span class="nav-text">（1）二进制格式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPM%E8%AE%BE%E8%AE%A1%E7%9B%AE%E7%9A%84"><span class="nav-number">2.</span> <span class="nav-text">RPM设计目的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPM%E5%B8%B8%E8%A7%84%E9%80%89%E9%A1%B9"><span class="nav-number">3.</span> <span class="nav-text">RPM常规选项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPM%E5%AE%89%E8%A3%85%E8%BD%AF%E4%BB%B6%E5%8C%85"><span class="nav-number">4.</span> <span class="nav-text">RPM安装软件包</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#RPM-i-%E5%81%9A%E7%9A%84%E4%BA%8B%E6%83%85"><span class="nav-number">4.1.</span> <span class="nav-text">RPM -i 做的事情</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RPM-i-%E9%99%84%E5%8A%A0%E9%80%89%E9%A1%B9"><span class="nav-number">4.2.</span> <span class="nav-text">RPM -i 附加选项</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%80%93test%EF%BC%9A%E4%BB%85%E6%89%A7%E8%A1%8C%E5%AE%89%E8%A3%85%E6%B5%8B%E8%AF%95"><span class="nav-number">4.2.1.</span> <span class="nav-text">–test：仅执行安装测试</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPM%E5%88%A0%E9%99%A4%E8%BD%AF%E4%BB%B6%E5%8C%85"><span class="nav-number">5.</span> <span class="nav-text">RPM删除软件包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPM%E5%AE%89%E8%A3%85%E5%8C%85%E5%88%B6%E4%BD%9C"><span class="nav-number">6.</span> <span class="nav-text">RPM安装包制作</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux%E7%AE%A1%E7%90%86%E8%BD%AF%E4%BB%B6%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">Linux管理软件的方式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%A0%BC%E5%BC%8F"><span class="nav-number">1.0.1.</span> <span class="nav-text">（1）二进制格式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPM%E8%AE%BE%E8%AE%A1%E7%9B%AE%E7%9A%84"><span class="nav-number">2.</span> <span class="nav-text">RPM设计目的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPM%E5%B8%B8%E8%A7%84%E9%80%89%E9%A1%B9"><span class="nav-number">3.</span> <span class="nav-text">RPM常规选项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPM%E5%AE%89%E8%A3%85%E8%BD%AF%E4%BB%B6%E5%8C%85"><span class="nav-number">4.</span> <span class="nav-text">RPM安装软件包</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#RPM-i-%E5%81%9A%E7%9A%84%E4%BA%8B%E6%83%85"><span class="nav-number">4.1.</span> <span class="nav-text">RPM -i 做的事情</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RPM-i-%E9%99%84%E5%8A%A0%E9%80%89%E9%A1%B9"><span class="nav-number">4.2.</span> <span class="nav-text">RPM -i 附加选项</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%80%93test%EF%BC%9A%E4%BB%85%E6%89%A7%E8%A1%8C%E5%AE%89%E8%A3%85%E6%B5%8B%E8%AF%95"><span class="nav-number">4.2.1.</span> <span class="nav-text">–test：仅执行安装测试</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%B3%A8%EF%BC%9ARPM%E6%96%87%E4%BB%B6%E5%86%B2%E7%AA%81%E6%A3%80%E6%B5%8B%E4%B8%A5%E6%A0%BC%E5%9F%BA%E4%BA%8E%E6%96%87%E4%BB%B6%E5%90%8D%E3%80%81%E6%96%87%E4%BB%B6%E6%89%80%E5%9C%A8%E7%9B%AE%E5%BD%95%E5%92%8C%E6%96%87%E4%BB%B6%E7%9A%84-MD5-%E6%A0%A1%E9%AA%8C%E5%92%8C%EF%BC%8C%E5%B9%B6%E4%B8%8D%E4%BE%9D%E8%B5%96%E4%BA%8E%E4%B8%A4%E4%B8%AA%E5%8C%85%EF%BC%8C%E4%B9%9F%E5%B0%B1%E6%98%AFRPM%E4%B8%8D%E4%BC%9A%E6%A3%80%E6%B5%8B%E4%B8%A4%E4%B8%AA%E5%8C%85%E6%98%AF%E5%90%A6%E5%85%B7%E6%9C%89%E5%85%B3%E8%81%94%E6%80%A7%EF%BC%8C%E5%A6%82%E4%B8%80%E4%B8%AA%E5%8C%85%E6%98%AF%E5%8F%A6%E4%B8%80%E4%B8%AA%E5%8C%85%E7%9A%84%E5%8D%87%E7%BA%A7%E7%89%88%E6%9C%AC%E7%AD%89"><span class="nav-number">4.2.1.1.</span> <span class="nav-text">注：RPM文件冲突检测严格基于文件名、文件所在目录和文件的 MD5 校验和，并不依赖于两个包，也就是RPM不会检测两个包是否具有关联性，如一个包是另一个包的升级版本等</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#%E6%B3%A8%EF%BC%9A%E5%BC%BA%E5%88%B6%E6%9B%BF%E6%8D%A2%E6%96%87%E4%BB%B6%E5%90%8Ecdp-0-33-2-i386%E8%BD%AF%E4%BB%B6%E5%B7%B2%E7%BB%8F%E5%8F%91%E7%94%9F%E6%8D%9F%E5%9D%8F%EF%BC%8C-usr-bin-cdp%E7%9B%B4%E5%88%B0%E5%8D%B8%E8%BD%BD%E5%89%8D%E4%BC%9A%E4%B8%80%E7%9B%B4%E5%BD%92%E5%B1%9E%E4%BA%8Ecdp-0-33-3-i386%E8%BD%AF%E4%BB%B6%E5%8C%85%EF%BC%8C%E5%9C%A8cdp-0-33-3-i386%E5%8D%B8%E8%BD%BD%E5%90%8E%EF%BC%8C%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8rpm-i-%E2%80%93replacepkgs%E4%BF%AE%E5%A4%8Dcdp-0-33-2-i386%E8%BD%AF%E4%BB%B6"><span class="nav-number">4.2.1.2.</span> <span class="nav-text">注：强制替换文件后cdp-0.33-2.i386软件已经发生损坏，&#x2F;usr&#x2F;bin&#x2F;cdp直到卸载前会一直归属于cdp-0.33-3.i386软件包，在cdp-0.33-3.i386卸载后，可以使用rpm -i –replacepkgs修复cdp-0.33-2.i386软件</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%80%93nodeps%EF%BC%9A%E4%B8%8D%E6%89%A7%E8%A1%8C%E4%BE%9D%E8%B5%96%E6%A3%80%E6%9F%A5"><span class="nav-number">4.2.2.</span> <span class="nav-text">–nodeps：不执行依赖检查</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%80%93force"><span class="nav-number">4.2.3.</span> <span class="nav-text">–force</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPM%E5%88%A0%E9%99%A4%E8%BD%AF%E4%BB%B6%E5%8C%85"><span class="nav-number">5.</span> <span class="nav-text">RPM删除软件包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPM%E5%AE%89%E8%A3%85%E5%8C%85%E5%88%B6%E4%BD%9C"><span class="nav-number">6.</span> <span class="nav-text">RPM安装包制作</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -433,12 +451,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">30k</span>
+    <span title="站点总字数">31k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">27 分钟</span>
+    <span title="站点阅读时长">28 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
