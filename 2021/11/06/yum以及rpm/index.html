@@ -28,7 +28,7 @@
 <meta property="og:description" content="点开看看吧~">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-11-06T09:15:52.000Z">
-<meta property="article:modified_time" content="2021-11-08T11:34:58.466Z">
+<meta property="article:modified_time" content="2021-11-08T12:31:34.815Z">
 <meta property="article:author" content="adventural">
 <meta property="article:tag" content="default">
 <meta name="twitter:card" content="summary">
@@ -198,7 +198,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-11-08 19:34:58" itemprop="dateModified" datetime="2021-11-08T19:34:58+08:00">2021-11-08</time>
+                <time title="修改时间：2021-11-08 20:31:34" itemprop="dateModified" datetime="2021-11-08T20:31:34+08:00">2021-11-08</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -223,7 +223,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>184</span>
+              <span>1.6k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -247,11 +247,42 @@
 <p><strong>（2）软件包管理器</strong></p>
 <p>Debian的dpkg、RedHat的RPM，包管理器可以打包、安装二进制文件</p>
 <p><strong>（3）包管理器前端</strong></p>
-<p>apt、yum以及dnf等，针对的是dpkg、RPM等包管理器无法处理软件包的依赖关系等</p>
-<h3 id="RPM"><a href="#RPM" class="headerlink" title="RPM"></a>RPM</h3><p>RPM文档链接</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://ftp.rpm.org/max-rpm</span><br></pre></td></tr></table></figure>
+<p>apt、yum以及dnf等，针对的是dpkg、RPM等包管理器无法自动处理软件包的依赖关系等</p>
+<h3 id="RPM设计目的"><a href="#RPM设计目的" class="headerlink" title="RPM设计目的"></a>RPM设计目的</h3><p>Linux当中的程序包含有程序、数据、文档和配置信息等，而且程序也不是独自运行的，一个程序的运行可能会依赖其他多个特定版本的程序。因此安装软件是一个非常复杂的过程，不仅需要处理程序的编译、存放的位置、需要的配置文件，还要解决复杂的依赖关系。同理，删除软件也是如此，不仅需要删除程序本身还需要删除程序的文件、配置等。</p>
+<p>RPM 的目标是让任何人都可以轻松地安装或者删除软件包。</p>
+<h3 id="RPM常规选项"><a href="#RPM常规选项" class="headerlink" title="RPM常规选项"></a>RPM常规选项</h3><p>安装软件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -i</span><br></pre></td></tr></table></figure>
 
-<h3 id="RPM安装包制作"><a href="#RPM安装包制作" class="headerlink" title="RPM安装包制作"></a>RPM安装包制作</h3>
+<p>移除软件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -e</span><br></pre></td></tr></table></figure>
+
+<p>显示安装或者移除过程中的额外信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 简单的状态行表示正在安装哪个软件包</span></span><br><span class="line">rpm -v</span><br><span class="line"></span><br><span class="line"><span class="comment"># 包含内部工作原理的更多信息，常用于debug</span></span><br><span class="line">rpm -vv</span><br><span class="line"></span><br><span class="line"><span class="comment"># 打印进度条</span></span><br><span class="line">rpm -h</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># rpm -iv *.rpm</span></span><br><span class="line"><span class="comment"># 安装 eject-1.2-2.i386.rpm</span></span><br><span class="line"><span class="comment"># 安装 iBCS-1.2-3.i386.rpm</span></span><br><span class="line"><span class="comment"># 安装 logrotate-1.0-1.i386.rpm</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="RPM安装软件包"><a href="#RPM安装软件包" class="headerlink" title="RPM安装软件包"></a>RPM安装软件包</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 本地文件安装</span></span><br><span class="line">rpm -i（或--install） filename.rpm</span><br><span class="line"><span class="comment"># 网络安装</span></span><br><span class="line">rpm -i ftp://ftp.gnomovision.com/pub/rpms/foobar-1.0-1.i386.rpm</span><br></pre></td></tr></table></figure>
+
+<h4 id="RPM-i-做的事情"><a href="#RPM-i-做的事情" class="headerlink" title="RPM -i 做的事情"></a>RPM -i 做的事情</h4><ul>
+<li>执行依赖检查：确保RPM包中描述的依赖程序已经正确安装，同时确保该软件的安装不会导致其他依赖问题</li>
+<li>检查冲突：检查软件包在安装时是否会与现存的文件发生命名冲突等</li>
+<li>执行安装前脚本（RPM包内描述）</li>
+<li>处理配置文件</li>
+<li>从包中解压缩文件到适当的位置</li>
+<li>执行安装后脚本（RPM包内描述）</li>
+<li>在RPM的数据库中记录安装此软件包所创建的文件信息</li>
+</ul>
+<h4 id="RPM-i-附加选项"><a href="#RPM-i-附加选项" class="headerlink" title="RPM -i 附加选项"></a>RPM -i 附加选项</h4><h5 id="–test：仅执行安装测试"><a href="#–test：仅执行安装测试" class="headerlink" title="–test：仅执行安装测试"></a>–test：仅执行安装测试</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># rpm -i --test rpm-2.0.11-1.i386.rpm</span></span><br><span class="line">/bin/rpm conflicts with file from rpm-2.3-1</span><br><span class="line">/usr/bin/gendiff conflicts with file from rpm-2.3-1</span><br><span class="line">/usr/bin/rpm2cpio conflicts with file from rpm-2.3-1</span><br><span class="line">/usr/bin/rpmconvert conflicts with file from rpm-2.3-1</span><br><span class="line">/usr/man/man8/rpm.8 conflicts with file from rpm-2.3-1</span><br><span class="line">error: rpm-2.0.11-1.i386.rpm cannot be installed</span><br></pre></td></tr></table></figure>
+
+<p>执行安装测试，查看是否存在软件包依赖或者文件冲突等问题，并不会实际的安装软件包。</p>
+<p><strong>–replacepkgs：用于已安装的软件包修复</strong></p>
+<p>当RPM认为某个软件包已经安装后，再次安装相同的软件包会抛出无法安装错误。</p>
+<p>如果已安装的软件包以某种方式损坏并需要修复，则通常使用此选项，会强制要求RPM重新安装此软件包。</p>
+<p><strong>–replacefiles：强制替换发生冲突的文件</strong></p>
+<p>–replacepkgs选项允许将包安装在“自身之上”，但–replacefiles 用于允许包覆盖另一个不同包的文件。</p>
+<blockquote>
+<p>将 RPM 与许多其他包管理器区分开来的一件事是它跟踪它安装在数据库中的所有文件。每个文件的数据库条目都包含有关该文件的各种信息，包括总结文件内容的方法。 [<a target="_blank" rel="noopener" href="http://ftp.rpm.org/max-rpm/s1-rpm-install-additional-options.html#FTN.AEN970">1]</a> 通过使用这些称为<em>MD5 校验和的</em>摘要，RPM 可以确定特定文件是否将被具有相同名称但内容不同的文件替换。</p>
+</blockquote>
+<h3 id="RPM删除软件包"><a href="#RPM删除软件包" class="headerlink" title="RPM删除软件包"></a>RPM删除软件包</h3><h3 id="RPM安装包制作"><a href="#RPM安装包制作" class="headerlink" title="RPM安装包制作"></a>RPM安装包制作</h3><p>参考文献： <a target="_blank" rel="noopener" href="http://ftp.rpm.org/max-rpm">http://ftp.rpm.org/max-rpm</a></p>
+
     </div>
 
     
@@ -331,7 +362,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux%E7%AE%A1%E7%90%86%E8%BD%AF%E4%BB%B6%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">Linux管理软件的方式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%A0%BC%E5%BC%8F"><span class="nav-number">1.0.1.</span> <span class="nav-text">（1）二进制格式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPM"><span class="nav-number">2.</span> <span class="nav-text">RPM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPM%E5%AE%89%E8%A3%85%E5%8C%85%E5%88%B6%E4%BD%9C"><span class="nav-number">3.</span> <span class="nav-text">RPM安装包制作</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux%E7%AE%A1%E7%90%86%E8%BD%AF%E4%BB%B6%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">Linux管理软件的方式</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E4%BA%8C%E8%BF%9B%E5%88%B6%E6%A0%BC%E5%BC%8F"><span class="nav-number">1.0.1.</span> <span class="nav-text">（1）二进制格式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPM%E8%AE%BE%E8%AE%A1%E7%9B%AE%E7%9A%84"><span class="nav-number">2.</span> <span class="nav-text">RPM设计目的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPM%E5%B8%B8%E8%A7%84%E9%80%89%E9%A1%B9"><span class="nav-number">3.</span> <span class="nav-text">RPM常规选项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPM%E5%AE%89%E8%A3%85%E8%BD%AF%E4%BB%B6%E5%8C%85"><span class="nav-number">4.</span> <span class="nav-text">RPM安装软件包</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#RPM-i-%E5%81%9A%E7%9A%84%E4%BA%8B%E6%83%85"><span class="nav-number">4.1.</span> <span class="nav-text">RPM -i 做的事情</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RPM-i-%E9%99%84%E5%8A%A0%E9%80%89%E9%A1%B9"><span class="nav-number">4.2.</span> <span class="nav-text">RPM -i 附加选项</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E2%80%93test%EF%BC%9A%E4%BB%85%E6%89%A7%E8%A1%8C%E5%AE%89%E8%A3%85%E6%B5%8B%E8%AF%95"><span class="nav-number">4.2.1.</span> <span class="nav-text">–test：仅执行安装测试</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPM%E5%88%A0%E9%99%A4%E8%BD%AF%E4%BB%B6%E5%8C%85"><span class="nav-number">5.</span> <span class="nav-text">RPM删除软件包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RPM%E5%AE%89%E8%A3%85%E5%8C%85%E5%88%B6%E4%BD%9C"><span class="nav-number">6.</span> <span class="nav-text">RPM安装包制作</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -402,12 +433,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">28k</span>
+    <span title="站点总字数">30k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">26 分钟</span>
+    <span title="站点阅读时长">27 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
