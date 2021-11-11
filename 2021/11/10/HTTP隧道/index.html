@@ -22,18 +22,18 @@
 
   <meta name="description" content="点开看看吧~">
 <meta property="og:type" content="article">
-<meta property="og:title" content="bugku-Simple_SSTI_1">
-<meta property="og:url" content="http://example.com/2021/10/27/bugku-Simple-SSTI-1/index.html">
+<meta property="og:title" content="HTTP隧道">
+<meta property="og:url" content="http://example.com/2021/11/10/HTTP%E9%9A%A7%E9%81%93/index.html">
 <meta property="og:site_name" content="记录日常">
 <meta property="og:description" content="点开看看吧~">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-10-27T02:12:31.000Z">
-<meta property="article:modified_time" content="2021-11-02T07:27:39.242Z">
+<meta property="article:published_time" content="2021-11-10T09:19:19.000Z">
+<meta property="article:modified_time" content="2021-11-11T08:51:30.731Z">
 <meta property="article:author" content="adventural">
-<meta property="article:tag" content="default">
+<meta property="article:tag" content="HTTP">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2021/10/27/bugku-Simple-SSTI-1/">
+<link rel="canonical" href="http://example.com/2021/11/10/HTTP%E9%9A%A7%E9%81%93/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>bugku-Simple_SSTI_1 | 记录日常</title>
+  <title>HTTP隧道 | 记录日常</title>
   
 
 
@@ -168,7 +168,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/27/bugku-Simple-SSTI-1/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/10/HTTP%E9%9A%A7%E9%81%93/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -181,7 +181,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          bugku-Simple_SSTI_1
+          HTTP隧道
         </h1>
 
         <div class="post-meta">
@@ -191,14 +191,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-10-27 10:12:31" itemprop="dateCreated datePublished" datetime="2021-10-27T10:12:31+08:00">2021-10-27</time>
+              <time title="创建时间：2021-11-10 17:19:19" itemprop="dateCreated datePublished" datetime="2021-11-10T17:19:19+08:00">2021-11-10</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-11-02 15:27:39" itemprop="dateModified" datetime="2021-11-02T15:27:39+08:00">2021-11-02</time>
+                <time title="修改时间：2021-11-11 16:51:30" itemprop="dateModified" datetime="2021-11-11T16:51:30+08:00">2021-11-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -206,7 +206,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/default/" itemprop="url" rel="index"><span itemprop="name">default</span></a>
+                  <a href="/categories/%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">网络</span></a>
                 </span>
             </span>
 
@@ -223,7 +223,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>7</span>
+              <span>1.6k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -243,7 +243,41 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h3 id="服务端模板注入"><a href="#服务端模板注入" class="headerlink" title="服务端模板注入"></a>服务端模板注入</h3>
+        <h3 id="HTTP-Proxy"><a href="#HTTP-Proxy" class="headerlink" title="HTTP Proxy"></a>HTTP Proxy</h3><p>HTTP协议是明文传输的，这时的代理服务器相当于工作在中间人下，代理可以直接查看HTTP请求的密码以及cookie等信息。</p>
+<p>在不使用HTTP代理时，发送的请求如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">GET / HTTP/1.1\r\n</span><br><span class="line">Host: baidu.com\r\n </span><br><span class="line">Connection: keep-alive\r\n</span><br><span class="line">\r\n</span><br></pre></td></tr></table></figure>
+
+<p>启用HTTP代理后，需要在Host指明URL的全称（方法后面的全称），以供代理服务器进行主机解析：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">GET http://www.baidu.com/ HTTP/1.1\r\n</span><br><span class="line">Host: baidu.com\r\n </span><br><span class="line">Proxy-Connection: keep-alive\r\n</span><br><span class="line">\r\n</span><br></pre></td></tr></table></figure>
+
+<p>代理服务器在接收到请求后从请求地址获取到请求目标与端口，然后将Proxy-Connection改写为Connection，然后建立与服务端的连接，在服务端与客户端之间转发消息。</p>
+<h5 id="HTTP-Proxy的问题"><a href="#HTTP-Proxy的问题" class="headerlink" title="HTTP Proxy的问题"></a>HTTP Proxy的问题</h5><p>明文传输下的HTTP本身就非常不安全，HTTP下运行代理服务器是无法保障信息安全的。基于TLS的HTTPS目前已经成为主流，浏览器的默认协议也基本上切换为了HTTPS。</p>
+<p>在HTTPS下客户端请求的主机和域名已经被加密，代理服务器无法得知数据应该转发给谁直接就无法工作了。</p>
+<p>解决的方法也很简单：</p>
+<ul>
+<li>启动HTTPS代理后，在发起HTTPS请求前先向代理服务器发起一个Connect请求，告诉代理服务器后面数据需要转发地址和端口</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CONNECT www.microsoft.com:443 HTTP/1.0</span><br><span class="line">User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko</span><br><span class="line">Host: www.microsoft.com</span><br><span class="line">Content-Length: 0</span><br><span class="line">DNT: 1</span><br><span class="line">Connection: Keep-Alive</span><br><span class="line">Pragma: no-cache</span><br></pre></td></tr></table></figure>
+
+<h3 id="HTTP-Tunnel（HTTP-隧道）"><a href="#HTTP-Tunnel（HTTP-隧道）" class="headerlink" title="HTTP Tunnel（HTTP 隧道）"></a>HTTP Tunnel（HTTP 隧道）</h3><p>HTTPS在HTTP的基础上加入了一层TLS加密层，客户端与服务端加密传输，使用HTTP Proxy的方式就无法实现代理了。</p>
+<p>如果复用HTTP Proxy的方式，代理服务器和真正的服务端以及客户端分别建立HTTPS连接也是不现实的，代理可以和服务器建立HTTPS连接，获取并且解析服务端的消息，但是代理无法和客户端建立可信的连接（无法被浏览器和操作系统信任），两种情况</p>
+<ul>
+<li>代理使用服务端的数字证书伪造身份，但是代理没有服务端的私钥无法解密客户端的消息，TLS握手会止步在密钥协商环节</li>
+<li>代理使用自己的数字证书，但是浏览器无法完成代理的CA认证，会被浏览器认为是不可信任连接组织HTTPS连接</li>
+</ul>
+<p><strong>HTTP Tunnel解决HTTPS代理的方法：</strong></p>
+<p>HTTPS在HTTP Proxy下无法代理的原因是代理服务器无法获取目标服务器的地址和端口，如果让代理服务器事先获取到目标服务器信息，然后直接对消息做转发，那么既能保证安全性也不影响代理功能。</p>
+<ul>
+<li>启动HTTPS代理后，在发起HTTPS请求前先向代理服务器发起一个基于HTTP的Connect请求，告诉代理服务器后面数据需要转发地址和端口</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CONNECT www.microsoft.com:443 HTTP/1.0</span><br><span class="line">User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko</span><br><span class="line">Host: www.microsoft.com</span><br><span class="line">Content-Length: 0</span><br><span class="line">DNT: 1</span><br><span class="line">Connection: Keep-Alive</span><br><span class="line">Pragma: no-cache</span><br></pre></td></tr></table></figure>
+
+<p>从流程来看HTTP Tunnel的请求分为两部分：</p>
+<ol>
+<li>客户端向代理服务器发送Connect请求，告知地址和端口，代理收到后回复200状态码</li>
+<li>客户端与服务端通过代理转发消息。</li>
+</ol>
+
     </div>
 
     
@@ -252,7 +286,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/default/" rel="tag"># default</a>
+              <a href="/tags/HTTP/" rel="tag"># HTTP</a>
           </div>
 
         
@@ -261,12 +295,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/10/19/nmap%E4%BD%BF%E7%94%A8/" rel="prev" title="nmap使用">
-      <i class="fa fa-chevron-left"></i> nmap使用
+    <a href="/2021/11/10/tornado%E8%AF%A6%E8%A7%A3/" rel="prev" title="tornado详解">
+      <i class="fa fa-chevron-left"></i> tornado详解
     </a></div>
       <div class="post-nav-item">
-    <a href="/2021/11/02/https%E8%AF%A6%E8%A7%A3/" rel="next" title="https详解">
-      https详解 <i class="fa fa-chevron-right"></i>
+    <a href="/2021/11/11/%E6%8A%93%E5%8C%85%E5%88%86%E6%9E%90HTTPS%E8%BF%9E%E6%8E%A5%E5%BB%BA%E7%AB%8B%E7%9A%84%E8%BF%87%E7%A8%8B/" rel="next" title="抓包分析HTTPS连接建立的过程">
+      抓包分析HTTPS连接建立的过程 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -326,7 +360,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5"><span class="nav-number">1.</span> <span class="nav-text">服务端模板注入</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP-Proxy"><span class="nav-number">1.</span> <span class="nav-text">HTTP Proxy</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#HTTP-Proxy%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.1.</span> <span class="nav-text">HTTP Proxy的问题</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP-Tunnel%EF%BC%88HTTP-%E9%9A%A7%E9%81%93%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">HTTP Tunnel（HTTP 隧道）</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
