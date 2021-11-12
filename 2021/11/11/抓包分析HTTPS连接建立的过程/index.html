@@ -20,18 +20,34 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="点开看看吧~">
+  <meta name="description" content="分析TCP握手以及TLS握手">
 <meta property="og:type" content="article">
-<meta property="og:title" content="抓包分析HTTPS连接建立的过程">
+<meta property="og:title" content="TLS握手协议分析">
 <meta property="og:url" content="http://example.com/2021/11/11/%E6%8A%93%E5%8C%85%E5%88%86%E6%9E%90HTTPS%E8%BF%9E%E6%8E%A5%E5%BB%BA%E7%AB%8B%E7%9A%84%E8%BF%87%E7%A8%8B/index.html">
 <meta property="og:site_name" content="记录日常">
-<meta property="og:description" content="点开看看吧~">
+<meta property="og:description" content="分析TCP握手以及TLS握手">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="g:/blog/source_posts/抓包分析HTTPS连接建立的过程/image-20211112101657829.png">
+<meta property="og:image" content="g:/blog/source_posts/抓包分析HTTPS连接建立的过程/image-20211112102228256.png">
+<meta property="og:image" content="g:/blog/source_posts/抓包分析HTTPS连接建立的过程/tcp.png">
+<meta property="og:image" content="g:/blog/source_posts/抓包分析HTTPS连接建立的过程/image-20211112193811060.png">
+<meta property="og:image" content="g:/blog/source_posts/抓包分析HTTPS连接建立的过程/image-20211112194359412.png">
+<meta property="og:image" content="g:/blog/source_posts/抓包分析HTTPS连接建立的过程/image-20211112194430794.png">
+<meta property="og:image" content="g:/blog/source_posts/抓包分析HTTPS连接建立的过程/image-20211112195140759.png">
+<meta property="og:image" content="g:/blog/source_posts/抓包分析HTTPS连接建立的过程/image-20211112200037831.png">
+<meta property="og:image" content="g:/blog/source_posts/抓包分析HTTPS连接建立的过程/image-20211112201044860.png">
+<meta property="og:image" content="g:/blog/source_posts/抓包分析HTTPS连接建立的过程/image-20211112201304509.png">
+<meta property="og:image" content="g:/blog/source_posts/抓包分析HTTPS连接建立的过程/image-20211112205307565.png">
+<meta property="og:image" content="g:/blog/source_posts/抓包分析HTTPS连接建立的过程/image-20211112205620312.png">
+<meta property="og:image" content="g:/blog/source_posts/抓包分析HTTPS连接建立的过程/image-20211112205654520.png">
+<meta property="og:image" content="g:/blog/source_posts/抓包分析HTTPS连接建立的过程/image-20211112205820395.png">
+<meta property="og:image" content="g:/blog/source_posts/抓包分析HTTPS连接建立的过程/image-20211112205851400.png">
 <meta property="article:published_time" content="2021-11-11T09:05:17.000Z">
-<meta property="article:modified_time" content="2021-11-11T09:05:17.880Z">
+<meta property="article:modified_time" content="2021-11-12T13:24:10.254Z">
 <meta property="article:author" content="adventural">
-<meta property="article:tag" content="default">
+<meta property="article:tag" content="HTTP">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="g:/blog/source_posts/抓包分析HTTPS连接建立的过程/image-20211112101657829.png">
 
 <link rel="canonical" href="http://example.com/2021/11/11/%E6%8A%93%E5%8C%85%E5%88%86%E6%9E%90HTTPS%E8%BF%9E%E6%8E%A5%E5%BB%BA%E7%AB%8B%E7%9A%84%E8%BF%87%E7%A8%8B/">
 
@@ -46,7 +62,7 @@
   };
 </script>
 
-  <title>抓包分析HTTPS连接建立的过程 | 记录日常</title>
+  <title>TLS握手协议分析 | 记录日常</title>
   
 
 
@@ -181,7 +197,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          抓包分析HTTPS连接建立的过程
+          TLS握手协议分析
         </h1>
 
         <div class="post-meta">
@@ -193,13 +209,20 @@
 
               <time title="创建时间：2021-11-11 17:05:17" itemprop="dateCreated datePublished" datetime="2021-11-11T17:05:17+08:00">2021-11-11</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-11-12 21:24:10" itemprop="dateModified" datetime="2021-11-12T21:24:10+08:00">2021-11-12</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/default/" itemprop="url" rel="index"><span itemprop="name">default</span></a>
+                  <a href="/categories/%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">网络</span></a>
                 </span>
             </span>
 
@@ -216,16 +239,16 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>0</span>
+              <span>3.8k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>3 分钟</span>
             </span>
-            <div class="post-description">点开看看吧~</div>
+            <div class="post-description">分析TCP握手以及TLS握手</div>
 
         </div>
       </header>
@@ -236,7 +259,129 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>先前分析HTTPS协议时主要分析了CA认证过程，对于如何生成对称加密密钥的问题没有深入了解，本次通过抓包的方式来具体分析一下HTTPS连接在建立的过程中做了哪些事情。</p>
+<p>启动wireshark，在cmd界面</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ping 一下百度的地址作为wireshark的过滤规则</span></span><br><span class="line">ping www.baidu.com</span><br><span class="line">正在 Ping www.a.shifen.com [14.215.177.39] 具有 32 字节的数据:</span><br><span class="line">来自 14.215.177.39 的回复: 字节=32 时间=20ms TTL=50</span><br><span class="line">来自 14.215.177.39 的回复: 字节=32 时间=20ms TTL=50</span><br><span class="line"></span><br><span class="line"><span class="comment"># curl</span></span><br><span class="line">curl https://www.baidu.com</span><br></pre></td></tr></table></figure>
+
+<p>wireshark过滤规则</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ip.dst==14.215.177.39 or ip.src==14.215.177.39</span><br></pre></td></tr></table></figure>
+
+<h4 id="抓包结果"><a href="#抓包结果" class="headerlink" title="抓包结果"></a>抓包结果</h4><p><img src="G:\blog\source_posts\抓包分析HTTPS连接建立的过程\image-20211112101657829.png" alt="image-20211112101657829"></p>
+<p>HTTPS相当于在HTTP的基础上加了一层TLS加密层，从抓包的结果来看原本HTTP的数据被放在了TLS协议当中的Encrypted Application Data，客户端和服务端通过协商后的对称密钥对数据进行解密拿到原本的数据。</p>
+<p><img src="G:\blog\source_posts\抓包分析HTTPS连接建立的过程\image-20211112102228256.png" alt="image-20211112102228256"></p>
+<p>下面将详细分析TLS握手的过程以及如何协商对称密钥（共享密钥）</p>
+<h3 id="TCP握手"><a href="#TCP握手" class="headerlink" title="TCP握手"></a>TCP握手</h3><p>目前的HTTP1和2是基于TCP的，因此这里分析的TLS协议也是基于TCP的。建立TLS连接的过程需要先完成TCP的三次握手，这里简单记录一下TCP握手的过程</p>
+<p><img src="G:\blog\source_posts\抓包分析HTTPS连接建立的过程\tcp.png" alt="tcp"></p>
+<p>三次握手的过程：</p>
+<ol>
+<li>服务器监听客户端请求；</li>
+<li>客户进程向服务器发出连接请求报文，报文首部中的同步位SYN=1，确定初始序列号 seq=x ，此时，TCP客户端进程进入了 SYN-SENT（同步已发送状态）状态；</li>
+<li>服务器收到请求报文后，如果同意连接，则发出确认报文。确认报文中应该 ACK=1，SYN=1，确认号是ack=x+1，同时也要为自己初始化一个序列号 seq=y，此时，服务器进程进入了SYN-RCVD（同步收到）状态。</li>
+<li>客户进程收到确认后，还要向服务器给出确认。确认报文的ACK=1，ack=y+1，自己的序列号seq=x+1，此时，TCP连接建立，客户端进入ESTABLISHED（已建立连接）状态</li>
+</ol>
+<p>从数据包的角度，此时共有三个数据包</p>
+<p><img src="G:\blog\source_posts\抓包分析HTTPS连接建立的过程\image-20211112193811060.png" alt="image-20211112193811060"></p>
+<h3 id="TLS握手"><a href="#TLS握手" class="headerlink" title="TLS握手"></a>TLS握手</h3><p>TCP握手完成后，进入TLS握手环节，TLS握手的数据包主要为</p>
+<ol>
+<li>客户端Client Hello</li>
+<li>服务端Server Hello</li>
+<li>服务端Certificate、Server Key Exchange、Server Hello Done</li>
+<li>客户端Client Key Exchange, Change Cipher Spec, Encrypted Handshake Message</li>
+<li>服务端Change Cipher Spec、Encrypted Handshake Message</li>
+</ol>
+<p><img src="G:\blog\source_posts\抓包分析HTTPS连接建立的过程\image-20211112194359412.png" alt="image-20211112194359412"></p>
+<p><img src="G:\blog\source_posts\抓包分析HTTPS连接建立的过程\image-20211112194430794.png" alt="image-20211112194430794"></p>
+<p>下面分别分析TLS握手的每个过程发生的事情</p>
+<h4 id="客户端Client-Hello"><a href="#客户端Client-Hello" class="headerlink" title="客户端Client Hello"></a>客户端Client Hello</h4><p>TLS连接建立的第一步，客户端向服务端提供自己的TLS信息供服务端确认。</p>
+<p>Client Hello传输的关键信息：</p>
+<ul>
+<li>version：指明客户端TLS版本</li>
+<li>Random：客户端产生的随机种子，作为最终密钥的一部分，明文传输</li>
+<li>Cipher Suits：加密套件</li>
+</ul>
+<p><img src="G:\blog\source_posts\抓包分析HTTPS连接建立的过程\image-20211112195140759.png" alt="image-20211112195140759"></p>
+<p><strong>加密套件</strong></p>
+<p>服务端在Client Hello消息中告诉了服务端自己支持的加密套件列表，服务端在下一步的消息中会选取一个作为本次通信的加密套件。</p>
+<p>TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384</p>
+<ul>
+<li>密钥协商算法使用ECDHE</li>
+<li>签名算法使用RSA</li>
+<li>批量数据加密的算法为AES-256，分组模式为GCM</li>
+<li>摘要算法为sha384</li>
+</ul>
+<h4 id="服务端Server-Hello"><a href="#服务端Server-Hello" class="headerlink" title="服务端Server Hello"></a>服务端Server Hello</h4><p>服务端响应客户端：</p>
+<ul>
+<li>确认TLS版本为1.2</li>
+<li>加密套件选择为TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</li>
+<li>明文传输了服务端的Random随机种子，作为最终共享密钥的一部分</li>
+</ul>
+<p><img src="G:\blog\source_posts\抓包分析HTTPS连接建立的过程\image-20211112200037831.png" alt="image-20211112200037831"></p>
+<h4 id="服务端Certificate"><a href="#服务端Certificate" class="headerlink" title="服务端Certificate"></a>服务端Certificate</h4><p>服务端为了证明自己的身份，向客户端发送了自己的数字证书（可能是一系列证书），这里的证书就有两个，一个是baidu自己的证书，另一个是认证baidu证书的CA证书，认证baidu证书的CA证书由内置的CA根证书认证，以此完成逐级的认证</p>
+<p><img src="G:\blog\source_posts\抓包分析HTTPS连接建立的过程\image-20211112201044860.png" alt="image-20211112201044860"></p>
+<p>至此客户端和服务端以明文方式共享了以下信息：</p>
+<ul>
+<li>TLS版本</li>
+<li>客户端随机种子</li>
+<li>服务端随机种子</li>
+<li>服务端的数字证书</li>
+<li>后面使用的密码套件</li>
+</ul>
+<p>下一步需要在服务端和客户端之间协商出一个共同的密钥，批量数据加密的密钥</p>
+<h4 id="服务端Server-Key-Exchange、Server-Hello-Done"><a href="#服务端Server-Key-Exchange、Server-Hello-Done" class="headerlink" title="服务端Server Key Exchange、Server Hello Done"></a>服务端Server Key Exchange、Server Hello Done</h4><p>由于在前几步的加密套件中选择了ECDHE为密钥协商算法（ECDHE算法可以见后续的密钥协商算法简介），因此服务端会发送Server Key Exchange消息，消息中主要包含以下字段</p>
+<p><strong>Curve Type：椭圆曲线的类型</strong></p>
+<p>ECDHE算法可以使密钥协商的两边产生相同的随机数，并且这个随机数的随机性是可以保证的。</p>
+<p>ECDHE算法基于椭圆曲线，基于ECDHE算法的密钥协商过程大致为：</p>
+<ol>
+<li>密钥协商的两边首先通过明文确定椭圆曲线的类型，以及G点。</li>
+<li>客户端和服务端各自产生一个随机数作为自己的<strong>私钥d</strong>，通过私钥d与G点相乘得到<strong>公钥P</strong>，P也是一个坐标。客户端此时拥有私钥d1、公钥P1，服务端拥有私钥d2、公钥P2。</li>
+<li>双方交换公钥，客户端计算点**(x1, y1) = d1P2<strong>，服务端计算点</strong>(x2, y2) = d2P1<strong>，由于椭圆曲线上满足乘法交换律和结合律，所以有d1P2 = d1d2G = d2d1G = d2P1，因此双方的</strong>x**坐标是一样的，密钥协商的结果为x。</li>
+</ol>
+<p>整个过程中，即便公开了椭圆曲线类型、G点、双方的公钥，但由公钥P计算私钥d是很难的，因此可以保证x的安全性。</p>
+<p><strong>服务端产生的公钥Pubkey</strong></p>
+<p>Pubkey字段存储的是服务端通过椭圆曲线计算出的公钥，为了保证公钥密钥不被篡改，这里使用了RSA算法对公钥做了签名，客户端拿到Pubkey后使用服务端数字证书的公钥解密签名，验证hash值。</p>
+<p>为什么要签名？——抵御中间人攻击</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">服务端产生的公钥虽然是公开的，但是如果公钥被中间人篡改为自己的公钥，那么和客户端进行密钥协商的就变成了中间人，中间人就可以建立和客户端的通信并且解密消息。</span><br><span class="line">签名后就确保了Pubkey的不可篡改性。</span><br></pre></td></tr></table></figure>
+
+<p><img src="G:\blog\source_posts\抓包分析HTTPS连接建立的过程\image-20211112201304509.png" alt="image-20211112201304509"></p>
+<p>随后是一个「<strong>Server Hello Done</strong>」消息，服务端跟客户端表明服务端交换的信息以及传输完毕。</p>
+<p><img src="G:\blog\source_posts\抓包分析HTTPS连接建立的过程\image-20211112205307565.png" alt="image-20211112205307565"></p>
+<h4 id="客户端Client-Key-Exchange-Change-Cipher-Spec-Encrypted-Handshake-Message"><a href="#客户端Client-Key-Exchange-Change-Cipher-Spec-Encrypted-Handshake-Message" class="headerlink" title="客户端Client Key Exchange, Change Cipher Spec, Encrypted Handshake Message"></a>客户端Client Key Exchange, Change Cipher Spec, Encrypted Handshake Message</h4><p>这一个报文中存在三个消息</p>
+<p><img src="G:\blog\source_posts\抓包分析HTTPS连接建立的过程\image-20211112205620312.png" alt="image-20211112205620312"></p>
+<p>Client Key Exchange向服务端共享自己的Pubkey</p>
+<p><img src="G:\blog\source_posts\抓包分析HTTPS连接建立的过程\image-20211112205654520.png" alt="image-20211112205654520"></p>
+<p>到这个阶段双方的密钥协商其实已经完成了，最终的会话密钥为</p>
+<p><strong>「客户端随机数 + 服务端随机数 + x」</strong></p>
+<p>算好会话密钥后，客户端会发一个Change Cipher Spec消息，告诉服务端后续改用对称算法加密通信。</p>
+<p><img src="G:\blog\source_posts\抓包分析HTTPS连接建立的过程\image-20211112205820395.png" alt="image-20211112205820395"></p>
+<p>然后接着，客户端会发送Encrypted Handshake Message消息，把之前发送的数据做一个摘要，再用对称密钥加密一下，让服务端做个验证，验证下本次生成的对称密钥是否可以正常使用。</p>
+<p><img src="G:\blog\source_posts\抓包分析HTTPS连接建立的过程\image-20211112205851400.png" alt="image-20211112205851400"></p>
+<h4 id="服务端Change-Cipher-Spec、Encrypted-Handshake-Message"><a href="#服务端Change-Cipher-Spec、Encrypted-Handshake-Message" class="headerlink" title="服务端Change Cipher Spec、Encrypted Handshake Message"></a>服务端Change Cipher Spec、Encrypted Handshake Message</h4><p>最后，服务端也会有一个同样的操作，发「<strong>Change Cipher Spec</strong>」和「<strong>Encrypted Handshake Message</strong>」消息，如果双方都验证加密和解密没问题，那么握手正式完成。于是，就可以正常收发加密的 HTTP 请求和响应了。</p>
+<h3 id="密钥协商算法总述"><a href="#密钥协商算法总述" class="headerlink" title="密钥协商算法总述"></a>密钥协商算法总述</h3><h4 id="基于-RSA-的密钥协商"><a href="#基于-RSA-的密钥协商" class="headerlink" title="基于 RSA 的密钥协商"></a>基于 RSA 的密钥协商</h4><p>基于RSA的密钥协商是很古老的一种密钥协商方式，早期的 SSLv2 只支持一种密钥协商机制就是RSA密钥协商。</p>
+<p>协商步骤：</p>
+<ol>
+<li>客户端连上服务端</li>
+<li>服务端发送 CA 证书给客户端</li>
+<li>客户端验证该证书的可靠性</li>
+<li>客户端从 CA 证书中取出公钥</li>
+<li>客户端生成一个随机密钥 k，把k用公钥加密发送给服务端</li>
+<li>服务端收到后用自己的私钥解密得到 k</li>
+<li>此时双方都得到了密钥 k，协商完成。</li>
+</ol>
+<h5 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h5><p>RSA密钥协商在私钥不泄露的情况下是安全的。可以防止监听和篡改。</p>
+<ul>
+<li>在监听的情况下攻击者无法获取加密后的密钥k</li>
+<li>在篡改后的情况下无法伪装身份，无法通过CA证书认证</li>
+</ul>
+<p><strong>安全威胁：RSA密钥协商不具有与前向保密性：</strong></p>
+<p>如果攻击者事先存储了通讯的密文（历史数据），由于 RSA的私钥是稳定的（长期不变）。假设有一天，攻击者拿到了 RSA 的私钥，就可以用这个私钥解密握手过程的密文，从而得到会话密钥（session key），然后用会话密钥解密会话的密文，得到会话的明文。</p>
+<h4 id="基于DH的密钥协商"><a href="#基于DH的密钥协商" class="headerlink" title="基于DH的密钥协商"></a>基于DH的密钥协商</h4><p>DH 算法又称Diffie–Hellman 算法。它可以做到 — — 通讯双方在完全没有对方任何预先信息的条件下通过不安全信道创建起一个密钥。DH算法可以防止偷窥，即便通信过程被完全监视，监视者也无法获取通信双方的密钥。</p>
+<h5 id="DH算法无法抵御篡改"><a href="#DH算法无法抵御篡改" class="headerlink" title="DH算法无法抵御篡改"></a>DH算法无法抵御篡改</h5><p>DH算法在密钥协商的过程中缺乏身份认证，可以通过篡改公钥来完成中间人攻击。</p>
+<p>为了抵御中间人攻击，DH 需要与其它签名算法（如RSA、DSA、ECDSA）配合使用。</p>
+<p><strong>DH算法的前向保密性</strong></p>
+<p>DH算法具备前向保密性，通信一次一密。密钥基于每次通信产生的随机数，即便泄露了RSA(签名)私钥，攻击者也无法获取之前会话的密钥。</p>
+<p><strong>DH算法的变种</strong></p>
+<p>DH 算法的变种有ECDH以及ECDHE，变种算法改进了DH的性能，但是变种算法本身也是无认证的，也需要配合签名算法使用。如本此提到的ECDHE—RSA。</p>
+
     </div>
 
     
@@ -245,7 +390,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/default/" rel="tag"># default</a>
+              <a href="/tags/HTTP/" rel="tag"># HTTP</a>
           </div>
 
         
@@ -316,6 +461,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8A%93%E5%8C%85%E7%BB%93%E6%9E%9C"><span class="nav-number">1.1.</span> <span class="nav-text">抓包结果</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP%E6%8F%A1%E6%89%8B"><span class="nav-number">2.</span> <span class="nav-text">TCP握手</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TLS%E6%8F%A1%E6%89%8B"><span class="nav-number">3.</span> <span class="nav-text">TLS握手</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AFClient-Hello"><span class="nav-number">3.1.</span> <span class="nav-text">客户端Client Hello</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AFServer-Hello"><span class="nav-number">3.2.</span> <span class="nav-text">服务端Server Hello</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AFCertificate"><span class="nav-number">3.3.</span> <span class="nav-text">服务端Certificate</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AFServer-Key-Exchange%E3%80%81Server-Hello-Done"><span class="nav-number">3.4.</span> <span class="nav-text">服务端Server Key Exchange、Server Hello Done</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AFClient-Key-Exchange-Change-Cipher-Spec-Encrypted-Handshake-Message"><span class="nav-number">3.5.</span> <span class="nav-text">客户端Client Key Exchange, Change Cipher Spec, Encrypted Handshake Message</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AFChange-Cipher-Spec%E3%80%81Encrypted-Handshake-Message"><span class="nav-number">3.6.</span> <span class="nav-text">服务端Change Cipher Spec、Encrypted Handshake Message</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%86%E9%92%A5%E5%8D%8F%E5%95%86%E7%AE%97%E6%B3%95%E6%80%BB%E8%BF%B0"><span class="nav-number">4.</span> <span class="nav-text">密钥协商算法总述</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-RSA-%E7%9A%84%E5%AF%86%E9%92%A5%E5%8D%8F%E5%95%86"><span class="nav-number">4.1.</span> <span class="nav-text">基于 RSA 的密钥协商</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BC%98%E7%82%B9"><span class="nav-number">4.1.1.</span> <span class="nav-text">优点</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8EDH%E7%9A%84%E5%AF%86%E9%92%A5%E5%8D%8F%E5%95%86"><span class="nav-number">4.2.</span> <span class="nav-text">基于DH的密钥协商</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#DH%E7%AE%97%E6%B3%95%E6%97%A0%E6%B3%95%E6%8A%B5%E5%BE%A1%E7%AF%A1%E6%94%B9"><span class="nav-number">4.2.1.</span> <span class="nav-text">DH算法无法抵御篡改</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -386,12 +532,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">32k</span>
+    <span title="站点总字数">36k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">29 分钟</span>
+    <span title="站点阅读时长">33 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
