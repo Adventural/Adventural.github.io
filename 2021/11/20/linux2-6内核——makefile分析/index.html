@@ -28,7 +28,7 @@
 <meta property="og:description" content="点开看看吧~">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-11-20T08:07:50.000Z">
-<meta property="article:modified_time" content="2021-11-20T11:59:41.347Z">
+<meta property="article:modified_time" content="2021-11-22T13:20:25.177Z">
 <meta property="article:author" content="adventural">
 <meta property="article:tag" content="makefile">
 <meta name="twitter:card" content="summary">
@@ -190,10 +190,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-11-20 16:07:50 / 修改时间：19:59:41" itemprop="dateCreated datePublished" datetime="2021-11-20T16:07:50+08:00">2021-11-20</time>
+              <time title="创建时间：2021-11-20 16:07:50" itemprop="dateCreated datePublished" datetime="2021-11-20T16:07:50+08:00">2021-11-20</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-11-22 21:20:25" itemprop="dateModified" datetime="2021-11-22T21:20:25+08:00">2021-11-22</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -217,14 +223,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>272</span>
+              <span>3.3k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>3 分钟</span>
             </span>
             <div class="post-description">点开看看吧~</div>
 
@@ -237,8 +243,59 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h3 id="顶层MakeFile"><a href="#顶层MakeFile" class="headerlink" title="顶层MakeFile"></a>顶层MakeFile</h3><h5 id="origin函数"><a href="#origin函数" class="headerlink" title="origin函数"></a>origin函数</h5><p>origin 函数通过返回值来返回变量var的出生情况</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 用法</span><br><span class="line">$(origin var)</span><br><span class="line">#### 返回值</span><br><span class="line"># undefined：未定义的变量</span><br><span class="line"># enviroment：当前系统的环境变量</span><br><span class="line"># default：makefile默认的变量，如CC等</span><br><span class="line"># file：来自上文的定义，如V:= 1</span><br><span class="line"># command line：来自make命令的命令行，如make V=1</span><br><span class="line"># override：被override被重新定义过，如override SHELL = /bin/sh</span><br><span class="line"># automatic：make的自动化变量，如 @,&lt; </span><br></pre></td></tr></table></figure>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>分析的内核为版本2.6.11</p>
+<h3 id="顶层MakeFile"><a href="#顶层MakeFile" class="headerlink" title="顶层MakeFile"></a>顶层MakeFile</h3><p>顶层Makefile存在于内核源码根目录中，顶层的makefile不会控制具体的编译规则。</p>
+<p>35~94行，makefile针对一些编译时用到的变量做配置，这些变量可以通过make命令传递进来，如make V=1</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ifdef</span> V</span><br><span class="line">  <span class="keyword">ifeq</span> (<span class="string">&quot;$(origin V)&quot;</span>, <span class="string">&quot;command line&quot;</span>)</span><br><span class="line">    KBUILD_VERBOSE = <span class="variable">$(V)</span></span><br><span class="line">  <span class="keyword">endif</span></span><br><span class="line"><span class="keyword">endif</span></span><br><span class="line"><span class="keyword">ifndef</span> KBUILD_VERBOSE</span><br><span class="line">  KBUILD_VERBOSE = 0</span><br><span class="line"><span class="keyword">endif</span></span><br></pre></td></tr></table></figure>
+
+<p>一共设置了四个变量，V、C、M和O。</p>
+<ul>
+<li><p>V控制编译时输出信息的多少；</p>
+</li>
+<li><p>C控制KBUILD_CHECKSRC变量，当指定C = 1后会调用静态代码检查工具Sparse对C代码做检查</p>
+</li>
+<li><p>M和SUBDIRS控制变量KBUILD_EXTMOD，该选项是控制内核模块编译的关键。</p>
+</li>
+<li><p>O指定KBUILD_OUTPUT变量，KBUILD_OUTPUT=dir/to/store/output/files/</p>
+</li>
+</ul>
+<h5 id="M参数的理解"><a href="#M参数的理解" class="headerlink" title="M参数的理解"></a>M参数的理解</h5><p>M参数可以控制KBUILD_EXTMOD，而KBUILD_EXTMOD正是Linux编译外部模块的关键变量，在ldd3当中，一个简单的内核模块Makefile是这样的</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">obj-m += hello_word.o</span><br><span class="line"><span class="section">all:</span></span><br><span class="line">	make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> modules</span><br><span class="line"><span class="section">clean:</span></span><br><span class="line">	make -C /lib/modules/<span class="variable">$(<span class="built_in">shell</span> uname -r)</span>/build M=<span class="variable">$(PWD)</span> clean </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>当执行make all编译的时候，-C选项告诉make去/lib/modules/$(shell uname -r)/build去执行编译，build目录可以理解为存储当前运行版本内核的源代码目录，里面存在当前系统顶层的makefile。在2.6.11版本中，就是目前所分析的makefile，M=参数把当前模块源码根目录传递给了KBUILD_EXTMOD，在97以及126行代码中</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># That&#x27;s our default target when none is given on the command line</span></span><br><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: _all</span></span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: all</span></span><br><span class="line"><span class="keyword">ifeq</span> (<span class="variable">$(KBUILD_EXTMOD)</span>,)</span><br><span class="line"><span class="section">_all: all</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line"><span class="section">_all: modules</span></span><br><span class="line"><span class="keyword">endif</span></span><br></pre></td></tr></table></figure>
+
+<p>这几行代码的意思就是如果KBUILD_EXTMOD为空，_all的目标就是编译所有的目标，包括模块。如果不为空，那么编译目标就是内核模块modules，1104行中描述modules的编译规则为：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">module-dirs := <span class="variable">$(<span class="built_in">addprefix</span> _module_,<span class="variable">$(KBUILD_EXTMOD)</span>)</span></span><br><span class="line"><span class="meta"><span class="meta-keyword">.PHONY</span>: $(module-dirs) modules</span></span><br><span class="line"><span class="section">$(module-dirs): crmodverdir</span></span><br><span class="line">	<span class="variable">$(Q)</span><span class="variable">$(MAKE)</span> <span class="variable">$(build)</span>=<span class="variable">$(<span class="built_in">patsubst</span> _module_%,%,<span class="variable">$@</span>)</span></span><br><span class="line">	</span><br><span class="line"><span class="section">modules: $(module-dirs)</span></span><br><span class="line">	@echo &#x27;  Building modules, stage 2.&#x27;;</span><br><span class="line">	<span class="variable">$(Q)</span><span class="variable">$(MAKE)</span> -rR -f <span class="variable">$(srctree)</span>/scripts/Makefile.modpost</span><br></pre></td></tr></table></figure>
+
+<p>此时编译的控制权转交给了$(srctree)/scripts/Makefile.modpost文件，不难理解Makefile.modpost当中存放了模块的编译规则。</p>
+<p>97-125行，设置了saved-output变量，同时检查了KBUILD_OUTPUT目录是否为空。</p>
+<p>其中下面的几行让人比较疑惑，$(filter-out _all,$(MAKECMDGOALS))将编译目标中的_all去除，但是后面又加上了_all，$(if $(KBUILD_VERBOSE:1=),@)控制是否回显，如果KBUILD_VERBOSE=1，此行的返回值为@，不为1则为空。</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$(<span class="built_in">filter</span>-out _all,<span class="variable">$(MAKECMDGOALS)</span>)</span> _all:</span><br><span class="line">	<span class="variable">$(<span class="built_in">if</span> $(KBUILD_VERBOSE:1=)</span>,@)<span class="variable">$(MAKE)</span> -C <span class="variable">$(KBUILD_OUTPUT)</span>		\</span><br><span class="line">	KBUILD_SRC=<span class="variable">$(CURDIR)</span>	     KBUILD_VERBOSE=<span class="variable">$(KBUILD_VERBOSE)</span>	\</span><br><span class="line">	KBUILD_CHECK=<span class="variable">$(KBUILD_CHECK)</span> KBUILD_EXTMOD=<span class="string">&quot;<span class="variable">$(KBUILD_EXTMOD)</span>&quot;</span>	\</span><br><span class="line">        -f <span class="variable">$(CURDIR)</span>/Makefile <span class="variable">$@</span></span><br></pre></td></tr></table></figure>
+
+<p>不太明白这句话的作用。</p>
+<p>133-142行设置了几个参数，同时使用export向子makefile当中导出了srctree objtree VPATH TOPDIR这四个参数</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">srctree		:= <span class="variable">$(<span class="built_in">if</span> <span class="variable">$(KBUILD_SRC)</span>,<span class="variable">$(KBUILD_SRC)</span>,<span class="variable">$(CURDIR)</span>)</span></span><br><span class="line">TOPDIR		:= <span class="variable">$(srctree)</span></span><br><span class="line"><span class="comment"># FIXME - TOPDIR is obsolete, use srctree/objtree</span></span><br><span class="line">objtree		:= <span class="variable">$(CURDIR)</span></span><br><span class="line">src		:= <span class="variable">$(srctree)</span></span><br><span class="line">obj		:= <span class="variable">$(objtree)</span></span><br><span class="line"></span><br><span class="line">VPATH		:= <span class="variable">$(srctree)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> srctree objtree VPATH TOPDIR</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="MakeFile中的部分函数"><a href="#MakeFile中的部分函数" class="headerlink" title="MakeFile中的部分函数"></a>MakeFile中的部分函数</h3><h4 id="origin函数"><a href="#origin函数" class="headerlink" title="origin函数"></a>origin函数</h4><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$(<span class="built_in">origin</span> var)</span> </span><br></pre></td></tr></table></figure>
+
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 函数功能：origin 函数通过返回值来返回变量var的出生情况</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 返回值：变量var的出身情况</span></span><br><span class="line"><span class="comment"># undefined：未定义的变量</span></span><br><span class="line"><span class="comment"># enviroment：当前系统的环境变量</span></span><br><span class="line"><span class="comment"># default：makefile默认的变量，如CC等</span></span><br><span class="line"><span class="comment"># file：来自上文的定义，如V:= 1</span></span><br><span class="line"><span class="comment"># command line：来自make命令的命令行，如make V=1</span></span><br><span class="line"><span class="comment"># override：被override被重新定义过，如override SHELL = /bin/sh</span></span><br><span class="line"><span class="comment"># automatic：make的自动化变量，如 @,&lt; </span></span><br></pre></td></tr></table></figure>
+
+<h4 id="filter-out"><a href="#filter-out" class="headerlink" title="filter-out"></a>filter-out</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$(filter-out PATTERN…,TEXT)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 函数功能：反过滤函数，和“filter”函数实现的功能相反，过滤掉字串“TEXT”中所有符合模式“PATTERN”的单词，保留所有不符合此模式的单词。</span></span><br><span class="line"><span class="comment"># 返回值：空格分割的“TEXT”字串中所有不符合模式“PATTERN”的字串</span></span><br><span class="line">objects=main1.o foo.o main2.o bar.o </span><br><span class="line">mains=main1.o main2.o </span><br><span class="line"></span><br><span class="line"><span class="variable">$(<span class="built_in">filter</span>-out <span class="variable">$(mains)</span>,<span class="variable">$(objects)</span>)</span> </span><br><span class="line"></span><br><span class="line"><span class="comment">## 返回值</span></span><br><span class="line">foo.o bar.o</span><br></pre></td></tr></table></figure>
+
+<h4 id="patsubset"><a href="#patsubset" class="headerlink" title="patsubset"></a>patsubset</h4><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$(<span class="built_in">patsubst</span> PATTERN,REPLACEMENT,TEXT)</span></span><br><span class="line"><span class="comment">#模式替换函数</span></span><br><span class="line"><span class="comment">#例子</span></span><br><span class="line"><span class="variable">$(<span class="built_in">patsubst</span> %.c,%.o,x.c.c bar.c)</span></span><br><span class="line"><span class="comment">#返回值</span></span><br><span class="line">x.c.o bar.o</span><br></pre></td></tr></table></figure>
+
+<h4 id="VAR-x-y"><a href="#VAR-x-y" class="headerlink" title="$(VAR:x=y)"></a>$(VAR:x=y)</h4><p>$(VAR:x=y) 这种语法相当于 $(patsubst x,y,$(VAR)) 的缩写</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$(<span class="built_in">patsubst</span> %.o,%.c,<span class="variable">$(objects)</span>)</span></span><br><span class="line"><span class="comment">#等价于</span></span><br><span class="line"><span class="section">$(objects:.o=.c)</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="if"><a href="#if" class="headerlink" title="if"></a>if</h4><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$(<span class="built_in">if</span> CONDITION,THEN-PART[,ELSE-PART])</span></span><br><span class="line"><span class="comment"># CONDITION表示条件判断，展开后如果非空，则条件为真，执行 THEN-PART部分；否则，如果有ELSE-PART部分，则执行ELSE-PART部分。</span></span><br><span class="line"></span><br><span class="line">install_path = <span class="variable">$(<span class="built_in">if</span> <span class="variable">$(install__path)</span>, <span class="variable">$(install__path)</span>, /usr/local)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># if函数的返回值即执行分支（THEN-PART或ELSE-PART）的表达式值</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="MakeFile中的特殊变量"><a href="#MakeFile中的特殊变量" class="headerlink" title="MakeFile中的特殊变量"></a>MakeFile中的特殊变量</h3><h5 id="MAKECMDGOALS"><a href="#MAKECMDGOALS" class="headerlink" title="MAKECMDGOALS"></a>MAKECMDGOALS</h5><p>该变量记录了命令行参数指定的终极目标列表，没有通过参数指定终极目标时此变量为空。</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make goal1 goal2</span><br><span class="line"><span class="comment"># MAKECMDGOALS = goal1 goal2</span></span><br></pre></td></tr></table></figure>
 
 
     </div>
@@ -321,7 +378,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A1%B6%E5%B1%82MakeFile"><span class="nav-number">1.</span> <span class="nav-text">顶层MakeFile</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#origin%E5%87%BD%E6%95%B0"><span class="nav-number">1.0.1.</span> <span class="nav-text">origin函数</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A1%B6%E5%B1%82MakeFile"><span class="nav-number">2.</span> <span class="nav-text">顶层MakeFile</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#M%E5%8F%82%E6%95%B0%E7%9A%84%E7%90%86%E8%A7%A3"><span class="nav-number">2.0.1.</span> <span class="nav-text">M参数的理解</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MakeFile%E4%B8%AD%E7%9A%84%E9%83%A8%E5%88%86%E5%87%BD%E6%95%B0"><span class="nav-number">3.</span> <span class="nav-text">MakeFile中的部分函数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#origin%E5%87%BD%E6%95%B0"><span class="nav-number">3.1.</span> <span class="nav-text">origin函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#filter-out"><span class="nav-number">3.2.</span> <span class="nav-text">filter-out</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#patsubset"><span class="nav-number">3.3.</span> <span class="nav-text">patsubset</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#VAR-x-y"><span class="nav-number">3.4.</span> <span class="nav-text">$(VAR:x&#x3D;y)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#if"><span class="nav-number">3.5.</span> <span class="nav-text">if</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MakeFile%E4%B8%AD%E7%9A%84%E7%89%B9%E6%AE%8A%E5%8F%98%E9%87%8F"><span class="nav-number">4.</span> <span class="nav-text">MakeFile中的特殊变量</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#MAKECMDGOALS"><span class="nav-number">4.0.1.</span> <span class="nav-text">MAKECMDGOALS</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -392,12 +449,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">43k</span>
+    <span title="站点总字数">46k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">39 分钟</span>
+    <span title="站点阅读时长">42 分钟</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
