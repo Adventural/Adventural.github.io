@@ -162,6 +162,219 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/MBR/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="adventural">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录日常">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/22/MBR/" class="post-title-link" itemprop="url">MBR详解</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-07-22 16:03:55 / 修改时间：16:08:40" itemprop="dateCreated datePublished" datetime="2022-07-22T16:03:55+08:00">2022-07-22</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">操作系统</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="MBR（主引导记录）硬盘"><a href="#MBR（主引导记录）硬盘" class="headerlink" title="MBR（主引导记录）硬盘"></a>MBR（主引导记录）硬盘</h2><p>MBR早在1983年的IBM PC DOS 2.0中就已经提出，比Linux诞生的时间还要早。主引导记录是指采用MBR分区的第一个扇区，这个扇区由三个部分组成：bootloader、硬盘分区表DPT和结束标志字（0x55AA）。mbr磁盘结构如下图所示:</p>
+<p><img src="./mbr.svg" alt="mbr"></p>
+<ul>
+<li>part1: bootloader，位于主引导扇区的前 446 个字节，这一段代码由BIOS加载到内存中的0x7c00，目的是加载硬盘上其他分区上更大的加载器（如操作系统的启动加载器）。在早期的Linux中，这一部分代码对应的是bootsect.S，更大的加载器则是setup.S。<br></li>
+<li>part2: 分区表，由于这部分只有64字节，而每一个分区表项占据了16字节，因此有MBR最多支持四个分区的说法，但是其中一个分区可以作为扩展分区，然后在这个扩展分区上继续划分逻辑分区。分区表的各项含义如下表。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>偏移</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>第 1 字节</td>
+<td>标志位（80H=活动分区，00为非活动分区）</td>
+</tr>
+<tr>
+<td>第 2 3 4 字节</td>
+<td>起始磁头号（第2字节）、扇区号（第3字节低6位）、柱面号（剩下的10位）</td>
+</tr>
+<tr>
+<td>第 5 字节</td>
+<td>分区类型（00 = 未使用、0F=扩展分区、83=Linux分区…）</td>
+</tr>
+<tr>
+<td>第 6 7 8 字节</td>
+<td>结束磁头号、扇区号、柱面号</td>
+</tr>
+<tr>
+<td>第 9 10 11 12 字节</td>
+<td>逻辑起始扇区号（LBA模式）</td>
+</tr>
+<tr>
+<td>第 13 14 15 16 字节</td>
+<td>总扇区数</td>
+</tr>
+</tbody></table>
+<h3 id="创建一个MBR分区的虚拟磁盘"><a href="#创建一个MBR分区的虚拟磁盘" class="headerlink" title="创建一个MBR分区的虚拟磁盘"></a>创建一个MBR分区的虚拟磁盘</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 建立一个 img 文件模拟硬盘</span></span><br><span class="line">dd <span class="keyword">if</span>=/dev/zero of=a.img bs=<span class="number">1024</span>k count=<span class="number">128</span></span><br><span class="line"><span class="comment">// 或者</span></span><br><span class="line">qemu-img create -f raw a.img <span class="number">128</span>M</span><br><span class="line"></span><br><span class="line"><span class="comment">// 挂载到 loop 设备</span></span><br><span class="line">losetup -f</span><br><span class="line">losetup /dev/loop0 a.img</span><br><span class="line"></span><br><span class="line"><span class="comment">// 分区</span></span><br><span class="line">fdisk /dev/loop0</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印分区信息</span></span><br><span class="line">fdisk -lu /dev/loop0</span><br><span class="line"></span><br><span class="line"><span class="comment">// 映射分区</span></span><br><span class="line">kpartx -av /dev/loop0</span><br><span class="line"></span><br><span class="line"><span class="comment">// 格式化分区为 ext4 文件系统</span></span><br><span class="line">mkfs.ext4 /dev/mapper/loop0p1</span><br><span class="line"></span><br><span class="line"><span class="comment">// 挂载 ext4 分区使用</span></span><br><span class="line">mount /dev/mapper/loop0p1 /mnt</span><br><span class="line"></span><br><span class="line"><span class="comment">// 卸载设备</span></span><br><span class="line">umount /mnt</span><br><span class="line">kpartx -d /dev/loop0</span><br><span class="line">losetup -d /dev/loop0</span><br></pre></td></tr></table></figure>
+
+<h3 id="MBR-Gap"><a href="#MBR-Gap" class="headerlink" title="MBR Gap"></a>MBR Gap</h3><p>在创建第一个分区的时候，我们会发现 fdisk 的默认的第一个分区起始扇区是2048（不可以设置低于2048的值），空出了 1MB 的空间</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Command (m for help): n</span><br><span class="line">Partition type</span><br><span class="line">   p   primary (0 primary, 0 extended, 4 free)</span><br><span class="line">   e   extended (container for logical partitions)</span><br><span class="line">Select (default p): </span><br><span class="line"></span><br><span class="line">Using default response p.</span><br><span class="line">Partition number (1-4, default 1): </span><br><span class="line">First sector (2048-262143, default 2048): </span><br><span class="line">Command (m for help): </span><br></pre></td></tr></table></figure>
+<p>关于这部分空间，GRUB 文档中是这样描述的<br><br>With this(MBR) partition table format, there are two ways to install GRUB: it can be embedded in the area between the MBR and the first partition (called by various names, such as the “boot track”, “MBR gap”, or “embedding area”, and which is usually at least 1000 KiB), or the core image can be installed in a file system and a list of the blocks that make it up can be stored in the first sector of that partition.</p>
+<p>以上这段话大意是说 MBR 硬盘的第一个分区开始位置和 MBR 扇区之间是有”缝隙“的，通常情况下这个”缝隙“至少有1000kb，当这个”缝隙”存在时 GRUB 将会安装在这个”缝隙”内。当然这个”缝隙”也可能不存在或者很小，这是由于历史原因导致的，老式的软盘显然就不会有这么大的”缝隙“，在这种情况下， GRUB 将会安装在文件系统内，这种情况会比较少，因为文件系统可能会移动这些存放 GRUB 的块。目前的硬盘都能够保证至少 1MB 的”缝隙“。</p>
+<h3 id="为什么会有-最小-1MB-的-MBR-Gap"><a href="#为什么会有-最小-1MB-的-MBR-Gap" class="headerlink" title="为什么会有 最小 1MB 的 MBR Gap"></a>为什么会有 最小 1MB 的 MBR Gap</h3><p>过去第一个分区的起始扇区总是63，但是随着技术的发展，这样的分区方式出现了一些问题。<br><br>磁盘有物理扇区大小和逻辑扇区大小，我们平时说的磁盘扇区大小为 512 字节，实际上这个指的是逻辑扇区大小为 512 字节。磁盘的物理扇区是磁盘内部的最小单元大小，老式的软盘大小就是 512 字节，但是现在的硬盘的物理扇区大小可能是 4k 甚至是 8k。<br><br>现在的文件系统也是按簇管理，通常一个簇大小为 1k、4k 甚至更大<br><br>在这样的情况下，设想一个具有 4k 簇大小的文件系统，如果磁盘的物理扇区大小为 4k 或者是 8k，那么文件系统的每一个簇都会横跨两个物理扇区，这样就会带来严重的性能下降问题。<br><img src="./Partition-Alignment.png" alt="Partition-Alignment"><br>为了解决这个问题，现在的磁盘分区总是会默认从最低 1MB 开始。<br><img src="./Partition-Alignment-LBA-aligned.png" alt="Partition-Alignment-LBA-aligned"></p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="../../../resources/GNU%20GRUB%20BIOS%20installation.pdf">GRUB 安装文档</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.thomas-krenn.com/en/wiki/Partition_Alignment_detailed_explanation">Partition Alignment detailed explanation</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/x86%E6%B1%87%E7%BC%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="adventural">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录日常">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/07/22/x86%E6%B1%87%E7%BC%96/" class="post-title-link" itemprop="url">x86汇编指令</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-07-22 16:03:48 / 修改时间：16:05:34" itemprop="dateCreated datePublished" datetime="2022-07-22T16:03:48+08:00">2022-07-22</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">操作系统</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>309</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="记录一下不太熟悉的指令"><a href="#记录一下不太熟悉的指令" class="headerlink" title="记录一下不太熟悉的指令"></a>记录一下不太熟悉的指令</h2><h4 id="wbinvd-amp-invd"><a href="#wbinvd-amp-invd" class="headerlink" title="wbinvd &amp; invd"></a>wbinvd &amp; invd</h4><p>写回处理器内部缓存中所有修改的缓存线，并使这些内部缓存失效（清除）。接着，指令发出一个特殊功能的总线周期，指示外部缓存写回修改的数据；并发出另一个总线周期，指示应该使外部缓存失效。</p>
+<p>执行此指令之后，处理器并不等待外部缓存完成写回与清除操作，而是继续执行指令。缓存写回与清除信号的响应由硬件负责。</p>
+<p>WBINVD 指令是特权指令。处理器在保护模式中运行时，程序或过程的 CPL 必须是 0 才能执行此指令。此指令也是序列化指令（请参阅“IA-32 英特尔(R) 体系结构软件开发人员手册”第 3 卷第 7 章中的“序列化指令”）。</p>
+<p>在缓存与主内存是否一致无关紧要的情况下，软件可以使用 INVD 指令。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/GRUB%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -888,196 +1101,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/11/%E6%8A%93%E5%8C%85%E5%88%86%E6%9E%90HTTPS%E8%BF%9E%E6%8E%A5%E5%BB%BA%E7%AB%8B%E7%9A%84%E8%BF%87%E7%A8%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="adventural">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="记录日常">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/11/11/%E6%8A%93%E5%8C%85%E5%88%86%E6%9E%90HTTPS%E8%BF%9E%E6%8E%A5%E5%BB%BA%E7%AB%8B%E7%9A%84%E8%BF%87%E7%A8%8B/" class="post-title-link" itemprop="url">TLS握手协议分析</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-11-11 17:05:17" itemprop="dateCreated datePublished" datetime="2021-11-11T17:05:17+08:00">2021-11-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-11-12 21:33:46" itemprop="dateModified" datetime="2021-11-12T21:33:46+08:00">2021-11-12</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">网络</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>3.8k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>分析TCP握手以及TLS握手</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/11/11/%E6%8A%93%E5%8C%85%E5%88%86%E6%9E%90HTTPS%E8%BF%9E%E6%8E%A5%E5%BB%BA%E7%AB%8B%E7%9A%84%E8%BF%87%E7%A8%8B/">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/10/HTTP%E9%9A%A7%E9%81%93/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="adventural">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="记录日常">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/11/10/HTTP%E9%9A%A7%E9%81%93/" class="post-title-link" itemprop="url">HTTP隧道</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-11-10 17:19:19" itemprop="dateCreated datePublished" datetime="2021-11-10T17:19:19+08:00">2021-11-10</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-11-11 16:51:30" itemprop="dateModified" datetime="2021-11-11T16:51:30+08:00">2021-11-11</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">网络</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.6k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>点开看看吧~</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/11/10/HTTP%E9%9A%A7%E9%81%93/">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1147,7 +1170,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">18</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1204,12 +1227,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">63k</span>
+    <span title="站点总字数">66k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">57 分钟</span>
+    <span title="站点阅读时长">1:01</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>

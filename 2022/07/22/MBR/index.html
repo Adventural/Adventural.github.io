@@ -20,20 +20,23 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="点开看看吧~">
+  <meta name="description" content="MBR（主引导记录）硬盘MBR早在1983年的IBM PC DOS 2.0中就已经提出，比Linux诞生的时间还要早。主引导记录是指采用MBR分区的第一个扇区，这个扇区由三个部分组成：bootloader、硬盘分区表DPT和结束标志字（0x55AA）。mbr磁盘结构如下图所示:   part1: bootloader，位于主引导扇区的前 446 个字节，这一段代码由BIOS加载到内存中的0x7c0">
 <meta property="og:type" content="article">
-<meta property="og:title" content="16位下使用c语言编程-以Linux setup部分代码为例">
-<meta property="og:url" content="http://example.com/2022/07/22/16%E4%BD%8D%E4%B8%8B%E4%BD%BF%E7%94%A8c%E8%AF%AD%E8%A8%80%E7%BC%96%E7%A8%8B-%E4%BB%A5Linux%20setup%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E4%B8%BA%E4%BE%8B/index.html">
+<meta property="og:title" content="MBR详解">
+<meta property="og:url" content="http://example.com/2022/07/22/MBR/index.html">
 <meta property="og:site_name" content="记录日常">
-<meta property="og:description" content="点开看看吧~">
+<meta property="og:description" content="MBR（主引导记录）硬盘MBR早在1983年的IBM PC DOS 2.0中就已经提出，比Linux诞生的时间还要早。主引导记录是指采用MBR分区的第一个扇区，这个扇区由三个部分组成：bootloader、硬盘分区表DPT和结束标志字（0x55AA）。mbr磁盘结构如下图所示:   part1: bootloader，位于主引导扇区的前 446 个字节，这一段代码由BIOS加载到内存中的0x7c0">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-07-22T07:26:55.291Z">
-<meta property="article:modified_time" content="2022-07-22T07:32:55.030Z">
+<meta property="og:image" content="http://example.com/2022/07/22/MBR/mbr.svg">
+<meta property="og:image" content="http://example.com/2022/07/22/MBR/Partition-Alignment.png">
+<meta property="og:image" content="http://example.com/2022/07/22/MBR/Partition-Alignment-LBA-aligned.png">
+<meta property="article:published_time" content="2022-07-22T08:03:55.000Z">
+<meta property="article:modified_time" content="2022-07-22T08:08:40.409Z">
 <meta property="article:author" content="adventural">
-<meta property="article:tag" content="x86">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/07/22/MBR/mbr.svg">
 
-<link rel="canonical" href="http://example.com/2022/07/22/16%E4%BD%8D%E4%B8%8B%E4%BD%BF%E7%94%A8c%E8%AF%AD%E8%A8%80%E7%BC%96%E7%A8%8B-%E4%BB%A5Linux%20setup%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E4%B8%BA%E4%BE%8B/">
+<link rel="canonical" href="http://example.com/2022/07/22/MBR/">
 
 
 <script id="page-configurations">
@@ -46,7 +49,7 @@
   };
 </script>
 
-  <title>16位下使用c语言编程-以Linux setup部分代码为例 | 记录日常</title>
+  <title>MBR详解 | 记录日常</title>
   
 
 
@@ -168,7 +171,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/16%E4%BD%8D%E4%B8%8B%E4%BD%BF%E7%94%A8c%E8%AF%AD%E8%A8%80%E7%BC%96%E7%A8%8B-%E4%BB%A5Linux%20setup%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E4%B8%BA%E4%BE%8B/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/MBR/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -181,7 +184,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          16位下使用c语言编程-以Linux setup部分代码为例
+          MBR详解
         </h1>
 
         <div class="post-meta">
@@ -192,7 +195,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-07-22 15:26:55 / 修改时间：15:32:55" itemprop="dateCreated datePublished" datetime="2022-07-22T15:26:55+08:00">2022-07-22</time>
+              <time title="创建时间：2022-07-22 16:03:55 / 修改时间：16:08:40" itemprop="dateCreated datePublished" datetime="2022-07-22T16:03:55+08:00">2022-07-22</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -217,16 +220,15 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.6k</span>
+              <span>2.2k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>2 分钟</span>
             </span>
-            <div class="post-description">点开看看吧~</div>
 
         </div>
       </header>
@@ -237,50 +239,53 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p><strong># 背景</strong></p>
-<p>最近这段时间在研究操作系统的启动，写了一些自己的代码（参考的Linux以及Grub），但是在写 16 汇编代码的时候出现了一些问题，从汇编代码 call c语言代码总是会出错。因此就花了一些时间 debug，debug 过程中发现了一些有意思的东西，因此在这里将整个分析和debug过程记录一下，方便自己和有需要的人查阅。</p>
-<p>可能是因为大学教材的原因，目前 16 位编程的中文的资料大多都是基于 intel 语法 + nasm 工具。但是从现有的开源项目来看，不论是 Grub 还是 Linux 采用的都是使用 GNU AS，使用的是 AT&amp;T语法 + GNU AS 汇编，使用 GNU AS 的优点就是能使用内联汇编以及 GCC 提供的功能(include头文件、条件编译ifdef等)和 c 语言混合编程。因此本文使用 GCC 工具链（gcc、objcopy、objdump等），以实模式下 Linux 代码为例，分析在 16 位环境下如何实现 c 和汇编的混合编程。</p>
-<p>下面先抛出一些问题，这些问题也是之前困扰我的问题，然后在后面的分析过程中会逐步给出这些问题的答案</p>
-<p>- 16 位模式和 32 位模式的区别在哪？</p>
-<p>- gcc 可以编译出 32 位程序也可以编译出 64 位程序（elf32、elf64），没听过 elf16，那怎么编译出 16 位下可运行的代码。</p>
-<p><strong># 正文</strong></p>
-<p>调试过程中我使用的是 GDB ，但是 GDB 调试 16 位汇编非常的痛苦，不仅看不到 16 位的代码，而且在段寄存器不为 0 的时候无法下断点。所以我使用的方法是先 objdump 反汇编，然后在 GDB 中单步执行，对照着反汇编的代码debug。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objdump -d -m i8086 setup.elf &gt;&gt; setup.asm</span><br></pre></td></tr></table></figure>
+        <h2 id="MBR（主引导记录）硬盘"><a href="#MBR（主引导记录）硬盘" class="headerlink" title="MBR（主引导记录）硬盘"></a>MBR（主引导记录）硬盘</h2><p>MBR早在1983年的IBM PC DOS 2.0中就已经提出，比Linux诞生的时间还要早。主引导记录是指采用MBR分区的第一个扇区，这个扇区由三个部分组成：bootloader、硬盘分区表DPT和结束标志字（0x55AA）。mbr磁盘结构如下图所示:</p>
+<p><img src="./mbr.svg" alt="mbr"></p>
+<ul>
+<li>part1: bootloader，位于主引导扇区的前 446 个字节，这一段代码由BIOS加载到内存中的0x7c00，目的是加载硬盘上其他分区上更大的加载器（如操作系统的启动加载器）。在早期的Linux中，这一部分代码对应的是bootsect.S，更大的加载器则是setup.S。<br></li>
+<li>part2: 分区表，由于这部分只有64字节，而每一个分区表项占据了16字节，因此有MBR最多支持四个分区的说法，但是其中一个分区可以作为扩展分区，然后在这个扩展分区上继续划分逻辑分区。分区表的各项含义如下表。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>偏移</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>第 1 字节</td>
+<td>标志位（80H=活动分区，00为非活动分区）</td>
+</tr>
+<tr>
+<td>第 2 3 4 字节</td>
+<td>起始磁头号（第2字节）、扇区号（第3字节低6位）、柱面号（剩下的10位）</td>
+</tr>
+<tr>
+<td>第 5 字节</td>
+<td>分区类型（00 = 未使用、0F=扩展分区、83=Linux分区…）</td>
+</tr>
+<tr>
+<td>第 6 7 8 字节</td>
+<td>结束磁头号、扇区号、柱面号</td>
+</tr>
+<tr>
+<td>第 9 10 11 12 字节</td>
+<td>逻辑起始扇区号（LBA模式）</td>
+</tr>
+<tr>
+<td>第 13 14 15 16 字节</td>
+<td>总扇区数</td>
+</tr>
+</tbody></table>
+<h3 id="创建一个MBR分区的虚拟磁盘"><a href="#创建一个MBR分区的虚拟磁盘" class="headerlink" title="创建一个MBR分区的虚拟磁盘"></a>创建一个MBR分区的虚拟磁盘</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 建立一个 img 文件模拟硬盘</span></span><br><span class="line">dd <span class="keyword">if</span>=/dev/zero of=a.img bs=<span class="number">1024</span>k count=<span class="number">128</span></span><br><span class="line"><span class="comment">// 或者</span></span><br><span class="line">qemu-img create -f raw a.img <span class="number">128</span>M</span><br><span class="line"></span><br><span class="line"><span class="comment">// 挂载到 loop 设备</span></span><br><span class="line">losetup -f</span><br><span class="line">losetup /dev/loop0 a.img</span><br><span class="line"></span><br><span class="line"><span class="comment">// 分区</span></span><br><span class="line">fdisk /dev/loop0</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印分区信息</span></span><br><span class="line">fdisk -lu /dev/loop0</span><br><span class="line"></span><br><span class="line"><span class="comment">// 映射分区</span></span><br><span class="line">kpartx -av /dev/loop0</span><br><span class="line"></span><br><span class="line"><span class="comment">// 格式化分区为 ext4 文件系统</span></span><br><span class="line">mkfs.ext4 /dev/mapper/loop0p1</span><br><span class="line"></span><br><span class="line"><span class="comment">// 挂载 ext4 分区使用</span></span><br><span class="line">mount /dev/mapper/loop0p1 /mnt</span><br><span class="line"></span><br><span class="line"><span class="comment">// 卸载设备</span></span><br><span class="line">umount /mnt</span><br><span class="line">kpartx -d /dev/loop0</span><br><span class="line">losetup -d /dev/loop0</span><br></pre></td></tr></table></figure>
 
-<p>![image-20220722153225229](G:\blog\source_posts\16位下使用c语言编程-以Linux setup部分代码为例\image-20220722153225229.png)</p>
-<p>如果出现了地址不一样的地方找到了错误。</p>
-<p>回到话题，gcc 既然无法编译出 elf16 的程序，那么如何告诉 gcc 生成16位代码呢？如果看过 Linux setup 部分代码的朋友应该知道，setup 部分实际上是通过 -m32 编译出来的，最后链接的也是 elf-32，</p>
-<p><strong>### initcall 函数分析</strong></p>
-<p>BIOS 中断是 16 位下编程经常使用到的，例如读磁盘 int 0x13、打印字符串 int 0x10 等等。BIOS 在初始化完成后会在物理地址 0 的地方放置一张中断向量表，指向了一系列非常有用的函数。BIOS 调用只能发生在 16 位环境下，因此在进入保护模式之前我们需要尽可能多的收集 BIOS 信息，传递给操作系统。</p>
-<p>既然我们的目标是使用 c 语言编程，那么 BIOS 中断也需要做一层封装，这个封装是比较困难的，BIOS 的各个中断使用到的寄存器都不尽相同，想要适用所有的 BIOS 中断，只能把寄存器和中断号作为参数，</p>
-<p>压栈和出栈看操作数类型，</p>
-<p>Pop a Value from the Stack</p>
-<p>```code</p>
-<p>IF StackAddrSize = 32</p>
-<p>  THEN</p>
-<p>​    IF OperandSize = 32</p>
-<p>​      THEN</p>
-<p>​      DEST ← SS:ESP; (* copy a doubleword *)</p>
-<p>​      ESP ← ESP + 4;</p>
-<p>​    ELSE (* OperandSize = 16*)</p>
-<p>​      DEST ← SS:ESP; (* copy a word *)</p>
-<p>​      ESP ← ESP + 2;</p>
-<p>​    FI;</p>
-<p>ELSE (* StackAddrSize = 16* )</p>
-<p>  IF OperandSize = 16</p>
-<p>​    THEN</p>
-<p>​      DEST ← SS:SP; (* copy a word *)</p>
-<p>​      SP ← SP + 2;</p>
-<p>  ELSE (* OperandSize = 32 *)</p>
-<p>​    DEST ← SS:SP; (* copy a doubleword *)</p>
-<p>​    SP ← SP + 4;</p>
-<p>  FI;</p>
-<p>FI;</p>
-<p>```</p>
-<p><strong>## int 中断</strong></p>
-<p>（1）标志寄存器入栈</p>
-<p>（2）CS:EIP 寄存器入栈，</p>
-<p>（3）通过中断号在中断描述符表中找到对应的描述符，并将对应的数据放入CS:EIP中、</p>
+<h3 id="MBR-Gap"><a href="#MBR-Gap" class="headerlink" title="MBR Gap"></a>MBR Gap</h3><p>在创建第一个分区的时候，我们会发现 fdisk 的默认的第一个分区起始扇区是2048（不可以设置低于2048的值），空出了 1MB 的空间</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Command (m for help): n</span><br><span class="line">Partition type</span><br><span class="line">   p   primary (0 primary, 0 extended, 4 free)</span><br><span class="line">   e   extended (container for logical partitions)</span><br><span class="line">Select (default p): </span><br><span class="line"></span><br><span class="line">Using default response p.</span><br><span class="line">Partition number (1-4, default 1): </span><br><span class="line">First sector (2048-262143, default 2048): </span><br><span class="line">Command (m for help): </span><br></pre></td></tr></table></figure>
+<p>关于这部分空间，GRUB 文档中是这样描述的<br><br>With this(MBR) partition table format, there are two ways to install GRUB: it can be embedded in the area between the MBR and the first partition (called by various names, such as the “boot track”, “MBR gap”, or “embedding area”, and which is usually at least 1000 KiB), or the core image can be installed in a file system and a list of the blocks that make it up can be stored in the first sector of that partition.</p>
+<p>以上这段话大意是说 MBR 硬盘的第一个分区开始位置和 MBR 扇区之间是有”缝隙“的，通常情况下这个”缝隙“至少有1000kb，当这个”缝隙”存在时 GRUB 将会安装在这个”缝隙”内。当然这个”缝隙”也可能不存在或者很小，这是由于历史原因导致的，老式的软盘显然就不会有这么大的”缝隙“，在这种情况下， GRUB 将会安装在文件系统内，这种情况会比较少，因为文件系统可能会移动这些存放 GRUB 的块。目前的硬盘都能够保证至少 1MB 的”缝隙“。</p>
+<h3 id="为什么会有-最小-1MB-的-MBR-Gap"><a href="#为什么会有-最小-1MB-的-MBR-Gap" class="headerlink" title="为什么会有 最小 1MB 的 MBR Gap"></a>为什么会有 最小 1MB 的 MBR Gap</h3><p>过去第一个分区的起始扇区总是63，但是随着技术的发展，这样的分区方式出现了一些问题。<br><br>磁盘有物理扇区大小和逻辑扇区大小，我们平时说的磁盘扇区大小为 512 字节，实际上这个指的是逻辑扇区大小为 512 字节。磁盘的物理扇区是磁盘内部的最小单元大小，老式的软盘大小就是 512 字节，但是现在的硬盘的物理扇区大小可能是 4k 甚至是 8k。<br><br>现在的文件系统也是按簇管理，通常一个簇大小为 1k、4k 甚至更大<br><br>在这样的情况下，设想一个具有 4k 簇大小的文件系统，如果磁盘的物理扇区大小为 4k 或者是 8k，那么文件系统的每一个簇都会横跨两个物理扇区，这样就会带来严重的性能下降问题。<br><img src="./Partition-Alignment.png" alt="Partition-Alignment"><br>为了解决这个问题，现在的磁盘分区总是会默认从最低 1MB 开始。<br><img src="./Partition-Alignment-LBA-aligned.png" alt="Partition-Alignment-LBA-aligned"></p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a href="../../../resources/GNU%20GRUB%20BIOS%20installation.pdf">GRUB 安装文档</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.thomas-krenn.com/en/wiki/Partition_Alignment_detailed_explanation">Partition Alignment detailed explanation</a></p>
 
     </div>
 
@@ -289,9 +294,6 @@
     
 
       <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/x86/" rel="tag"># x86</a>
-          </div>
 
         
 
@@ -299,13 +301,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/11/25/python%E6%A8%A1%E5%9D%97%E7%BC%96%E7%A8%8B/" rel="prev" title="python模块编程">
-      <i class="fa fa-chevron-left"></i> python模块编程
+    <a href="/2022/07/22/x86%E6%B1%87%E7%BC%96/" rel="prev" title="x86汇编指令">
+      <i class="fa fa-chevron-left"></i> x86汇编指令
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/07/22/EDK2%20%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" rel="next" title="EDK2 环境配置">
-      EDK2 环境配置 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -365,6 +364,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#MBR%EF%BC%88%E4%B8%BB%E5%BC%95%E5%AF%BC%E8%AE%B0%E5%BD%95%EF%BC%89%E7%A1%AC%E7%9B%98"><span class="nav-number">1.</span> <span class="nav-text">MBR（主引导记录）硬盘</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AAMBR%E5%88%86%E5%8C%BA%E7%9A%84%E8%99%9A%E6%8B%9F%E7%A3%81%E7%9B%98"><span class="nav-number">1.1.</span> <span class="nav-text">创建一个MBR分区的虚拟磁盘</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MBR-Gap"><span class="nav-number">1.2.</span> <span class="nav-text">MBR Gap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E6%9C%89-%E6%9C%80%E5%B0%8F-1MB-%E7%9A%84-MBR-Gap"><span class="nav-number">1.3.</span> <span class="nav-text">为什么会有 最小 1MB 的 MBR Gap</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="nav-number">2.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -527,7 +527,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'blogComment',
       owner       : 'adventural',
       admin       : ['adventural'],
-      id          : 'b97c52c5b1612f72d215e5016dff41ab',
+      id          : 'a1a95a4974927fd6a29953cf5bd4904e',
         language: 'zh-CN',
       distractionFreeMode: true
     });
