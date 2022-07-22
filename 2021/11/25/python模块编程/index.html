@@ -22,18 +22,18 @@
 
   <meta name="description" content="点开看看吧~">
 <meta property="og:type" content="article">
-<meta property="og:title" content="tornado——RequestHandler和Application类分析">
-<meta property="og:url" content="http://example.com/2021/11/10/tornado%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:title" content="python模块编程">
+<meta property="og:url" content="http://example.com/2021/11/25/python%E6%A8%A1%E5%9D%97%E7%BC%96%E7%A8%8B/index.html">
 <meta property="og:site_name" content="记录日常">
 <meta property="og:description" content="点开看看吧~">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-11-10T08:19:37.000Z">
-<meta property="article:modified_time" content="2021-11-16T08:38:20.150Z">
+<meta property="article:published_time" content="2021-11-25T08:06:54.000Z">
+<meta property="article:modified_time" content="2021-11-25T08:50:22.104Z">
 <meta property="article:author" content="adventural">
-<meta property="article:tag" content="tornado">
+<meta property="article:tag" content="default">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2021/11/10/tornado%E8%AF%A6%E8%A7%A3/">
+<link rel="canonical" href="http://example.com/2021/11/25/python%E6%A8%A1%E5%9D%97%E7%BC%96%E7%A8%8B/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>tornado——RequestHandler和Application类分析 | 记录日常</title>
+  <title>python模块编程 | 记录日常</title>
   
 
 
@@ -168,7 +168,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/10/tornado%E8%AF%A6%E8%A7%A3/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/25/python%E6%A8%A1%E5%9D%97%E7%BC%96%E7%A8%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -181,7 +181,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          tornado——RequestHandler和Application类分析
+          python模块编程
         </h1>
 
         <div class="post-meta">
@@ -190,23 +190,17 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2021-11-10 16:19:37" itemprop="dateCreated datePublished" datetime="2021-11-10T16:19:37+08:00">2021-11-10</time>
+              <time title="创建时间：2021-11-25 16:06:54 / 修改时间：16:50:22" itemprop="dateCreated datePublished" datetime="2021-11-25T16:06:54+08:00">2021-11-25</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-11-16 16:38:20" itemprop="dateModified" datetime="2021-11-16T16:38:20+08:00">2021-11-16</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">网络</span></a>
+                  <a href="/categories/python/" itemprop="url" rel="index"><span itemprop="name">python</span></a>
                 </span>
             </span>
 
@@ -223,7 +217,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>429</span>
+              <span>1.6k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -243,15 +237,36 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h3 id="RequestHandler——处理HTTP请求"><a href="#RequestHandler——处理HTTP请求" class="headerlink" title="RequestHandler——处理HTTP请求"></a>RequestHandler——处理HTTP请求</h3><p>这个类的实现代码很多，内置了很多方法，在使用的时候根据自己的业务类型对需要方法做重写。RequestHandler类的方法基本上可以根据名称来判断用途。</p>
-<h5 id="SUPPORTED-METHODS"><a href="#SUPPORTED-METHODS" class="headerlink" title="SUPPORTED_METHODS"></a>SUPPORTED_METHODS</h5><p>定义该RequestHandler支持的方法</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SUPPORTED_METHODS = (<span class="string">&quot;GET&quot;</span>, <span class="string">&quot;HEAD&quot;</span>, <span class="string">&quot;POST&quot;</span>, <span class="string">&quot;DELETE&quot;</span>, <span class="string">&quot;PATCH&quot;</span>, <span class="string">&quot;PUT&quot;</span>, <span class="string">&quot;OPTIONS&quot;</span>)</span><br></pre></td></tr></table></figure>
+        <h3 id="python项目结构"><a href="#python项目结构" class="headerlink" title="python项目结构"></a>python项目结构</h3><p>一个典型的python项目结构如下所示</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">└── projectname</span><br><span class="line">  ├── __init__.py</span><br><span class="line">  ├── main.py</span><br><span class="line">  └── modules</span><br><span class="line">      ├── __init__.py</span><br><span class="line">      └── module1.py</span><br><span class="line">      └── module2.py</span><br><span class="line">  └── ui</span><br><span class="line">      ├── __init__.py</span><br><span class="line">      └── view.py</span><br><span class="line">      └── item.py</span><br></pre></td></tr></table></figure>
 
+<h4 id="根目录"><a href="#根目录" class="headerlink" title="根目录"></a>根目录</h4><p>main.py一般作为整个项目的入口点</p>
+<p>modules文件夹存放modules子模块的文件</p>
+<h4 id="init-py的作用"><a href="#init-py的作用" class="headerlink" title="__init__.py的作用"></a>__init__.py的作用</h4><p>python当中几乎每个文件夹下面都有<code>__init__.py</code>，这个文件的作用有两点：</p>
+<p>一是python的<code>setuptools</code>包中的<code>find_packages()</code>函数会自动识别<code>__init__.py</code>文件的存在，如果一个目录存在<code>__init__.py</code>，那么该目录就会被当成一个子包，<code>find_packages()</code>函数返回当前包中的所有子包供打包使用。</p>
+<p>二是<code>__init__.py</code>在包被导入的时候会自动执行，有时可以帮助我们完成一些操作，如简化import等</p>
+<h5 id="import的两种方式"><a href="#import的两种方式" class="headerlink" title="import的两种方式"></a>import的两种方式</h5><p>以上面的目录结构为例，<code>module1.py</code>中存在一个<code>Test</code>类</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># projectname/modules/module1.py</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Test</span>(<span class="params"><span class="built_in">object</span></span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init</span>():</span></span><br><span class="line">        <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
 
+<p>这时候如果在其他python文件中想要使用<code>Test</code>类，根据文件位置的不同有以下几种情况</p>
+<p><code>modules</code>文件夹下的<code>module2.py</code>，<code>module2.py</code>和<code>module1.py</code>在同一个文件夹下，有两种方式import</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> .module1 <span class="keyword">import</span> Test</span><br><span class="line"><span class="keyword">from</span> projectname.modules.module1 <span class="keyword">import</span> Test</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RequestHandler</span>(<span class="params"><span class="built_in">object</span></span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, application, request, **kwargs</span>)</span></span><br><span class="line"><span class="function">    </span></span><br></pre></td></tr></table></figure>
+<p>第一种是相对导入，第二种是绝对导入。如果在<code>ui</code>文件夹或者主文件夹下导入<code>Test</code>，建议使用绝对导入方式，易于阅读。</p>
+<h5 id="init-py的包提升"><a href="#init-py的包提升" class="headerlink" title="__init__.py的包提升"></a>__init__.py的包提升</h5><p>有时候由于目录结构很深，如果使用一级一级包名就会很长，如<code>projectname.modules.module1</code>，有没有方法可以通过<code>import modules</code>来导入<code>module1.py</code>当中的<code>Test</code>类呢？</p>
+<p>如上所述，当一个python包被import导入时其目录下的<code>__init__.py</code>会自动执行，我们可以借助<code>modules</code>文件夹下的<code>__init__.py</code>来完成这个功能。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># projectname/modules/__init__.py</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> .module1 <span class="keyword">import</span> Test</span><br><span class="line"><span class="comment"># or</span></span><br><span class="line"><span class="keyword">from</span> projectname.modules.module1 <span class="keyword">import</span> Test</span><br></pre></td></tr></table></figure>
 
-<h3 id="Application——URI转发"><a href="#Application——URI转发" class="headerlink" title="Application——URI转发"></a>Application——URI转发</h3><h3 id="TCPServer"><a href="#TCPServer" class="headerlink" title="TCPServer"></a>TCPServer</h3><h3 id="TCPClient"><a href="#TCPClient" class="headerlink" title="TCPClient"></a>TCPClient</h3><h3 id="HTTPServer"><a href="#HTTPServer" class="headerlink" title="HTTPServer"></a>HTTPServer</h3><h3 id="HTTPClient"><a href="#HTTPClient" class="headerlink" title="HTTPClient"></a>HTTPClient</h3><h3 id="IOStream"><a href="#IOStream" class="headerlink" title="IOStream"></a>IOStream</h3><h3 id="IOLoop"><a href="#IOLoop" class="headerlink" title="IOLoop"></a>IOLoop</h3>
+<p>这个时候在main.py当中就可以通过下面的语句完成Test的导入</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> modules <span class="keyword">import</span> Test</span><br></pre></td></tr></table></figure>
+
+<p>从功能上来看，这样的操作相当于把<code>module1</code>包中的内容提升到了<code>modules</code>包（文件夹）。</p>
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><p>一个python文件可以是一个包，一个目录也可以是一个包，但是目录不能像python文件那样书写内容，于是引入了<code>__init__.py</code>，它里面的内容就是import的时候执行的操作</p>
+<h4 id="all"><a href="#all" class="headerlink" title="__all__"></a>__all__</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># __all__可以在模块级别暴露接口，形式如下：</span></span><br><span class="line">__all__ = [<span class="string">&quot;foo&quot;</span>, <span class="string">&quot;bar&quot;</span>]</span><br></pre></td></tr></table></figure>
+
+<p>默认的import一个文件或者一个包会将文件或包中的所有可见内容导入进来。但是python 没有原生的可见性控制，其可见性的维护是靠一套需要大家自觉遵守的”约定“，比如，下划线开头的变量对外部不可见。</p>
+<p>_<em>all</em>_ 是针对模块公开接口的一种约定，以提供了”白名单“的形式暴露接口。如果定义了__all__，其他文件中使用from xxx import *导入该文件时，只会导入__all__ 列出的成员，可以其他成员都被排除在外。</p>
+
     </div>
 
     
@@ -260,7 +275,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/tornado/" rel="tag"># tornado</a>
+              <a href="/tags/default/" rel="tag"># default</a>
           </div>
 
         
@@ -269,12 +284,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/11/06/yum%E4%BB%A5%E5%8F%8Arpm/" rel="prev" title="RPM详解">
-      <i class="fa fa-chevron-left"></i> RPM详解
+    <a href="/2021/11/20/linux2-6%E5%86%85%E6%A0%B8%E2%80%94%E2%80%94makefile%E5%88%86%E6%9E%90/" rel="prev" title="linux2.6内核——makefile分析">
+      <i class="fa fa-chevron-left"></i> linux2.6内核——makefile分析
     </a></div>
       <div class="post-nav-item">
-    <a href="/2021/11/10/HTTP%E9%9A%A7%E9%81%93/" rel="next" title="HTTP隧道">
-      HTTP隧道 <i class="fa fa-chevron-right"></i>
+    <a href="/2022/07/22/16%E4%BD%8D%E4%B8%8B%E4%BD%BF%E7%94%A8c%E8%AF%AD%E8%A8%80%E7%BC%96%E7%A8%8B-%E4%BB%A5Linux%20setup%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E4%B8%BA%E4%BE%8B/" rel="next" title="16位下使用c语言编程-以Linux setup部分代码为例">
+      16位下使用c语言编程-以Linux setup部分代码为例 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -335,7 +350,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#RequestHandler%E2%80%94%E2%80%94%E5%A4%84%E7%90%86HTTP%E8%AF%B7%E6%B1%82"><span class="nav-number">1.</span> <span class="nav-text">RequestHandler——处理HTTP请求</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#SUPPORTED-METHODS"><span class="nav-number">1.0.1.</span> <span class="nav-text">SUPPORTED_METHODS</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Application%E2%80%94%E2%80%94URI%E8%BD%AC%E5%8F%91"><span class="nav-number">2.</span> <span class="nav-text">Application——URI转发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCPServer"><span class="nav-number">3.</span> <span class="nav-text">TCPServer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCPClient"><span class="nav-number">4.</span> <span class="nav-text">TCPClient</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTPServer"><span class="nav-number">5.</span> <span class="nav-text">HTTPServer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTPClient"><span class="nav-number">6.</span> <span class="nav-text">HTTPClient</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IOStream"><span class="nav-number">7.</span> <span class="nav-text">IOStream</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IOLoop"><span class="nav-number">8.</span> <span class="nav-text">IOLoop</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#python%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">python项目结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%B9%E7%9B%AE%E5%BD%95"><span class="nav-number">1.1.</span> <span class="nav-text">根目录</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#init-py%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">__init__.py的作用</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#import%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F"><span class="nav-number">1.2.1.</span> <span class="nav-text">import的两种方式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#init-py%E7%9A%84%E5%8C%85%E6%8F%90%E5%8D%87"><span class="nav-number">1.2.2.</span> <span class="nav-text">__init__.py的包提升</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.2.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#all"><span class="nav-number">1.3.</span> <span class="nav-text">__all__</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -498,7 +513,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'blogComment',
       owner       : 'adventural',
       admin       : ['adventural'],
-      id          : 'f637e7a74efbf8363a36cf411b86a966',
+      id          : '8a56b24505407395a732d1a79c7c2f3c',
         language: 'zh-CN',
       distractionFreeMode: true
     });
