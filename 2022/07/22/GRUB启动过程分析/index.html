@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="点开看看吧~">
+  <meta name="description" content="分析GRUB是如何自加载到内存的">
 <meta property="og:type" content="article">
-<meta property="og:title" content="GRUB 引导阶段过程分析">
+<meta property="og:title" content="GRUB 启动过程分析">
 <meta property="og:url" content="http://example.com/2022/07/22/GRUB%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/index.html">
 <meta property="og:site_name" content="记录日常">
-<meta property="og:description" content="点开看看吧~">
+<meta property="og:description" content="分析GRUB是如何自加载到内存的">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-07-22T07:59:44.856Z">
-<meta property="article:modified_time" content="2022-07-22T08:01:44.476Z">
+<meta property="article:modified_time" content="2022-07-22T08:30:15.894Z">
 <meta property="article:author" content="adventural">
 <meta property="article:tag" content="grub">
 <meta name="twitter:card" content="summary">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>GRUB 引导阶段过程分析 | 记录日常</title>
+  <title>GRUB 启动过程分析 | 记录日常</title>
   
 
 
@@ -181,7 +181,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          GRUB 引导阶段过程分析
+          GRUB 启动过程分析
         </h1>
 
         <div class="post-meta">
@@ -192,7 +192,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-07-22 15:59:44 / 修改时间：16:01:44" itemprop="dateCreated datePublished" datetime="2022-07-22T15:59:44+08:00">2022-07-22</time>
+              <time title="创建时间：2022-07-22 15:59:44 / 修改时间：16:30:15" itemprop="dateCreated datePublished" datetime="2022-07-22T15:59:44+08:00">2022-07-22</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -226,7 +226,7 @@
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
               <span>4 分钟</span>
             </span>
-            <div class="post-description">点开看看吧~</div>
+            <div class="post-description">分析GRUB是如何自加载到内存的</div>
 
         </div>
       </header>
@@ -237,7 +237,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="GRUB-引导阶段过程分析"><a href="#GRUB-引导阶段过程分析" class="headerlink" title="GRUB 引导阶段过程分析"></a>GRUB 引导阶段过程分析</h2><h4 id="Stage1-流程分析（boot-img）"><a href="#Stage1-流程分析（boot-img）" class="headerlink" title="Stage1 流程分析（boot.img）"></a>Stage1 流程分析（boot.img）</h4><p>boot.img由boot.S编译而来。<br>boot.S涉及到的宏定义在&lt;grub/machine/boot.h&gt;, i386下会展开为include/grub/i386/coreboot/boot/.h<br>boot.S主要做了一件事情，加载下一阶段代码到内存，然后jmp到kernel_address。具体来说boot.S先判断磁盘是否支持LBA，如果支持则使用0x42号子功能,否则使用chs模式读，以LBA读为例，有关代码如下：</p>
+        <h2 id="GRUB-引导阶段过程分析"><a href="#GRUB-引导阶段过程分析" class="headerlink" title="GRUB 引导阶段过程分析"></a>GRUB 引导阶段过程分析</h2><h4 id="boot-阶段分析（boot-img）"><a href="#boot-阶段分析（boot-img）" class="headerlink" title="boot 阶段分析（boot.img）"></a>boot 阶段分析（boot.img）</h4><p>boot.img由boot.S编译而来。<br>boot.S涉及到的宏定义在&lt;grub/machine/boot.h&gt;, i386下会展开为include/grub/i386/coreboot/boot/.h<br>boot.S主要做了一件事情，加载下一阶段代码到内存，然后jmp到kernel_address。具体来说boot.S先判断磁盘是否支持LBA，如果支持则使用0x42号子功能,否则使用chs模式读，以LBA读为例，有关代码如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">mode:</span><br><span class="line">	.byte	<span class="number">0</span></span><br><span class="line">disk_address_packet:</span><br><span class="line">sectors:</span><br><span class="line">	.<span class="keyword">long</span>	<span class="number">0</span></span><br><span class="line">heads:</span><br><span class="line">	.<span class="keyword">long</span>	<span class="number">0</span></span><br><span class="line">cylinders:</span><br><span class="line">	.word	<span class="number">0</span></span><br><span class="line">sector_start:</span><br><span class="line">	.byte	<span class="number">0</span></span><br><span class="line">head_start:</span><br><span class="line">	.byte	<span class="number">0</span></span><br><span class="line">cylinder_start:</span><br><span class="line">	.word	<span class="number">0</span></span><br><span class="line">	<span class="comment">/* more space... */</span></span><br><span class="line">	. = _start + GRUB_BOOT_MACHINE_BPB_END</span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	 * End of BIOS parameter block.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">kernel_address:</span><br><span class="line">	.word	GRUB_BOOT_MACHINE_KERNEL_ADDR</span><br><span class="line"></span><br><span class="line">	. = _start + GRUB_BOOT_MACHINE_KERNEL_SECTOR</span><br><span class="line">kernel_sector:</span><br><span class="line">	.<span class="keyword">long</span>	<span class="number">1</span>, <span class="number">0</span></span><br></pre></td></tr></table></figure>
 <p>disk_address_packet存储了0x42号子功能需要的参数，对应上面的struct buffer_packet。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">lba_mode:</span><br><span class="line">	xorw	%ax, %ax</span><br><span class="line">	movw	%ax, <span class="number">4</span>(%si)</span><br><span class="line"></span><br><span class="line">	incw	%ax</span><br><span class="line">	<span class="comment">/* set the mode to non-zero */</span></span><br><span class="line">	movb	%al, <span class="number">-1</span>(%si)</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* the blocks */</span></span><br><span class="line">	movw	%ax, <span class="number">2</span>(%si)</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* the size and the reserved byte */</span></span><br><span class="line">	movw	$<span class="number">0x0010</span>, (%si)</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* the absolute address */</span></span><br><span class="line">	movl	kernel_sector, %ebx</span><br><span class="line">	movl	%ebx, <span class="number">8</span>(%si)</span><br><span class="line">	movl	kernel_sector + <span class="number">4</span>, %ebx</span><br><span class="line">	movl	%ebx, <span class="number">12</span>(%si)</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * BIOS call &quot;INT 0x13 Function 0x42&quot; to read sectors from disk into memory</span></span><br><span class="line"><span class="comment"> *	Call with	%ah = 0x42</span></span><br><span class="line"><span class="comment"> *			%dl = drive number</span></span><br><span class="line"><span class="comment"> *			%ds:%si = segment:offset of disk address packet</span></span><br><span class="line"><span class="comment"> *	Return:</span></span><br><span class="line"><span class="comment"> *			%al = 0x0 on success; err code on failure</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">/* the segment of buffer address */</span></span><br><span class="line">	movw	$GRUB_BOOT_MACHINE_BUFFER_SEG, <span class="number">6</span>(%si)</span><br><span class="line">	movb	$<span class="number">0x42</span>, %ah</span><br><span class="line">	<span class="keyword">int</span>	$<span class="number">0x13</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* LBA read is not supported, so fallback to CHS.  */</span></span><br><span class="line">	<span class="function">jc	<span class="title">LOCAL</span><span class="params">(chs_mode)</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">	movw	$GRUB_BOOT_MACHINE_BUFFER_SEG, %bx</span></span><br><span class="line"><span class="function">	jmp	<span class="title">LOCAL</span><span class="params">(copy_buffer)</span></span></span><br></pre></td></tr></table></figure>
@@ -246,7 +246,7 @@
 <p>这一段的代码和名字一样，功能是把ds:si指向的0x70000:0处的内容copy到es:di指向的0x800:0, 大小是256个字也就是512字节。<br>相关的宏代码在boot.h和offset.h中都能找到, kernel_address存放的就是GRUB_BOOT_MACHINE_KERNEL_ADDR</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// boot.h</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GRUB_BOOT_MACHINE_BUFFER_SEG 0x7000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GRUB_BOOT_MACHINE_KERNEL_ADDR (GRUB_BOOT_MACHINE_KERNEL_SEG &lt;&lt; 4)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// offset.h</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GRUB_BOOT_MACHINE_KERNEL_SEG GRUB_OFFSETS_CONCAT(GRUB_BOOT_, GRUB_MACHINE, _KERNEL_SEG)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> GRUB_BOOT_I386_PC_KERNEL_SEG 0x800</span></span><br></pre></td></tr></table></figure>
 <p>boot.S只做了一件事情：读取下一阶段代码到0x7000：0，然后把内容拷贝到0x800：0，最后<code>jmp    *(kernel_address)</code>去执行代码。boot.S受限于512字节的大小，不可能做太多的事情，因此这个阶段的grub还无法识别磁盘的文件系统，不知道其他文件在磁盘的位置。</p>
-<h4 id="Stage1-5阶段分析-diskboot-img"><a href="#Stage1-5阶段分析-diskboot-img" class="headerlink" title="Stage1.5阶段分析(diskboot.img)"></a>Stage1.5阶段分析(diskboot.img)</h4><p>下一阶段代码是diskboot.S, 对应grub编译完成后生成的diskboot.img，大小为512字节。从上一段代码的分析来看<code>kernel_sector</code>存放了diskboot.img在磁盘的起始位置和大小（1个扇区），代码中的<code>kernel_sector</code>对于起始位置初始成了0，实际上这个地址的值由安装程序写入，写入的是diskboot.img在文件系统的具体位置。<br>diskboot实际上也是把文件从磁盘上搬到内存中，不同于boot的是，diskboot有一个地址表：</p>
+<h4 id="diskboot-阶段分析-diskboot-img"><a href="#diskboot-阶段分析-diskboot-img" class="headerlink" title="diskboot 阶段分析(diskboot.img)"></a>diskboot 阶段分析(diskboot.img)</h4><p>下一阶段代码是diskboot.S, 对应grub编译完成后生成的diskboot.img，大小为512字节。从上一段代码的分析来看<code>kernel_sector</code>存放了diskboot.img在磁盘的起始位置和大小（1个扇区），代码中的<code>kernel_sector</code>对于起始位置初始成了0，实际上这个地址的值由安装程序写入，写入的是diskboot.img在文件系统的具体位置。<br>diskboot实际上也是把文件从磁盘上搬到内存中，不同于boot的是，diskboot有一个地址表：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">LOCAL(firstlist):	<span class="comment">/* this label has to be before the first list entry!!! */</span></span><br><span class="line">        <span class="comment">/* fill the first data listing with the default */</span></span><br><span class="line">blocklist_default_start:</span><br><span class="line">	<span class="comment">/* this is the sector start parameter, in logical sectors from</span></span><br><span class="line"><span class="comment">	   the start of the disk, sector 0 */</span></span><br><span class="line">	.<span class="keyword">long</span> <span class="number">2</span>, <span class="number">0</span></span><br><span class="line">blocklist_default_len:</span><br><span class="line">	<span class="comment">/* this is the number of sectors to read.  grub-mkimage</span></span><br><span class="line"><span class="comment">	   will fill this up */</span></span><br><span class="line">	.word <span class="number">0</span></span><br><span class="line">blocklist_default_seg:</span><br><span class="line">	<span class="comment">/* this is the segment of the starting address to load the data into */</span></span><br><span class="line">	.word (GRUB_BOOT_MACHINE_KERNEL_SEG + <span class="number">0x20</span>)</span><br></pre></td></tr></table></figure>
 <p>这个表是倒着放的，每个表项有12个字节，每个表项存放了（扇区号，长度，内存地址）。通过这样一个表，diskboot就可以将grub的kernel部分加载到内存中。每个表项的值也是由安装程序写入的。</p>
 <h4 id="汇编相关知识"><a href="#汇编相关知识" class="headerlink" title="汇编相关知识"></a>汇编相关知识</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 指明当前语句开始的位置，和ld脚本里面的.作用差不多，空出来的地方在编译后使用0填充</span></span><br><span class="line">. = _start + GRUB_BOOT_MACHINE_KERNEL_SECTOR</span><br><span class="line"></span><br><span class="line"><span class="comment">// 源文件</span></span><br><span class="line">.globl _start, start;</span><br><span class="line">_start:</span><br><span class="line">start:</span><br><span class="line">        cli</span><br><span class="line">        mov %ax, %bx</span><br><span class="line">        jmp bbb</span><br><span class="line"></span><br><span class="line">. = <span class="number">0x300</span></span><br><span class="line">bbb:</span><br><span class="line">        mov %cx, %dx</span><br><span class="line"></span><br><span class="line"><span class="comment">// 反汇编结果 </span></span><br><span class="line">Disassembly of section .text:</span><br><span class="line"></span><br><span class="line"><span class="number">00000000</span> &lt;_start&gt;:</span><br><span class="line">   <span class="number">0</span>:	fa                   	cli    </span><br><span class="line">   <span class="number">1</span>:	<span class="number">66</span> <span class="number">89</span> c3             	mov    %eax,%ebx</span><br><span class="line">   <span class="number">4</span>:	e9 f7 <span class="number">02</span>             	jmp    <span class="number">2f</span>e &lt;_start+<span class="number">0x2fe</span>&gt;</span><br><span class="line">	...</span><br><span class="line"></span><br><span class="line"><span class="number">00000300</span> &lt;bbb&gt;:</span><br><span class="line"> <span class="number">300</span>:	<span class="number">66</span> <span class="number">89</span> ca             	mov    %ecx,%edx</span><br><span class="line"></span><br></pre></td></tr></table></figure>
@@ -346,7 +346,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#GRUB-%E5%BC%95%E5%AF%BC%E9%98%B6%E6%AE%B5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">GRUB 引导阶段过程分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Stage1-%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90%EF%BC%88boot-img%EF%BC%89"><span class="nav-number">1.0.1.</span> <span class="nav-text">Stage1 流程分析（boot.img）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Stage1-5%E9%98%B6%E6%AE%B5%E5%88%86%E6%9E%90-diskboot-img"><span class="nav-number">1.0.2.</span> <span class="nav-text">Stage1.5阶段分析(diskboot.img)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B1%87%E7%BC%96%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86"><span class="nav-number">1.0.3.</span> <span class="nav-text">汇编相关知识</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#GRUB-%E5%BC%95%E5%AF%BC%E9%98%B6%E6%AE%B5%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90"><span class="nav-number">1.</span> <span class="nav-text">GRUB 引导阶段过程分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#boot-%E9%98%B6%E6%AE%B5%E5%88%86%E6%9E%90%EF%BC%88boot-img%EF%BC%89"><span class="nav-number">1.0.1.</span> <span class="nav-text">boot 阶段分析（boot.img）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#diskboot-%E9%98%B6%E6%AE%B5%E5%88%86%E6%9E%90-diskboot-img"><span class="nav-number">1.0.2.</span> <span class="nav-text">diskboot 阶段分析(diskboot.img)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B1%87%E7%BC%96%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86"><span class="nav-number">1.0.3.</span> <span class="nav-text">汇编相关知识</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -360,20 +360,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-count">21</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -417,12 +417,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">66k</span>
+    <span title="站点总字数">84k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:01</span>
+    <span title="站点阅读时长">1:16</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>

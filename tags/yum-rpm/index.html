@@ -20,20 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="点开看看吧~">
-<meta property="og:type" content="article">
-<meta property="og:title" content="16位下使用c语言编程-以Linux setup部分代码为例">
-<meta property="og:url" content="http://example.com/2022/07/22/16%E4%BD%8D%E4%B8%8B%E4%BD%BF%E7%94%A8c%E8%AF%AD%E8%A8%80%E7%BC%96%E7%A8%8B-%E4%BB%A5Linux%20setup%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E4%B8%BA%E4%BE%8B/index.html">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="记录日常">
+<meta property="og:url" content="http://example.com/tags/yum-rpm/index.html">
 <meta property="og:site_name" content="记录日常">
-<meta property="og:description" content="点开看看吧~">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2022-07-22T07:26:55.291Z">
-<meta property="article:modified_time" content="2022-07-22T07:32:55.030Z">
 <meta property="article:author" content="adventural">
-<meta property="article:tag" content="x86">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2022/07/22/16%E4%BD%8D%E4%B8%8B%E4%BD%BF%E7%94%A8c%E8%AF%AD%E8%A8%80%E7%BC%96%E7%A8%8B-%E4%BB%A5Linux%20setup%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E4%B8%BA%E4%BE%8B/">
+<link rel="canonical" href="http://example.com/tags/yum-rpm/">
 
 
 <script id="page-configurations">
@@ -41,12 +36,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : true,
+    isPost : false,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>16位下使用c语言编程-以Linux setup部分代码为例 | 记录日常</title>
+  <title>标签: yum,rpm | 记录日常</title>
   
 
 
@@ -161,164 +156,57 @@
         <div class="content-wrap">
           
 
-          <div class="content post posts-expand">
+          <div class="content tag">
             
 
-    
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/16%E4%BD%8D%E4%B8%8B%E4%BD%BF%E7%94%A8c%E8%AF%AD%E8%A8%80%E7%BC%96%E7%A8%8B-%E4%BB%A5Linux%20setup%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E4%B8%BA%E4%BE%8B/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="adventural">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="记录日常">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          16位下使用c语言编程-以Linux setup部分代码为例
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2022-07-22 15:26:55 / 修改时间：15:32:55" itemprop="dateCreated datePublished" datetime="2022-07-22T15:26:55+08:00">2022-07-22</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">操作系统</span></a>
-                </span>
-            </span>
-
-          
-            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span id="busuanzi_value_page_pv"></span>
-            </span><br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1.6k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-            <div class="post-description">点开看看吧~</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
+  
+  <div class="post-block">
+    <div class="posts-collapse">
+      <div class="collection-title">
+        <h2 class="collection-header">yum,rpm
+          <small>标签</small>
+        </h2>
+      </div>
 
       
-        <p><strong># 背景</strong></p>
-<p>最近这段时间在研究操作系统的启动，写了一些自己的代码（参考的Linux以及Grub），但是在写 16 汇编代码的时候出现了一些问题，从汇编代码 call c语言代码总是会出错。因此就花了一些时间 debug，debug 过程中发现了一些有意思的东西，因此在这里将整个分析和debug过程记录一下，方便自己和有需要的人查阅。</p>
-<p>可能是因为大学教材的原因，目前 16 位编程的中文的资料大多都是基于 intel 语法 + nasm 工具。但是从现有的开源项目来看，不论是 Grub 还是 Linux 采用的都是使用 GNU AS，使用的是 AT&amp;T语法 + GNU AS 汇编，使用 GNU AS 的优点就是能使用内联汇编以及 GCC 提供的功能(include头文件、条件编译ifdef等)和 c 语言混合编程。因此本文使用 GCC 工具链（gcc、objcopy、objdump等），以实模式下 Linux 代码为例，分析在 16 位环境下如何实现 c 和汇编的混合编程。</p>
-<p>下面先抛出一些问题，这些问题也是之前困扰我的问题，然后在后面的分析过程中会逐步给出这些问题的答案</p>
-<p>- 16 位模式和 32 位模式的区别在哪？</p>
-<p>- gcc 可以编译出 32 位程序也可以编译出 64 位程序（elf32、elf64），没听过 elf16，那怎么编译出 16 位下可运行的代码。</p>
-<p><strong># 正文</strong></p>
-<p>调试过程中我使用的是 GDB ，但是 GDB 调试 16 位汇编非常的痛苦，不仅看不到 16 位的代码，而且在段寄存器不为 0 的时候无法下断点。所以我使用的方法是先 objdump 反汇编，然后在 GDB 中单步执行，对照着反汇编的代码debug。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">objdump -d -m i8086 setup.elf &gt;&gt; setup.asm</span><br></pre></td></tr></table></figure>
-
-<p>![image-20220722153225229](G:\blog\source_posts\16位下使用c语言编程-以Linux setup部分代码为例\image-20220722153225229.png)</p>
-<p>如果出现了地址不一样的地方找到了错误。</p>
-<p>回到话题，gcc 既然无法编译出 elf16 的程序，那么如何告诉 gcc 生成16位代码呢？如果看过 Linux setup 部分代码的朋友应该知道，setup 部分实际上是通过 -m32 编译出来的，最后链接的也是 elf-32，</p>
-<p><strong>### initcall 函数分析</strong></p>
-<p>BIOS 中断是 16 位下编程经常使用到的，例如读磁盘 int 0x13、打印字符串 int 0x10 等等。BIOS 在初始化完成后会在物理地址 0 的地方放置一张中断向量表，指向了一系列非常有用的函数。BIOS 调用只能发生在 16 位环境下，因此在进入保护模式之前我们需要尽可能多的收集 BIOS 信息，传递给操作系统。</p>
-<p>既然我们的目标是使用 c 语言编程，那么 BIOS 中断也需要做一层封装，这个封装是比较困难的，BIOS 的各个中断使用到的寄存器都不尽相同，想要适用所有的 BIOS 中断，只能把寄存器和中断号作为参数，</p>
-<p>压栈和出栈看操作数类型，</p>
-<p>Pop a Value from the Stack</p>
-<p>```code</p>
-<p>IF StackAddrSize = 32</p>
-<p>  THEN</p>
-<p>​    IF OperandSize = 32</p>
-<p>​      THEN</p>
-<p>​      DEST ← SS:ESP; (* copy a doubleword *)</p>
-<p>​      ESP ← ESP + 4;</p>
-<p>​    ELSE (* OperandSize = 16*)</p>
-<p>​      DEST ← SS:ESP; (* copy a word *)</p>
-<p>​      ESP ← ESP + 2;</p>
-<p>​    FI;</p>
-<p>ELSE (* StackAddrSize = 16* )</p>
-<p>  IF OperandSize = 16</p>
-<p>​    THEN</p>
-<p>​      DEST ← SS:SP; (* copy a word *)</p>
-<p>​      SP ← SP + 2;</p>
-<p>  ELSE (* OperandSize = 32 *)</p>
-<p>​    DEST ← SS:SP; (* copy a doubleword *)</p>
-<p>​    SP ← SP + 4;</p>
-<p>  FI;</p>
-<p>FI;</p>
-<p>```</p>
-<p><strong>## int 中断</strong></p>
-<p>（1）标志寄存器入栈</p>
-<p>（2）CS:EIP 寄存器入栈，</p>
-<p>（3）通过中断号在中断描述符表中找到对应的描述符，并将对应的数据放入CS:EIP中、</p>
-
+    <div class="collection-year">
+      <span class="collection-header">2021</span>
     </div>
 
-    
-    
-    
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
 
-      <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/x86/" rel="tag"># x86</a>
-          </div>
+      <div class="post-meta">
+        <time itemprop="dateCreated"
+              datetime="2021-11-06T17:15:52+08:00"
+              content="2021-11-06">
+          11-06
+        </time>
+      </div>
 
-        
+      <div class="post-title">
+          <a class="post-title-link" href="/2021/11/06/yum%E4%BB%A5%E5%8F%8Arpm/" itemprop="url">
+            <span itemprop="name">RPM详解</span>
+          </a>
+      </div>
 
-
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2021/11/25/python%E6%A8%A1%E5%9D%97%E7%BC%96%E7%A8%8B/" rel="prev" title="python模块编程">
-      <i class="fa fa-chevron-left"></i> python模块编程
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2022/07/22/EDK2%20%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" rel="next" title="EDK2 环境配置">
-      EDK2 环境配置 <i class="fa fa-chevron-right"></i>
-    </a></div>
-    </div>
-      </footer>
-    
+    </header>
   </article>
+
+    </div>
+  </div>
   
   
+  
+
   
 
 
 
           </div>
           
-    <div class="comments" id="gitalk-container"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -378,20 +266,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-count">21</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -435,12 +323,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">66k</span>
+    <span title="站点总字数">84k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:01</span>
+    <span title="站点阅读时长">1:16</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
@@ -516,25 +404,6 @@
 
   
 
-<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
-
-<script>
-NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
-  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
-    var gitalk = new Gitalk({
-      clientID    : 'a06eccf4fe9b5520bc7a',
-      clientSecret: '76973c8e133849cd1f6a471c7ccfb1c9c811841b',
-      repo        : 'blogComment',
-      owner       : 'adventural',
-      admin       : ['adventural'],
-      id          : 'b97c52c5b1612f72d215e5016dff41ab',
-        language: 'zh-CN',
-      distractionFreeMode: true
-    });
-    gitalk.render('gitalk-container');
-  }, window.Gitalk);
-});
-</script>
 
 </body>
 </html>

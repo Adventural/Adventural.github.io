@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文从makefile的角度分析 Linux 的几种映像格式bzImage、Image和zImage">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MBR详解">
+<meta property="og:url" content="http://example.com/2022/07/22/Linux%E6%98%A0%E5%83%8F%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="记录日常">
+<meta property="og:description" content="本文从makefile的角度分析 Linux 的几种映像格式bzImage、Image和zImage">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/07/22/Linux%E6%98%A0%E5%83%8F%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90/bzImage.png">
+<meta property="article:published_time" content="2022-07-22T08:14:01.000Z">
+<meta property="article:modified_time" content="2022-07-22T08:32:05.566Z">
+<meta property="article:author" content="adventural">
+<meta property="article:tag" content="Linux,x86">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/07/22/Linux%E6%98%A0%E5%83%8F%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90/bzImage.png">
+
+<link rel="canonical" href="http://example.com/2022/07/22/Linux%E6%98%A0%E5%83%8F%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MBR详解 | 记录日常</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">记录日常</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/adventural" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/Linux%E6%98%A0%E5%83%8F%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="adventural">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录日常">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MBR详解
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-07-22 16:14:01 / 修改时间：16:32:05" itemprop="dateCreated datePublished" datetime="2022-07-22T16:14:01+08:00">2022-07-22</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">操作系统</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>17k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>15 分钟</span>
+            </span>
+            <div class="post-description">本文从makefile的角度分析 Linux 的几种映像格式bzImage、Image和zImage</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Linux-映像结构"><a href="#Linux-映像结构" class="headerlink" title="Linux 映像结构"></a>Linux 映像结构</h1><p>编译完的 Linux 映像文件有几种，bzImage、Image以及zImage和uImage。可以从 makefile 分析他们的区别。</p>
+<h2 id="Image"><a href="#Image" class="headerlink" title="Image"></a>Image</h2><p>x86 下的 makefile 没有找到 Image 的生成规则。arch/arm/boot/Makefile 下有 Image 镜像的生成规则</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># arch/arm/boot/Makefile</span></span><br><span class="line">OBJCOPYFLAGS	:=-O binary -R .comment -S</span><br><span class="line"></span><br><span class="line"><span class="variable">$(obj)</span>/Image: vmlinux FORCE</span><br><span class="line">	<span class="variable">$(<span class="built_in">call</span> if_changed,objcopy)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># scripts/Kbuild.include</span></span><br><span class="line">if_changed = <span class="variable">$(<span class="built_in">if</span> $(<span class="built_in">strip</span> $(any-prereq)</span> $(arg-check)),                   \</span><br><span class="line">	@set -e;                                                             \</span><br><span class="line">	$(echo-cmd) $(cmd_$(1));                                             \</span><br><span class="line">	printf &#x27;%s\n&#x27; &#x27;cmd_<span class="variable">$@</span> := $(make-cmd)&#x27; &gt; $(dot-target).cmd, @:)</span><br><span class="line"></span><br><span class="line"><span class="comment"># scripts/Makefile.lib</span></span><br><span class="line">cmd_objcopy = <span class="variable">$(OBJCOPY)</span> <span class="variable">$(OBJCOPYFLAGS)</span> $(OBJCOPYFLAGS_$(@F)) <span class="variable">$&lt;</span> <span class="variable">$@</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>if_changed 是一个函数，其定义在 scripts/Kbuild.include, 其会调用 cmd_$(1) 这里就是 cmd_objcopy 命令，cmd_objcopy 命令定义在 scripts/Makefile.lib。串联上面的来看，Image 就是 由 vmlinux 通过 objcopy 生成的。</p>
+<h2 id="zImage"><a href="#zImage" class="headerlink" title="zImage"></a>zImage</h2><p>x86 下的 makefile 同样没有找到 zImage 的生成规则。参照 arch/arm/boot/Makefile 的 zImage 镜像的生成规则</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># arch/arm/boot/Makefile</span></span><br><span class="line">OBJCOPYFLAGS	:=-O binary -R .comment -S</span><br><span class="line"></span><br><span class="line"><span class="variable">$(obj)</span>/zImage:	<span class="variable">$(obj)</span>/compressed/vmlinux FORCE</span><br><span class="line">	<span class="variable">$(<span class="built_in">call</span> if_changed,objcopy)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># arch/arm/boot/compressed/Makefile</span></span><br><span class="line"><span class="variable">$(obj)</span>/vmlinux: <span class="variable">$(obj)</span>/vmlinux.lds <span class="variable">$(obj)</span>/<span class="variable">$(HEAD)</span> <span class="variable">$(obj)</span>/piggy.o \</span><br><span class="line">		<span class="variable">$(<span class="built_in">addprefix</span> <span class="variable">$(obj)</span>/, <span class="variable">$(OBJS)</span>)</span> <span class="variable">$(lib1funcs)</span> <span class="variable">$(ashldi3)</span> \</span><br><span class="line">		<span class="variable">$(bswapsdi2)</span> $(efi-obj-y) FORCE</span><br><span class="line">	@<span class="variable">$(check_for_multiple_zreladdr)</span></span><br><span class="line">	<span class="variable">$(<span class="built_in">call</span> if_changed,ld)</span></span><br><span class="line">	@<span class="variable">$(check_for_bad_syms)</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$(obj)</span>/piggy_data: <span class="variable">$(obj)</span>/../Image FORCE</span><br><span class="line">	<span class="variable">$(<span class="built_in">call</span> if_changed,$(compress-y)</span>)</span><br><span class="line"></span><br><span class="line"><span class="variable">$(obj)</span>/piggy.o: <span class="variable">$(obj)</span>/piggy_data</span><br><span class="line"></span><br><span class="line"><span class="comment"># scripts/Makefile.lib</span></span><br><span class="line">quiet_cmd_lzma = LZMA    <span class="variable">$@</span></span><br><span class="line">cmd_lzma = (cat <span class="variable">$(<span class="built_in">filter</span>-out FORCE,<span class="variable">$^</span>)</span> | \</span><br><span class="line">	lzma -9 &amp;&amp; <span class="variable">$(<span class="built_in">call</span> size_append, $(<span class="built_in">filter</span>-out FORCE,<span class="variable">$^</span>)</span>)) &gt; <span class="variable">$@</span> || \</span><br><span class="line">	(rm -f <span class="variable">$@</span> ; false)</span><br><span class="line"></span><br><span class="line">quiet_cmd_gzip = GZIP    <span class="variable">$@</span></span><br><span class="line">cmd_gzip = (cat <span class="variable">$(<span class="built_in">filter</span>-out FORCE,<span class="variable">$^</span>)</span> | gzip -n -f -9 &gt; <span class="variable">$@</span>) || \</span><br><span class="line">	(rm -f <span class="variable">$@</span> ; false)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ......</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>piggy.S</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">/* SPDX-License-Identifier: GPL-2.0 */</span><br><span class="line">	.section .piggydata,#alloc</span><br><span class="line">	.globl	input_data</span><br><span class="line">input_data:</span><br><span class="line">	.incbin	&quot;arch/arm/boot/compressed/piggy_data&quot;</span><br><span class="line">	.globl	input_data_end</span><br><span class="line">input_data_end:</span><br></pre></td></tr></table></figure>
+<p>zImage 同样是经过 objcopy 而来，不同于 Image 的是，zImage 的 objcopy 对象来自于 compressed/vmlinux。compressed/vmlinux 由几个文件链接而来，其中一个是piggy.o，从 makefile 来看 piggy.o 依赖的 piggy_data 就是由 Image 压缩而来，piggy.S 的代码非常简单，使用 incbin 包含了压缩的 Image。因此 zImage 可以理解为压缩的内核映像文件。压缩算法取决于 $(compress-y)，这个可以取决于具体的配置，Makefile.lib 中内置了很多压缩算法，LZMA、GZIP、LZ4等。</p>
+<h2 id="uImage"><a href="#uImage" class="headerlink" title="uImage"></a>uImage</h2><p>uImage 来自于 zImage，U-boot专用的映像文件（不太熟悉，略过）。</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$(obj)</span>/uImage:	<span class="variable">$(obj)</span>/zImage FORCE</span><br><span class="line">	@<span class="variable">$(check_for_multiple_loadaddr)</span></span><br><span class="line">	<span class="variable">$(<span class="built_in">call</span> if_changed,uimage)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="bzImage"><a href="#bzImage" class="headerlink" title="bzImage"></a>bzImage</h2><p>目前版本（Kernel-2.6及之后）下 x86 的 makefile 只有一种 bzImage。</p>
+<p>bz表示“big zImage”，不是用bzip2压缩的，字面意思上就能看出 bzImage 相对于 zImage 要大，这也是 Linux 代码量不断增大的结果，4.19 的内核使用 defconfig 编译完大概为 8M 左右。以前的 Image 和 zImage 最终会放到内存 1MB 以下，bzImage 太大了显然放不下，所以其保护模式代码是放在 1MB 以上的。</p>
+<h3 id="bzImage-的生成"><a href="#bzImage-的生成" class="headerlink" title="bzImage 的生成"></a>bzImage 的生成</h3><p>bzImage 是 x86 下 Linux 编译生成的最终文件，下面从 makefile 入手，分析 bzImage 的组成以及生成过程。</p>
+<p>通常我们编译完内核的最终输出是这样的：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ......</span></span><br><span class="line">Setup is 15740 bytes (padded to 15872 bytes).</span><br><span class="line">System is 8389 kB</span><br><span class="line">CRC 1e5f0610</span><br><span class="line">Kernel: arch/x86/boot/bzImage is ready  (<span class="comment">#3)</span></span><br></pre></td></tr></table></figure>
+
+<p>实际上这几行输出就来自于下面这几行 makefile</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># arch/x86/boot/Makefile</span></span><br><span class="line">quiet_cmd_image = BUILD   <span class="variable">$@</span></span><br><span class="line">silent_redirect_image = &gt;/dev/null</span><br><span class="line">cmd_image = <span class="variable">$(obj)</span>/tools/build <span class="variable">$(obj)</span>/setup.bin <span class="variable">$(obj)</span>/vmlinux.bin \</span><br><span class="line">			       <span class="variable">$(obj)</span>/zoffset.h <span class="variable">$@</span> $(<span class="variable">$(quiet)</span>redirect_image)</span><br><span class="line"></span><br><span class="line"><span class="variable">$(obj)</span>/bzImage: <span class="variable">$(obj)</span>/setup.bin <span class="variable">$(obj)</span>/vmlinux.bin <span class="variable">$(obj)</span>/tools/build FORCE</span><br><span class="line">	<span class="variable">$(<span class="built_in">call</span> if_changed,image)</span></span><br><span class="line">	@<span class="variable">$(kecho)</span> &#x27;Kernel: <span class="variable">$@</span> is ready&#x27; &#x27; (<span class="comment">#&#x27;`cat .version`&#x27;)&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>从这几行可以看出来 bzImage 的构建规则，其依赖的文件为 <code>setup.bin</code>、<code>vmlinux.bin</code> 以及 <code>$(obj)/tools/build</code>，构建规则为<code>cmd_image</code>。</p>
+<p>命令的输入都比较直观，除了最后的<code>$($(quiet)redirect_image)</code>。但是其实我们不用自己推断参数，执行过 make 的内核源码树里面会有很多<code>.xxx.cmd</code>的文件，这个文件实际上来自于 <code>if_changed</code> 函数的输出，里面存储了所有调用<code>if_changed</code> 函数具体执行的命令，按照文件名规则，找到对应的文件为<code>.bzImage.cmd</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cmd_arch/x86/boot/bzImage := arch/x86/boot/tools/build arch/x86/boot/setup.bin arch/x86/boot/vmlinux.bin arch/x86/boot/zoffset.h arch/x86/boot/bzImage</span><br><span class="line"></span><br><span class="line"><span class="comment"># 直观的表达</span></span><br><span class="line">tools/build setup.bin vmlinux.bin zoffset.h bzImage</span><br></pre></td></tr></table></figure>
+
+<p>可以看到实际上 bzImage 依赖于 setup.bin、vmlinux.bin 以及 zoffset.h 三个文件，下面先分析这三个文件的构成，再分析具体的 build 规则</p>
+<h4 id="setup-bin"><a href="#setup-bin" class="headerlink" title="setup.bin"></a>setup.bin</h4><p>熟悉 Linux 代码的对这个 setup 一定不会陌生，从 Linux 0.11 开始就有setup 的概念。当时的 Linux 引导过程是</p>
+<p>bootsector.S -&gt; setup.s -&gt; head.S</p>
+<p>bios 加载 bootsector 的代码到0x7c00，然后 bootsector 读取 setup 和 system 的代码到指定的位置，代码控制权移交给 setup。当时的 bootsector 充当 bootloader 的角色，setup 为 system 运行做环境的准备工作，head 是 system 的入口。</p>
+<p>后来的 Linux(Kernel-2.6) 弃置了这种做法，直接 boot 会打印一行错误信息。此时的 bootloader 不一定需要嵌入在 Linux 中了，可以使用 Grub 等。话题偏了，引导协议这部分放到后面详细分析。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">bugger_off_msg:</span><br><span class="line">	.ascii	<span class="string">&quot;Direct booting from floppy is no longer supported.\r\n&quot;</span></span><br><span class="line">	.ascii	<span class="string">&quot;Please use a boot loader program instead.\r\n&quot;</span></span><br><span class="line">	.ascii	<span class="string">&quot;\n&quot;</span></span><br><span class="line">	.ascii	<span class="string">&quot;Remove disk and press any key to reboot . . .\r\n&quot;</span></span><br><span class="line">	.byte	0</span><br></pre></td></tr></table></figure>
+
+<p>言归正传，虽然引导方式发生了变换，但是 setup.bin 的功能应该还是完成一些系统初始化工作，只不过这个工作随着内核功能的增强也变得越来越复杂。我们从makefile来分析 setup.bin 的组成：</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># arch/x86/boot/Makefile</span></span><br><span class="line">OBJCOPYFLAGS_setup.bin	:= -O binary</span><br><span class="line"><span class="variable">$(obj)</span>/setup.bin: <span class="variable">$(obj)</span>/setup.elf FORCE</span><br><span class="line">	<span class="variable">$(<span class="built_in">call</span> if_changed,objcopy)</span></span><br></pre></td></tr></table></figure>
+<p>这几行也比较符合直觉，setup.bin 来自于 setup.elf，通过 objcopy 得来，具体的命令为<code>.setup.bin.cmd</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cmd_arch/x86/boot/setup.bin := objcopy -O binary arch/x86/boot/setup.elf arch/x86/boot/setup.bin</span><br><span class="line"></span><br><span class="line"><span class="comment"># objcopy can be used to generate a raw binary file by using an output target of ‘binary’ (e.g., use -O binary). When objcopy generates a raw binary file, it will essentially produce a memory dump of the contents of the input object file. All symbols and relocation information will be discarded. The memory dump will start at the load address of the lowest section copied into the output file.</span></span><br></pre></td></tr></table></figure>
+<p>objcopy 可以拷贝目标的某一个段出来（-j）。从上面的注释可以看出 这里输出 objcopy 输出目标文件的二进制内存转储，实际上就是去掉了一些无用的段（debug、符号表等）。setup.elf 是静态链接的，所以只需要拷贝出会被加载到内存的段就可以减小 setup 的大小。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">$ du -h setup.elf </span><br><span class="line">144K	setup.elf</span><br><span class="line">$ du -h setup.bin </span><br><span class="line">16K	setup.bin</span><br><span class="line">$ wc -c setup.bin </span><br><span class="line">15740 setup.bin</span><br><span class="line"></span><br><span class="line">$ readelf -l setup.elf </span><br><span class="line"></span><br><span class="line">Elf 文件类型为 EXEC (可执行文件)</span><br><span class="line">Entry point 0x200</span><br><span class="line">There are 2 program headers, starting at offset 52</span><br><span class="line"></span><br><span class="line">程序头：</span><br><span class="line">  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align</span><br><span class="line">  LOAD           0x200000 0x00000000 0x00000000 0x03d7c 0x050c0 RWE 0x200000</span><br><span class="line">  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RWE 0x10</span><br><span class="line"></span><br><span class="line"> Section to Segment mapping:</span><br><span class="line">  段节...</span><br><span class="line">   00     .bstext .bsdata .header .entrytext .inittext .initdata .text .text.startup .text32 .rodata .eh_frame .videocards .data .signature .bss </span><br><span class="line">   01</span><br></pre></td></tr></table></figure>
+<p>setup.elf 中第一个 LOAD 段对应的FileSiz 为0x3d7c，刚好是setup.bin的大小。LOAD 段中对应的节基本上一一对应 setup.ld 中的节（.eh_frame是gcc编译时添加的，和栈回溯相关，.text.startup在asm-offsets.s文件中定义）。</p>
+<p>setup.bin 来源于 setup.elf，下面继续分析 setup.elf。</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># arch/x86/boot/Makefile</span></span><br><span class="line">setup-y		+= a20.o bioscall.o cmdline.o copy.o cpu.o cpuflags.o cpucheck.o</span><br><span class="line">setup-y		+= early_serial_console.o edd.o header.o main.o memory.o</span><br><span class="line">setup-y		+= pm.o pmjump.o printf.o regs.o string.o tty.o video.o</span><br><span class="line">setup-y		+= video-mode.o version.o</span><br><span class="line">setup-<span class="variable">$(CONFIG_X86_APM_BOOT)</span> += apm.o</span><br><span class="line"></span><br><span class="line"><span class="comment"># The link order of the video-*.o modules can matter.  In particular,</span></span><br><span class="line"><span class="comment"># video-vga.o *must* be listed first, followed by video-vesa.o.</span></span><br><span class="line"><span class="comment"># Hardware-specific drivers should follow in the order they should be</span></span><br><span class="line"><span class="comment"># probed, and video-bios.o should typically be last.</span></span><br><span class="line">setup-y		+= video-vga.o</span><br><span class="line">setup-y		+= video-vesa.o</span><br><span class="line">setup-y		+= video-bios.o</span><br><span class="line"></span><br><span class="line">SETUP_OBJS = <span class="variable">$(<span class="built_in">addprefix</span> <span class="variable">$(obj)</span>/,$(setup-y)</span>)</span><br><span class="line"></span><br><span class="line">LDFLAGS_setup.elf	:= -m elf_i386 -T</span><br><span class="line"><span class="variable">$(obj)</span>/setup.elf: <span class="variable">$(src)</span>/setup.ld <span class="variable">$(SETUP_OBJS)</span> FORCE</span><br><span class="line">	<span class="variable">$(<span class="built_in">call</span> if_changed,ld)</span></span><br></pre></td></tr></table></figure>
+<p>setup.elf 就是上面的 setup-y 指定的源文件，经过链接而成的 32 位 elf 文件，链接规则由 setup.ld 指定。</p>
+<p>setup.elf 的分析可以参考 <a href="./setup.md">setup代码分析</a></p>
+<h4 id="vmlinux-bin"><a href="#vmlinux-bin" class="headerlink" title="vmlinux.bin"></a>vmlinux.bin</h4><p>vmlinux.bin 和 setup.bin 一样，是 vmlinux 通过 objcopy 得到的。</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># arch/x86/boot/Makefile</span></span><br><span class="line">OBJCOPYFLAGS_vmlinux.bin := -O binary -R .note -R .comment -S</span><br><span class="line"><span class="variable">$(obj)</span>/vmlinux.bin: <span class="variable">$(obj)</span>/compressed/vmlinux FORCE</span><br><span class="line">	<span class="variable">$(<span class="built_in">call</span> if_changed,objcopy)</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$(obj)</span>/compressed/vmlinux: FORCE</span><br><span class="line">	<span class="variable">$(Q)</span><span class="variable">$(MAKE)</span> <span class="variable">$(build)</span>=<span class="variable">$(obj)</span>/compressed <span class="variable">$@</span></span><br></pre></td></tr></table></figure>
+
+<p>从依赖链条来看，这里的 vmlinux 来自于 compressed 目录。makefile 会在需要 compressed/vmlinux 的时候去 compressed 子目录执行 make。子目录下的 make 规则如下</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># arch/x86/boot/compressed/Makefile</span></span><br><span class="line">vmlinux-objs-y := <span class="variable">$(obj)</span>/vmlinux.lds <span class="variable">$(obj)</span>/head_<span class="variable">$(BITS)</span>.o <span class="variable">$(obj)</span>/misc.o \</span><br><span class="line">	<span class="variable">$(obj)</span>/string.o <span class="variable">$(obj)</span>/cmdline.o <span class="variable">$(obj)</span>/error.o \</span><br><span class="line">	<span class="variable">$(obj)</span>/piggy.o <span class="variable">$(obj)</span>/cpuflags.o</span><br><span class="line"></span><br><span class="line">vmlinux-objs-<span class="variable">$(CONFIG_EARLY_PRINTK)</span> += <span class="variable">$(obj)</span>/early_serial_console.o</span><br><span class="line">vmlinux-objs-<span class="variable">$(CONFIG_RANDOMIZE_BASE)</span> += <span class="variable">$(obj)</span>/kaslr.o</span><br><span class="line"><span class="keyword">ifdef</span> CONFIG_X86_64</span><br><span class="line">	vmlinux-objs-<span class="variable">$(CONFIG_RANDOMIZE_BASE)</span> += <span class="variable">$(obj)</span>/kaslr_64.o</span><br><span class="line">	vmlinux-objs-y += <span class="variable">$(obj)</span>/mem_encrypt.o</span><br><span class="line">	vmlinux-objs-y += <span class="variable">$(obj)</span>/pgtable_64.o</span><br><span class="line"><span class="keyword">endif</span></span><br><span class="line"></span><br><span class="line">quiet_cmd_check-and-link-vmlinux = LD      <span class="variable">$@</span></span><br><span class="line">      cmd_check-and-link-vmlinux = <span class="variable">$(cmd_check_data_rel)</span>; <span class="variable">$(cmd_ld)</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$(obj)</span>/vmlinux: $(vmlinux-objs-y) FORCE</span><br><span class="line">	<span class="variable">$(<span class="built_in">call</span> if_changed,check-<span class="built_in">and</span>-link-vmlinux)</span></span><br></pre></td></tr></table></figure>
+
+<p>分析以上这一小段的代码，$(obj)/vmlinux 来自于 $(vmlinux-objs-y)，可以看到全是一些 .o 文件，这些 .o 显然是来自于 compressed 目录下对应的 .c 或者 .S 文件，这些代码的细节放到另外的文章分析</p>
+<p><a href="./linux.md">从保护模式入口到start_kernel</a></p>
+<p>需要注意的是源代码中是找不到 $(vmlinux-objs-y) 中 piggy.o 对应的源文件的，这个文件其实是在编译过程中动态生成的，makefile 中描述了 piggy.S 是由目录下的 mkpiggy 生成的，mkpiggy 由 mkpiggy.c 编译而成。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"># arch/x86/boot/compressed/Makefile</span><br><span class="line">$(obj)/vmlinux.bin.gz: $(vmlinux.bin.all-y) FORCE</span><br><span class="line">	$(call if_changed,gzip)</span><br><span class="line">$(obj)/vmlinux.bin.bz2: $(vmlinux.bin.all-y) FORCE</span><br><span class="line">	$(call if_changed,bzip2)</span><br><span class="line"># ......</span><br><span class="line"></span><br><span class="line">suffix-$(CONFIG_KERNEL_GZIP)	:= gz</span><br><span class="line">suffix-$(CONFIG_KERNEL_BZIP2)	:= bz2</span><br><span class="line"># ......</span><br><span class="line"></span><br><span class="line">quiet_cmd_mkpiggy = MKPIGGY $@</span><br><span class="line">      cmd_mkpiggy = $(obj)/mkpiggy $&lt; &gt; $@ || ( rm -f $@ ; false )</span><br><span class="line"></span><br><span class="line">targets += piggy.S</span><br><span class="line">$(obj)/piggy.S: $(obj)/vmlinux.bin.$(suffix-y) $(obj)/mkpiggy FORCE</span><br><span class="line">	$(call if_changed,mkpiggy)</span><br><span class="line"></span><br><span class="line"># piggy.S</span><br><span class="line">.section &quot;.rodata..compressed&quot;,&quot;a&quot;,@progbits</span><br><span class="line">.globl z_input_len</span><br><span class="line">z_input_len = 8376869</span><br><span class="line">.globl z_output_len</span><br><span class="line">z_output_len = 32767212</span><br><span class="line">.globl input_data, input_data_end</span><br><span class="line">input_data:</span><br><span class="line">.incbin &quot;arch/x86/boot/compressed/vmlinux.bin.gz&quot;</span><br><span class="line">input_data_end:</span><br></pre></td></tr></table></figure>
+
+<p>至于为什么要这么做，其实看了以上的代码就很清晰了(为了篇幅略去了一些内容)。piggy.S 的主要任务就是使用 incbin 完整包含压缩后的 vmlinux（这里的vmlinux有所不同，下面会具体分析），取决于压缩算法的不同，incbin 包含的文件名也不同，所以就使用了动态生成 piggy.S 的方法，当确定了压缩算法之后再生成 piggy.S 的代码。</p>
+<p>vmlinux.bin 部分已经分析完了，总结一下 vmlinux.bin 来自于 compressed/vmlinux，后者来自于 compressed 目录下的所有 .o 文件链接。</p>
+<p>分析到这里，其实有两个疑问：</p>
+<ul>
+<li>内核代码的重量级部分(fs、mm、driver这些)在哪体现的？</li>
+<li>vmlinux.bin.gz 是啥？</li>
+</ul>
+<p>这两个问题其实可以用一句话来回答：<code>vmlinux.bin.gz 即包含了内核代码的重量级部分</code>。</p>
+<p>下面分析一下 vmlinux.bin.xx，揭开内核组成的最后一个部分。以 gzip 压缩的 vmlinux.bin.gz 为终点，分析一下其构成部分。</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># arch/x86/boot/compressed/Makefile</span></span><br><span class="line">quiet_cmd_check-and-link-vmlinux = LD      <span class="variable">$@</span></span><br><span class="line">      cmd_check-and-link-vmlinux = <span class="variable">$(cmd_check_data_rel)</span>; <span class="variable">$(cmd_ld)</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$(obj)</span>/vmlinux: $(vmlinux-objs-y) FORCE</span><br><span class="line">	<span class="variable">$(<span class="built_in">call</span> if_changed,check-<span class="built_in">and</span>-link-vmlinux)</span></span><br><span class="line"></span><br><span class="line">OBJCOPYFLAGS_vmlinux.bin :=  -R .comment -S</span><br><span class="line"><span class="variable">$(obj)</span>/vmlinux.bin: vmlinux FORCE</span><br><span class="line">	<span class="variable">$(<span class="built_in">call</span> if_changed,objcopy)</span></span><br><span class="line"></span><br><span class="line">targets += <span class="variable">$(<span class="built_in">patsubst</span> <span class="variable">$(obj)</span>/%,%,$(vmlinux-objs-y)</span>) vmlinux.bin.all vmlinux.relocs</span><br><span class="line"></span><br><span class="line">CMD_RELOCS = arch/x86/tools/relocs</span><br><span class="line">quiet_cmd_relocs = RELOCS  <span class="variable">$@</span></span><br><span class="line">      cmd_relocs = <span class="variable">$(CMD_RELOCS)</span> <span class="variable">$&lt;</span> &gt; <span class="variable">$@</span>;<span class="variable">$(CMD_RELOCS)</span> --abs-relocs <span class="variable">$&lt;</span></span><br><span class="line"><span class="variable">$(obj)</span>/vmlinux.relocs: vmlinux FORCE</span><br><span class="line">	<span class="variable">$(<span class="built_in">call</span> if_changed,relocs)</span></span><br><span class="line"></span><br><span class="line">vmlinux.bin.all-y := <span class="variable">$(obj)</span>/vmlinux.bin</span><br><span class="line">vmlinux.bin.all-<span class="variable">$(CONFIG_X86_NEED_RELOCS)</span> += <span class="variable">$(obj)</span>/vmlinux.relocs</span><br><span class="line"></span><br><span class="line"><span class="variable">$(obj)</span>/vmlinux.bin.gz: $(vmlinux.bin.all-y) FORCE</span><br><span class="line">	<span class="variable">$(<span class="built_in">call</span> if_changed,gzip)</span></span><br></pre></td></tr></table></figure>
+
+<p>vmlinux.bin.gz 依赖于 vmlinux.bin.all-y， 而 vmlinux.bin.all-y 的定义是两个，一个是 $(obj)/vmlinux.bin，另一个取决于 CONFIG_X86_NEED_RELOCS 这个宏，应该是和重定位相关的，暂时不看。$(obj)/vmlinux.bin 这个有点饶，上面分析的也有一个 $(obj)/vmlinux.bin，实际上这里的 $(obj)/vmlinux.bin 指的是 compressed 下面的 vmlinux.bin，可以代入 $(obj) 展开就能发现区别了。$(obj)/vmlinux.bin 也是 vmlinux 通过 objcopy 得到的，但是这里的 vmlinux 是没有前缀的，其定义在顶层 makefile。</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># The all: target is the default when no target is given on the</span></span><br><span class="line"><span class="comment"># command line.</span></span><br><span class="line"><span class="comment"># This allow a user to issue only &#x27;make&#x27; to build a kernel including modules</span></span><br><span class="line"><span class="comment"># Defaults to vmlinux, but the arch makefile usually adds further targets</span></span><br><span class="line"><span class="section">all: vmlinux</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ifeq</span> (<span class="variable">$(KBUILD_EXTMOD)</span>,)</span><br><span class="line"><span class="comment"># Objects we will link into vmlinux / subdirs we need to visit</span></span><br><span class="line">init-y		:= init/</span><br><span class="line">drivers-y	:= drivers/ sound/ firmware/</span><br><span class="line">net-y		:= net/</span><br><span class="line">libs-y		:= lib/</span><br><span class="line">core-y		:= usr/</span><br><span class="line">virt-y		:= virt/</span><br><span class="line"><span class="keyword">endif</span> <span class="comment"># KBUILD_EXTMOD</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ifeq</span> (<span class="variable">$(KBUILD_EXTMOD)</span>,)</span><br><span class="line">core-y		+= kernel/ certs/ mm/ fs/ ipc/ security/ crypto/ block/</span><br><span class="line"></span><br><span class="line">init-y		:= <span class="variable">$(<span class="built_in">patsubst</span> %/, %/built-in.a, $(init-y)</span>)</span><br><span class="line">core-y		:= <span class="variable">$(<span class="built_in">patsubst</span> %/, %/built-in.a, $(core-y)</span>)</span><br><span class="line">drivers-y	:= <span class="variable">$(<span class="built_in">patsubst</span> %/, %/built-in.a, $(drivers-y)</span>)</span><br><span class="line">net-y		:= <span class="variable">$(<span class="built_in">patsubst</span> %/, %/built-in.a, $(net-y)</span>)</span><br><span class="line">libs-y1		:= <span class="variable">$(<span class="built_in">patsubst</span> %/, %/lib.a, $(libs-y)</span>)</span><br><span class="line">libs-y2		:= <span class="variable">$(<span class="built_in">patsubst</span> %/, %/built-in.a, $(<span class="built_in">filter</span>-out %.a, $(libs-y)</span>))</span><br><span class="line">virt-y		:= <span class="variable">$(<span class="built_in">patsubst</span> %/, %/built-in.a, $(virt-y)</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Externally visible symbols (used by link-vmlinux.sh)</span></span><br><span class="line"><span class="keyword">export</span> KBUILD_VMLINUX_INIT := $(head-y) $(init-y)</span><br><span class="line"><span class="keyword">export</span> KBUILD_VMLINUX_MAIN := $(core-y) $(libs-y2) $(drivers-y) $(net-y) $(virt-y)</span><br><span class="line"><span class="keyword">export</span> KBUILD_VMLINUX_LIBS := $(libs-y1)</span><br><span class="line"><span class="keyword">export</span> KBUILD_LDS          := arch/<span class="variable">$(SRCARCH)</span>/kernel/vmlinux.lds</span><br><span class="line"></span><br><span class="line">vmlinux-deps := <span class="variable">$(KBUILD_LDS)</span> <span class="variable">$(KBUILD_VMLINUX_INIT)</span> <span class="variable">$(KBUILD_VMLINUX_MAIN)</span> <span class="variable">$(KBUILD_VMLINUX_LIBS)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Final link of vmlinux with optional arch pass after final link</span></span><br><span class="line">cmd_link-vmlinux =                                                 \</span><br><span class="line">	<span class="variable">$(CONFIG_SHELL)</span> <span class="variable">$&lt;</span> <span class="variable">$(LD)</span> <span class="variable">$(KBUILD_LDFLAGS)</span> <span class="variable">$(LDFLAGS_vmlinux)</span> ;    \</span><br><span class="line">	<span class="variable">$(<span class="built_in">if</span> <span class="variable">$(ARCH_POSTLINK)</span>, <span class="variable">$(MAKE)</span> -f <span class="variable">$(ARCH_POSTLINK)</span> <span class="variable">$@</span>, true)</span></span><br><span class="line"></span><br><span class="line"><span class="section">vmlinux: scripts/link-vmlinux.sh autoksyms_recursive $(vmlinux-deps) FORCE</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 构建 built-in.a</span></span><br><span class="line">PHONY += $(vmlinux-dirs)</span><br><span class="line"><span class="section">$(vmlinux-dirs): prepare scripts</span></span><br><span class="line">	<span class="variable">$(Q)</span><span class="variable">$(MAKE)</span> <span class="variable">$(build)</span>=<span class="variable">$@</span> need-builtin=1</span><br><span class="line"></span><br><span class="line"><span class="comment"># Kbuild.include</span></span><br><span class="line"><span class="comment"># Shorthand for $(Q)$(MAKE) -f scripts/Makefile.build obj=</span></span><br><span class="line"><span class="comment"># Usage:</span></span><br><span class="line"><span class="comment"># $(Q)$(MAKE) $(build)=dir</span></span><br><span class="line">build := -f <span class="variable">$(srctree)</span>/scripts/Makefile.build obj</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>上面列出了一些相关的语句，vmlinux-deps 这个变量组成了 vmlinux 的依赖，其实就是各个目录下面的 built-in.a 文件，vmlinux 就是这些文件的链接。built-in.a 文件由 <code>$(Q)$(MAKE) $(build)=$@ need-builtin=1</code>展开，<code>$(build)</code> 定义在 Kbuild.include 文件中，最终由 Makefile.build 执行最终的构建规则，这里只是一个简述，真正的构建还是比较麻烦的。</p>
+<p><em>总结</em>：在顶层目录执行 make 的时候，默认目标是 vmlinux，这个 vmlinux 是由各个子目录的 built-in.a* 链接而成。vmlinux 会在 arch/x86/boot/compressed 目录下经过 objcopy 生成 vmlinux.bin，vmlinux.bin 会被压缩成 vmlinux.bin.xx 然后被 piggy.S 使用 incbin 完整包含。compressed 目录下的一系列 .o 文件（包括piggy.o）会重新链接成一个新的文件，也叫 vmlinux，新的 vmlinux 文件会在上层目录 boot 通过 objcopy 生成一个新的 vmlinux.bin，然后和 setup.bin 一起 build 成 bzImage。借用一下别人的图片，我认为画的很好。</p>
+<p><img src="./bzImage.png" alt="bzImage"></p>
+<p><em>图源</em>：<a target="_blank" rel="noopener" href="https://blog.betamao.me/posts/2021/linux-process-kernel/">https://blog.betamao.me/posts/2021/linux-process-kernel/</a></p>
+<h4 id="zoffset-h"><a href="#zoffset-h" class="headerlink" title="zoffset.h"></a>zoffset.h</h4><p>zoffset 的内容存储了一些符号信息，来自于 compressed 目录下重新生成的 vmlinux。生成 zoffset 的命令为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">nm arch/x86/boot/compressed/vmlinux | sed -n -e <span class="string">&#x27;s/^\([0-9a-fA-F]*\) [a-zA-Z] \(startup_32\|startup_64\|efi32_stub_entry\|efi64_stub_entry\|efi_pe_entry\|input_data\|_end\|_ehead\|_text\|z_.*\)$$/$(pound)define ZO_\2 0x\1/p&#x27;</span> &gt; arch/x86/boot/zoffset.h</span><br><span class="line"></span><br><span class="line"><span class="comment">// 生成的 zoffset.h(x86-64)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZO__ehead 0x00000000000002e9</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZO__end 0x0000000000831000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZO__text 0x00000000007fd510</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZO_input_data 0x00000000000002e9</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZO_startup_32 0x0000000000000000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZO_startup_64 0x0000000000000200</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZO_z_input_len 0x00000000007fd225</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZO_z_output_len 0x0000000001f3fcec</span></span><br></pre></td></tr></table></figure>
+
+<p>命令会拷贝一些符号信息出来，这些符号记录了</p>
+<ul>
+<li>入口函数的地址（ZO_startup_64），函数定义在 arch/x86/boot/compressed/head_64.S</li>
+<li>vmlinux.bin.gz 的大小（ZO_z_input_len）。mkpiggy.c 读取了压缩文件的大小，输出为 z_input_len</li>
+<li>解压后的 vmlinux.bin.gz 的大小（ZO_z_output_len）。mkpiggy.c 读取了 vmlinux.bin.gz 的最后四个字节，根据 gzip 压缩格式，最后四个字节存储了压缩前的镜像大小，其实就是 vmlinux.bin + vmlinux.relocs（取决于 CONFIG_X86_NEED_RELOCS）的大小。</li>
+<li>其余的几个定义在 vmlinux.ld.S 中。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">	/* Be careful parts of head_64.S assume startup_32 is at</span><br><span class="line">	 * address 0.</span><br><span class="line">	 */</span><br><span class="line">	. = 0;</span><br><span class="line">	.head.text : &#123;</span><br><span class="line">		_head = . ;</span><br><span class="line">		HEAD_TEXT</span><br><span class="line">		_ehead = . ;</span><br><span class="line">	&#125;</span><br><span class="line">	.rodata..compressed : &#123;</span><br><span class="line">		*(.rodata..compressed)</span><br><span class="line">	&#125;</span><br><span class="line">	.text :	&#123;</span><br><span class="line">		_text = .; 	/* Text */</span><br><span class="line">		*(.text)</span><br><span class="line">		*(.text.*)</span><br><span class="line">		_etext = . ;</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="comment"># ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>还有一个类似的文件叫做 voffset.h，这个文件也是 nm 提取的部分符号信息，提取目标是顶层目录的 vmlinux，因为和 build 无关，所以暂时不分析这个文件的作用。</p>
+<p>另外，在非 EFI 直接引导的情况下，这个文件对 build 没起到什么作用。这个文件会影响启动参数，在<code>Grub 引导过程</code>一节我们再分析.</p>
+<h4 id="build-规则"><a href="#build-规则" class="headerlink" title="build 规则"></a>build 规则</h4><p>上面分析了构建 bzImage 镜像所需要的三个文件：setup.bin、vmlinux.bin、zoffset.h，下面分析一下 build 是如何生成 bzImage 的。相关代码在arch/x86/boot/tools/build.c。</p>
+<p>build.c 的构建方式取决于 CONFIG_EFI_STUB。当 CONFIG_EFI_STUB = y 时，build.c 会构建一个可以直接在 EFI 下运行的 bzImage。默认情况下这个值是 n，CONFIG_EFI_STUB = n 并不是表示编译出来的 Linux 不支持 EFI 平台，只是无法直接通过 EFI 引导启动。我们知道大多数情况下 Linux 的启动方式是 Grub，而 Grub 是支持 EFI 的。</p>
+<p>非 EFI 直接引导下 build.c 的构建规则很简单</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> i, sz, setup_sectors, init_sz;</span><br><span class="line">	<span class="keyword">int</span> c;</span><br><span class="line">	u32 sys_size;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">stat</span> <span class="title">sb</span>;</span></span><br><span class="line">	FILE *file, *dest;</span><br><span class="line">	<span class="keyword">int</span> fd;</span><br><span class="line">	<span class="keyword">void</span> *kernel;</span><br><span class="line">	u32 crc = <span class="number">0xffffffff</span>UL;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (argc != <span class="number">5</span>)</span><br><span class="line">		usage();</span><br><span class="line">	parse_zoffset(argv[<span class="number">3</span>]);</span><br><span class="line"></span><br><span class="line">	dest = fopen(argv[<span class="number">4</span>], <span class="string">&quot;w&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span> (!dest)</span><br><span class="line">		die(<span class="string">&quot;Unable to write `%s&#x27;: %m&quot;</span>, argv[<span class="number">4</span>]);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Copy the setup code */</span></span><br><span class="line">	file = fopen(argv[<span class="number">1</span>], <span class="string">&quot;r&quot;</span>); <span class="comment">// setup.bin</span></span><br><span class="line">	<span class="keyword">if</span> (!file)</span><br><span class="line">		die(<span class="string">&quot;Unable to open `%s&#x27;: %m&quot;</span>, argv[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line">	c = fread(buf, <span class="number">1</span>, <span class="keyword">sizeof</span>(buf), file);</span><br><span class="line">	<span class="keyword">if</span> (ferror(file))</span><br><span class="line">		die(<span class="string">&quot;read-error on `setup&#x27;&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span> (c &lt; <span class="number">1024</span>)</span><br><span class="line">		die(<span class="string">&quot;The setup must be at least 1024 bytes&quot;</span>);</span><br><span class="line">	<span class="keyword">if</span> (get_unaligned_le16(&amp;buf[<span class="number">510</span>]) != <span class="number">0xAA55</span>)</span><br><span class="line">		die(<span class="string">&quot;Boot block hasn&#x27;t got boot flag (0xAA55)&quot;</span>);</span><br><span class="line">	fclose(file);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Pad unused space with zeros */</span></span><br><span class="line">	setup_sectors = (c + <span class="number">511</span>) / <span class="number">512</span>;</span><br><span class="line">	<span class="keyword">if</span> (setup_sectors &lt; SETUP_SECT_MIN)</span><br><span class="line">		setup_sectors = SETUP_SECT_MIN;</span><br><span class="line">	i = setup_sectors * <span class="number">512</span>;</span><br><span class="line">	<span class="built_in">memset</span>(buf + c, <span class="number">0</span>, i - c);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Set the default root device */</span></span><br><span class="line">	put_unaligned_le16(DEFAULT_ROOT_DEV, &amp;buf[<span class="number">508</span>]);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;Setup is %d bytes (padded to %d bytes).\n&quot;</span>, c, i);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Open and stat the kernel file */</span></span><br><span class="line">	fd = open(argv[<span class="number">2</span>], O_RDONLY);</span><br><span class="line">	<span class="keyword">if</span> (fd &lt; <span class="number">0</span>)</span><br><span class="line">		die(<span class="string">&quot;Unable to open `%s&#x27;: %m&quot;</span>, argv[<span class="number">2</span>]);</span><br><span class="line">	<span class="keyword">if</span> (fstat(fd, &amp;sb))</span><br><span class="line">		die(<span class="string">&quot;Unable to stat `%s&#x27;: %m&quot;</span>, argv[<span class="number">2</span>]);</span><br><span class="line">	sz = sb.st_size;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;System is %d kB\n&quot;</span>, (sz + <span class="number">1023</span>) / <span class="number">1024</span>);</span><br><span class="line">	kernel = mmap(<span class="literal">NULL</span>, sz, PROT_READ, MAP_SHARED, fd, <span class="number">0</span>);</span><br><span class="line">	<span class="keyword">if</span> (kernel == MAP_FAILED)</span><br><span class="line">		die(<span class="string">&quot;Unable to mmap &#x27;%s&#x27;: %m&quot;</span>, argv[<span class="number">2</span>]);</span><br><span class="line">	<span class="comment">/* Number of 16-byte paragraphs, including space for a 4-byte CRC */</span></span><br><span class="line">	sys_size = (sz + <span class="number">15</span> + <span class="number">4</span>) / <span class="number">16</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Patch the setup code with the appropriate size parameters */</span></span><br><span class="line">	buf[<span class="number">0x1f1</span>] = setup_sectors - <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">	crc = partial_crc32(buf, i, crc);</span><br><span class="line">	<span class="keyword">if</span> (fwrite(buf, <span class="number">1</span>, i, dest) != i)</span><br><span class="line">		die(<span class="string">&quot;Writing setup failed&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Copy the kernel code */</span></span><br><span class="line">	crc = partial_crc32(kernel, sz, crc);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%ld\n&quot;</span>, sz);</span><br><span class="line">	<span class="keyword">if</span> (fwrite(kernel, <span class="number">1</span>, sz, dest) != sz)</span><br><span class="line">		die(<span class="string">&quot;Writing kernel failed&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Add padding leaving 4 bytes for the checksum */</span></span><br><span class="line">	<span class="keyword">while</span> (sz++ &lt; (sys_size * <span class="number">16</span>) - <span class="number">4</span>) &#123;</span><br><span class="line">		crc = partial_crc32_one(<span class="string">&#x27;\0&#x27;</span>, crc);</span><br><span class="line">		<span class="keyword">if</span> (fwrite(<span class="string">&quot;\0&quot;</span>, <span class="number">1</span>, <span class="number">1</span>, dest) != <span class="number">1</span>)</span><br><span class="line">			die(<span class="string">&quot;Writing padding failed&quot;</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Write the CRC */</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;CRC %x\n&quot;</span>, crc);</span><br><span class="line">	put_unaligned_le32(crc, buf);</span><br><span class="line">	<span class="keyword">if</span> (fwrite(buf, <span class="number">1</span>, <span class="number">4</span>, dest) != <span class="number">4</span>)</span><br><span class="line">		die(<span class="string">&quot;Writing CRC failed&quot;</span>);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Catch any delayed write failures */</span></span><br><span class="line">	<span class="keyword">if</span> (fclose(dest))</span><br><span class="line">		die(<span class="string">&quot;Writing image failed&quot;</span>);</span><br><span class="line"></span><br><span class="line">	close(fd);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* Everything is OK */</span></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>上面的代码（略去了一部分）其实就是把 setup.bin 和 vmlinux.bin 拼接起来。setup.bin 对齐到 512 字节（一个扇区），最大不超过 64 个 512 字节，然后将占用的扇区数 setup_sectors 写入引导 Header。vmlinux.bin 通过 mmap 直接映射到内存空间，其大小需要对齐到16字节：<code>sys_size = (sz + 15 + 4) / 16</code>，多出的 4 个字节存放校验和。在写入 bzImage 的时候，先写入 setup.bin，然后对齐到 512 字节，再写入 vmlinux.bin，对齐到 16 字节，多出来的填0，最后的 4 字节存放 CRC。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux-x86/" rel="tag"># Linux,x86</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/22/MBR/" rel="prev" title="MBR详解">
+      <i class="fa fa-chevron-left"></i> MBR详解
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/22/GRUB%E5%BC%95%E5%AF%BC/" rel="next" title="Grub 引导 Linux">
+      Grub 引导 Linux <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Linux-%E6%98%A0%E5%83%8F%E7%BB%93%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">Linux 映像结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Image"><span class="nav-number">1.1.</span> <span class="nav-text">Image</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#zImage"><span class="nav-number">1.2.</span> <span class="nav-text">zImage</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#uImage"><span class="nav-number">1.3.</span> <span class="nav-text">uImage</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bzImage"><span class="nav-number">1.4.</span> <span class="nav-text">bzImage</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#bzImage-%E7%9A%84%E7%94%9F%E6%88%90"><span class="nav-number">1.4.1.</span> <span class="nav-text">bzImage 的生成</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#setup-bin"><span class="nav-number">1.4.1.1.</span> <span class="nav-text">setup.bin</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#vmlinux-bin"><span class="nav-number">1.4.1.2.</span> <span class="nav-text">vmlinux.bin</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#zoffset-h"><span class="nav-number">1.4.1.3.</span> <span class="nav-text">zoffset.h</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#build-%E8%A7%84%E5%88%99"><span class="nav-number">1.4.1.4.</span> <span class="nav-text">build 规则</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">adventural</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/adventural" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;adventural" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:jiaxgong@163.com" title="E-Mail → mailto:jiaxgong@163.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">adventural</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">84k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:16</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'a06eccf4fe9b5520bc7a',
+      clientSecret: '76973c8e133849cd1f6a471c7ccfb1c9c811841b',
+      repo        : 'blogComment',
+      owner       : 'adventural',
+      admin       : ['adventural'],
+      id          : '393734826aaa026413f2454ada3311a3',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
