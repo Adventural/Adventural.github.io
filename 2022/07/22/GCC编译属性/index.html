@@ -22,18 +22,18 @@
 
   <meta name="description" content="点开看看吧~">
 <meta property="og:type" content="article">
-<meta property="og:title" content="tornado——RequestHandler和Application类分析">
-<meta property="og:url" content="http://example.com/2021/11/10/tornado%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:title" content="常用的 GCC 编译属性">
+<meta property="og:url" content="http://example.com/2022/07/22/GCC%E7%BC%96%E8%AF%91%E5%B1%9E%E6%80%A7/index.html">
 <meta property="og:site_name" content="记录日常">
 <meta property="og:description" content="点开看看吧~">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-11-10T08:19:37.000Z">
-<meta property="article:modified_time" content="2021-11-16T08:38:20.150Z">
+<meta property="article:published_time" content="2022-07-22T07:59:44.852Z">
+<meta property="article:modified_time" content="2022-07-22T08:01:24.220Z">
 <meta property="article:author" content="adventural">
-<meta property="article:tag" content="tornado">
+<meta property="article:tag" content="gcc">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2021/11/10/tornado%E8%AF%A6%E8%A7%A3/">
+<link rel="canonical" href="http://example.com/2022/07/22/GCC%E7%BC%96%E8%AF%91%E5%B1%9E%E6%80%A7/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>tornado——RequestHandler和Application类分析 | 记录日常</title>
+  <title>常用的 GCC 编译属性 | 记录日常</title>
   
 
 
@@ -168,7 +168,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/10/tornado%E8%AF%A6%E8%A7%A3/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/GCC%E7%BC%96%E8%AF%91%E5%B1%9E%E6%80%A7/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -181,7 +181,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          tornado——RequestHandler和Application类分析
+          常用的 GCC 编译属性
         </h1>
 
         <div class="post-meta">
@@ -190,23 +190,17 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2021-11-10 16:19:37" itemprop="dateCreated datePublished" datetime="2021-11-10T16:19:37+08:00">2021-11-10</time>
+              <time title="创建时间：2022-07-22 15:59:44 / 修改时间：16:01:24" itemprop="dateCreated datePublished" datetime="2022-07-22T15:59:44+08:00">2022-07-22</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-11-16 16:38:20" itemprop="dateModified" datetime="2021-11-16T16:38:20+08:00">2021-11-16</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">网络</span></a>
+                  <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">操作系统</span></a>
                 </span>
             </span>
 
@@ -223,14 +217,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>429</span>
+              <span>3k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>3 分钟</span>
             </span>
             <div class="post-description">点开看看吧~</div>
 
@@ -243,15 +237,34 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h3 id="RequestHandler——处理HTTP请求"><a href="#RequestHandler——处理HTTP请求" class="headerlink" title="RequestHandler——处理HTTP请求"></a>RequestHandler——处理HTTP请求</h3><p>这个类的实现代码很多，内置了很多方法，在使用的时候根据自己的业务类型对需要方法做重写。RequestHandler类的方法基本上可以根据名称来判断用途。</p>
-<h5 id="SUPPORTED-METHODS"><a href="#SUPPORTED-METHODS" class="headerlink" title="SUPPORTED_METHODS"></a>SUPPORTED_METHODS</h5><p>定义该RequestHandler支持的方法</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SUPPORTED_METHODS = (<span class="string">&quot;GET&quot;</span>, <span class="string">&quot;HEAD&quot;</span>, <span class="string">&quot;POST&quot;</span>, <span class="string">&quot;DELETE&quot;</span>, <span class="string">&quot;PATCH&quot;</span>, <span class="string">&quot;PUT&quot;</span>, <span class="string">&quot;OPTIONS&quot;</span>)</span><br></pre></td></tr></table></figure>
+        <h2 id="记录一下常用的-GCC-编译属性"><a href="#记录一下常用的-GCC-编译属性" class="headerlink" title="记录一下常用的 GCC 编译属性"></a>记录一下常用的 GCC 编译属性</h2><h4 id="attribute-packed"><a href="#attribute-packed" class="headerlink" title="__attribute__ ((packed));"></a>__attribute__ ((packed));</h4><p>The packed attribute specifies that a structure member should have the smallest possible alignment—one bit for a bit-field and one byte otherwise, unless a larger value is specified with the aligned attribute. The attribute does not apply to non-member objects.</p>
+<p>For example in the structure below, the member array x is packed so that it immediately follows a with no intervening padding:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">foo</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">char</span> a;</span><br><span class="line">  <span class="keyword">int</span> x[<span class="number">2</span>] __attribute__ ((packed));</span><br><span class="line">&#125;;</span><br><span class="line">Note: The <span class="number">4.1</span>, <span class="number">4.2</span> <span class="keyword">and</span> <span class="number">4.3</span> series of GCC ignore the packed attribute on bit-fields of type <span class="keyword">char</span>. This has been fixed in GCC <span class="number">4.4</span> but the change can lead to differences in the structure layout. See the documentation of -Wpacked-bitfield-compat <span class="keyword">for</span> more information.</span><br></pre></td></tr></table></figure>
 
+<h4 id="attribute-used"><a href="#attribute-used" class="headerlink" title="__attribute__ ((used))"></a>__attribute__ ((used))</h4><p>unused<br>This attribute, attached to a variable or structure field, means that the variable or field is meant to be possibly unused. GCC does not produce a warning for this variable or field.</p>
+<p>used<br>This attribute, attached to a variable with static storage, means that the variable must be emitted even if it appears that the variable is not referenced.</p>
+<p>When applied to a static data member of a C++ class template, the attribute also means that the member is instantiated if the class itself is instantiated.</p>
+<h4 id="attribute-format-printf-3-4"><a href="#attribute-format-printf-3-4" class="headerlink" title="__attribute__((format(printf, 3, 4)))"></a>__attribute__((format(printf, 3, 4)))</h4><ul>
+<li>__attribute__((format(printf, a, b)))</li>
+<li>__attribute__((format(scanf, a, b)))</li>
+</ul>
+<p>a：第几个参数为格式化字符串(format string);</p>
+<p>b：参数集合中的第一个，即参数“…”里的第一个参数在函数参数总数排在第几。</p>
+<p>format属性告诉编译器，按照printf, scanf等标准C函数参数格式规则对该函数的参数进行检查。这在我们自己封装调试信息的接口时非常的有用。下面是 GRUB 源码中的用法</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">EXPORT_FUNC</span><span class="params">(grub_real_boot_time)</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *file, <span class="keyword">const</span> <span class="keyword">int</span> line,</span></span></span><br><span class="line"><span class="params"><span class="function">                                      <span class="keyword">const</span> <span class="keyword">char</span> *fmt, ...)</span></span></span><br><span class="line"><span class="function">    __<span class="title">attribute__</span><span class="params">((format(GNU_PRINTF, <span class="number">3</span>, <span class="number">4</span>)))</span></span>;</span><br></pre></td></tr></table></figure>
+<h4 id="attribute-regparm-3"><a href="#attribute-regparm-3" class="headerlink" title="__attribute__ ((regparm(3)))"></a>__attribute__ ((regparm(3)))</h4><p>regparm (number)<br>On x86-32 targets, the regparm attribute causes the compiler to pass arguments number one to number if they are of integral type in registers EAX, EDX, and ECX instead of on the stack. Functions that take a variable number of arguments continue to be passed all of their arguments on the stack.<br>Beware that on some ELF systems this attribute is unsuitable for global functions in shared libraries with lazy binding (which is the default). Lazy binding sends the first call via resolving code in the loader, which might assume EAX, EDX and ECX can be clobbered, as per the standard calling conventions. Solaris 8 is affected by this. Systems with the GNU C Library version 2.1 or higher and FreeBSD are believed to be safe since the loaders there save EAX, EDX and ECX. (Lazy binding can be disabled with the linker or the loader if desired, to avoid the problem.)</p>
+<p>意思是x86架构下，编译器会把0到number个参数顺次写入 eax, edx, ecx 和栈，number取值范围是0-3，再多的参数就放进栈来传递了。number为0的时候全放栈里去。</p>
+<p>__attribute__ ((regparm(0)));   全部使用栈传参</p>
+<p>__attribute__ ((regparm(1)));   使用eax传递第一个参数，其余使用栈</p>
+<p>__attribute__ ((regparm(2)));   使用eax 和 edx 传递前两个参数，其余使用栈</p>
+<p>__attribute__ ((regparm(3)));   使用 eax、edx、ecx 传递前三个参数，其余使用栈</p>
+<h4 id="attribute-nocommon"><a href="#attribute-nocommon" class="headerlink" title="__attribute__ ((nocommon))"></a>__attribute__ ((nocommon))</h4><p>未初始化的全局变量在编译时由于无法确定大小（可能存在更大的同名强符号），所以无法在bss段分配空间。默认情况下未初始化的全局变量会在符号表中以 COMMON 块的形式存在，直到链接器最终确定大小才会在bss分配空间，这个宏告诉编译器该符号不以 COMMON 块的形式存在，相当于一个强符号。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 强符号，存放在.data</span></span><br><span class="line"><span class="keyword">int</span> global = <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 弱符号</span></span><br><span class="line"><span class="keyword">int</span> global1</span><br><span class="line"></span><br><span class="line"><span class="comment">// 相当于强符号</span></span><br><span class="line"><span class="keyword">int</span> global1 __attribute__ ((nocommon))</span><br></pre></td></tr></table></figure>
 
+<p>实际上强弱符号是看符号是否存放在 COMMON 块的，如果不在 COMMON 块那么符号自然就变成了一个强符号，因为其已经被编译器放到了bss段，不能在出现一样的定义了，此外 gcc 的 -fno-common 编译选项也可以指定变量不以 COMMON 块的形式存在。</p>
+<h2 id="GCC-编译参数"><a href="#GCC-编译参数" class="headerlink" title="GCC 编译参数"></a>GCC 编译参数</h2><h4 id="fno-builtin"><a href="#fno-builtin" class="headerlink" title="-fno-builtin"></a>-fno-builtin</h4><p>GCC 内置了一些函数，出于优化的目的，GCC 在编译的时候可能会将一些函数替换为内置的函数。例如只有一个参数的 printf 函数会被替换为 puts，这个参数告诉 gcc 不要做这样的替换。</p>
+<h2 id="参考文档"><a href="#参考文档" class="headerlink" title="参考文档"></a>参考文档</h2><p><a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gcc/Common-Variable-Attributes.html#Common-Variable-Attributes">GCC 编译属性</a></p>
 
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RequestHandler</span>(<span class="params"><span class="built_in">object</span></span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, application, request, **kwargs</span>)</span></span><br><span class="line"><span class="function">    </span></span><br></pre></td></tr></table></figure>
-
-<h3 id="Application——URI转发"><a href="#Application——URI转发" class="headerlink" title="Application——URI转发"></a>Application——URI转发</h3><h3 id="TCPServer"><a href="#TCPServer" class="headerlink" title="TCPServer"></a>TCPServer</h3><h3 id="TCPClient"><a href="#TCPClient" class="headerlink" title="TCPClient"></a>TCPClient</h3><h3 id="HTTPServer"><a href="#HTTPServer" class="headerlink" title="HTTPServer"></a>HTTPServer</h3><h3 id="HTTPClient"><a href="#HTTPClient" class="headerlink" title="HTTPClient"></a>HTTPClient</h3><h3 id="IOStream"><a href="#IOStream" class="headerlink" title="IOStream"></a>IOStream</h3><h3 id="IOLoop"><a href="#IOLoop" class="headerlink" title="IOLoop"></a>IOLoop</h3>
     </div>
 
     
@@ -260,7 +273,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/tornado/" rel="tag"># tornado</a>
+              <a href="/tags/gcc/" rel="tag"># gcc</a>
           </div>
 
         
@@ -269,12 +282,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/11/06/yum%E4%BB%A5%E5%8F%8Arpm/" rel="prev" title="RPM详解">
-      <i class="fa fa-chevron-left"></i> RPM详解
+    <a href="/2022/07/22/EDK2%20%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" rel="prev" title="EDK2 环境配置">
+      <i class="fa fa-chevron-left"></i> EDK2 环境配置
     </a></div>
       <div class="post-nav-item">
-    <a href="/2021/11/10/HTTP%E9%9A%A7%E9%81%93/" rel="next" title="HTTP隧道">
-      HTTP隧道 <i class="fa fa-chevron-right"></i>
+    <a href="/2022/07/22/GRUB%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/" rel="next" title="GRUB 引导阶段过程分析">
+      GRUB 引导阶段过程分析 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -335,7 +348,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#RequestHandler%E2%80%94%E2%80%94%E5%A4%84%E7%90%86HTTP%E8%AF%B7%E6%B1%82"><span class="nav-number">1.</span> <span class="nav-text">RequestHandler——处理HTTP请求</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#SUPPORTED-METHODS"><span class="nav-number">1.0.1.</span> <span class="nav-text">SUPPORTED_METHODS</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Application%E2%80%94%E2%80%94URI%E8%BD%AC%E5%8F%91"><span class="nav-number">2.</span> <span class="nav-text">Application——URI转发</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCPServer"><span class="nav-number">3.</span> <span class="nav-text">TCPServer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCPClient"><span class="nav-number">4.</span> <span class="nav-text">TCPClient</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTPServer"><span class="nav-number">5.</span> <span class="nav-text">HTTPServer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTPClient"><span class="nav-number">6.</span> <span class="nav-text">HTTPClient</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IOStream"><span class="nav-number">7.</span> <span class="nav-text">IOStream</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IOLoop"><span class="nav-number">8.</span> <span class="nav-text">IOLoop</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E5%B8%B8%E7%94%A8%E7%9A%84-GCC-%E7%BC%96%E8%AF%91%E5%B1%9E%E6%80%A7"><span class="nav-number">1.</span> <span class="nav-text">记录一下常用的 GCC 编译属性</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#attribute-packed"><span class="nav-number">1.0.1.</span> <span class="nav-text">__attribute__ ((packed));</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#attribute-used"><span class="nav-number">1.0.2.</span> <span class="nav-text">__attribute__ ((used))</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#attribute-format-printf-3-4"><span class="nav-number">1.0.3.</span> <span class="nav-text">__attribute__((format(printf, 3, 4)))</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#attribute-regparm-3"><span class="nav-number">1.0.4.</span> <span class="nav-text">__attribute__ ((regparm(3)))</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#attribute-nocommon"><span class="nav-number">1.0.5.</span> <span class="nav-text">__attribute__ ((nocommon))</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GCC-%E7%BC%96%E8%AF%91%E5%8F%82%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">GCC 编译参数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#fno-builtin"><span class="nav-number">2.0.1.</span> <span class="nav-text">-fno-builtin</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E6%A1%A3"><span class="nav-number">3.</span> <span class="nav-text">参考文档</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -498,7 +511,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'blogComment',
       owner       : 'adventural',
       admin       : ['adventural'],
-      id          : 'f637e7a74efbf8363a36cf411b86a966',
+      id          : 'ebf680a324106f44e7c309174bb3fe97',
         language: 'zh-CN',
       distractionFreeMode: true
     });
