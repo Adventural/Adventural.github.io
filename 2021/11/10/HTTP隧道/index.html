@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="点开看看吧~">
+  <meta name="description" content="HTTP ProxyHTTP协议是明文传输的，这时的代理服务器相当于工作在中间人下，代理可以直接查看HTTP请求的密码以及cookie等信息。 在不使用HTTP代理时，发送的请求如下： 1234GET &#x2F; HTTP&#x2F;1.1\r\nHost: baidu.com\r\n Connection: keep-alive\r\n\r\n  启用HTTP代理后，需要在Host指明URL的全称（方法后面的全称">
 <meta property="og:type" content="article">
 <meta property="og:title" content="HTTP隧道">
 <meta property="og:url" content="http://example.com/2021/11/10/HTTP%E9%9A%A7%E9%81%93/index.html">
 <meta property="og:site_name" content="记录日常">
-<meta property="og:description" content="点开看看吧~">
+<meta property="og:description" content="HTTP ProxyHTTP协议是明文传输的，这时的代理服务器相当于工作在中间人下，代理可以直接查看HTTP请求的密码以及cookie等信息。 在不使用HTTP代理时，发送的请求如下： 1234GET &#x2F; HTTP&#x2F;1.1\r\nHost: baidu.com\r\n Connection: keep-alive\r\n\r\n  启用HTTP代理后，需要在Host指明URL的全称（方法后面的全称">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-11-10T09:19:19.000Z">
-<meta property="article:modified_time" content="2022-07-22T08:40:25.426Z">
+<meta property="article:modified_time" content="2022-07-22T09:36:45.402Z">
 <meta property="article:author" content="adventural">
 <meta property="article:tag" content="HTTP">
 <meta name="twitter:card" content="summary">
@@ -198,7 +198,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-22 16:40:25" itemprop="dateModified" datetime="2022-07-22T16:40:25+08:00">2022-07-22</time>
+                <time title="修改时间：2022-07-22 17:36:45" itemprop="dateModified" datetime="2022-07-22T17:36:45+08:00">2022-07-22</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -232,7 +232,6 @@
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
               <span>1 分钟</span>
             </span>
-            <div class="post-description">点开看看吧~</div>
 
         </div>
       </header>
@@ -251,6 +250,8 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">GET http://www.baidu.com/ HTTP/1.1\r\n</span><br><span class="line">Host: baidu.com\r\n </span><br><span class="line">Proxy-Connection: keep-alive\r\n</span><br><span class="line">\r\n</span><br></pre></td></tr></table></figure>
 
 <p>代理服务器在接收到请求后从请求地址获取到请求目标与端口，然后将Proxy-Connection改写为Connection，然后建立与服务端的连接，在服务端与客户端之间转发消息。</p>
+<span id="more"></span> 
+
 <h5 id="HTTP-Proxy的问题"><a href="#HTTP-Proxy的问题" class="headerlink" title="HTTP Proxy的问题"></a>HTTP Proxy的问题</h5><p>明文传输下的HTTP本身就非常不安全，HTTP下运行代理服务器是无法保障信息安全的。基于TLS的HTTPS目前已经成为主流，浏览器的默认协议也基本上切换为了HTTPS。</p>
 <p>在HTTPS下客户端请求的主机和域名已经被加密，代理服务器无法得知数据应该转发给谁直接就无法工作了。</p>
 <p>解决的方法也很简单：</p>

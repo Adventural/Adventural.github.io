@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="记录一下常用的 GCC 编译属性">
+  <meta name="description" content="记录一下常用的 GCC 编译属性__attribute__ ((packed));The packed attribute specifies that a structure member should have the smallest possible alignment—one bit for a bit-field and one byte otherwise, unless a lar">
 <meta property="og:type" content="article">
 <meta property="og:title" content="常用的 GCC 编译属性">
 <meta property="og:url" content="http://example.com/2022/07/22/GCC%E7%BC%96%E8%AF%91%E5%B1%9E%E6%80%A7/index.html">
 <meta property="og:site_name" content="记录日常">
-<meta property="og:description" content="记录一下常用的 GCC 编译属性">
+<meta property="og:description" content="记录一下常用的 GCC 编译属性__attribute__ ((packed));The packed attribute specifies that a structure member should have the smallest possible alignment—one bit for a bit-field and one byte otherwise, unless a lar">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2022-07-22T07:59:44.852Z">
-<meta property="article:modified_time" content="2022-07-22T08:35:20.666Z">
+<meta property="article:modified_time" content="2022-07-22T09:35:49.890Z">
 <meta property="article:author" content="adventural">
 <meta property="article:tag" content="gcc">
 <meta name="twitter:card" content="summary">
@@ -192,7 +192,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-07-22 15:59:44 / 修改时间：16:35:20" itemprop="dateCreated datePublished" datetime="2022-07-22T15:59:44+08:00">2022-07-22</time>
+              <time title="创建时间：2022-07-22 15:59:44 / 修改时间：17:35:49" itemprop="dateCreated datePublished" datetime="2022-07-22T15:59:44+08:00">2022-07-22</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -226,7 +226,6 @@
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
               <span>3 分钟</span>
             </span>
-            <div class="post-description">记录一下常用的 GCC 编译属性</div>
 
         </div>
       </header>
@@ -240,6 +239,8 @@
         <h2 id="记录一下常用的-GCC-编译属性"><a href="#记录一下常用的-GCC-编译属性" class="headerlink" title="记录一下常用的 GCC 编译属性"></a>记录一下常用的 GCC 编译属性</h2><h4 id="attribute-packed"><a href="#attribute-packed" class="headerlink" title="__attribute__ ((packed));"></a>__attribute__ ((packed));</h4><p>The packed attribute specifies that a structure member should have the smallest possible alignment—one bit for a bit-field and one byte otherwise, unless a larger value is specified with the aligned attribute. The attribute does not apply to non-member objects.</p>
 <p>For example in the structure below, the member array x is packed so that it immediately follows a with no intervening padding:</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">foo</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">char</span> a;</span><br><span class="line">  <span class="keyword">int</span> x[<span class="number">2</span>] __attribute__ ((packed));</span><br><span class="line">&#125;;</span><br><span class="line">Note: The <span class="number">4.1</span>, <span class="number">4.2</span> <span class="keyword">and</span> <span class="number">4.3</span> series of GCC ignore the packed attribute on bit-fields of type <span class="keyword">char</span>. This has been fixed in GCC <span class="number">4.4</span> but the change can lead to differences in the structure layout. See the documentation of -Wpacked-bitfield-compat <span class="keyword">for</span> more information.</span><br></pre></td></tr></table></figure>
+
+<span id="more"></span> 
 
 <h4 id="attribute-used"><a href="#attribute-used" class="headerlink" title="__attribute__ ((used))"></a>__attribute__ ((used))</h4><p>unused<br>This attribute, attached to a variable or structure field, means that the variable or field is meant to be possibly unused. GCC does not produce a warning for this variable or field.</p>
 <p>used<br>This attribute, attached to a variable with static storage, means that the variable must be emitted even if it appears that the variable is not referenced.</p>

@@ -185,10 +185,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-10-09 16:15:18 / 修改时间：16:21:03" itemprop="dateCreated datePublished" datetime="2021-10-09T16:15:18+08:00">2021-10-09</time>
+              <time title="创建时间：2021-10-09 16:15:18" itemprop="dateCreated datePublished" datetime="2021-10-09T16:15:18+08:00">2021-10-09</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-07-22 17:38:28" itemprop="dateModified" datetime="2022-07-22T17:38:28+08:00">2022-07-22</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -224,15 +230,39 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>点开看看吧~</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/10/09/QEMU%E7%8E%AF%E5%A2%83%E4%B8%8B%E5%88%B6%E4%BD%9Cboot%E5%BC%95%E5%AF%BC%E7%A8%8B%E5%BA%8F/">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
+          <h3 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h3><ul>
+<li><h3 id="制作一个光盘实现qemu下操作系统的引导"><a href="#制作一个光盘实现qemu下操作系统的引导" class="headerlink" title="制作一个光盘实现qemu下操作系统的引导"></a><strong>制作一个光盘实现qemu下操作系统的引导</strong></h3></li>
+</ul>
+<h2 id="储备知识"><a href="#储备知识" class="headerlink" title="储备知识"></a>储备知识</h2><ul>
+<li><p><code>df命令</code>：列出文件系统的整体磁盘使用量<br><img src="https://img-blog.csdnimg.cn/20200805003909850.png" alt="df运行结果"></p>
+</li>
+<li><p><code>du命令</code>：常用于计算目录所占容量<br>-h ：以（G/M）方式显示容量<br>  -k：以KB方式显示<br>  -m：以MB方式显示<br>  <img src="https://img-blog.csdnimg.cn/2020080500430077.png" alt="在这里插入图片描述"></p>
+</li>
+<li><p><code>mkfs命令</code>：使用指定的文件系统格式化磁盘<br>-t ：接文件系统格式，如ext3，ext2，vfat等</p>
+</li>
+<li><p><code>mount命令</code>：将文件系统挂载到指定的目录下</p>
+</li>
+<li><p><code>losetup命令</code>：连接文件与循环设备（/dev/loop）<br><a target="_blank" rel="noopener" href="https://www.runoob.com/linux/linux-comm-losetup.html">详解</a><br>  -d 卸除设备。<br>-e&lt;加密方式&gt; 启动加密编码。<br>-o&lt;平移数目&gt; 设置数据平移的数目。<br>  循环设备可把文件虚拟成区块设备，籍以模拟整个文件系统，让用户得以将其视为硬盘驱动器，光驱或软驱等设备，并挂入当作目录来使用。</p>
+</li>
+<li><p><code>/dev/loop</code>设备<br>/dev/loop（或称vnd (vnode disk)、lofi（循环文件接口））是一种伪设备，这种设备使得文件可以如同块设备一般被访问。<br>在使用之前，循环设备必须与现存文件系统上的文件相关联。这种关联将提供给用户一个应用程序接口，接口将允许文件视为块特殊文件（参见设备文件系统）使用。因此，如果文件中包含一个完整的文件系统，那么这个文件就能如同磁盘设备一般被挂载。<br>这种设备文件经常被用于光盘或是磁盘镜像（IOS、IMG）。通过循环挂载来挂载包含文件系统的文件，便使处在这个文件系统中的文件得以被访问。这些文件将出现在挂载点目录。<br>在一个目录上挂载包含包含文件系统的文件的步骤：<br>使用一个循环设备（/dev/loop）连接文件（使用命令 <code>losetup</code>）<br>在目录上挂载该循环设备（使用命令 mount）</p>
+</li>
+<li><p>其他<code>/dev</code>虚拟设备</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/dev/null： “空”设备，也有人称它为黑洞。任何输入到这个“设备”的数据都将被直接丢弃</span><br><span class="line">最常用的用法是把不需要的输出重定向到这个文件。</span><br><span class="line">/dev/zero：零”设备，可以无限的提供空字符（0x00，ASCII代码NUL）。常用来生成一个特定大小的文件。</span><br><span class="line">/dev/random和/dev/urandom：随机数设备，提供不间断的随机字节流。二者的区别是/dev/random产生随</span><br><span class="line">机数据依赖系统中断，当系统中断不足时，/dev/random设备会“挂起”，因而产生数据速度较慢，但随机性</span><br><span class="line">好；/dev/urandom不依赖系统中断，数据产生速度快，但随机性较低。</span><br></pre></td></tr></table></figure>
+
+<h3 id="生成一个大小为1-44mb软盘，并且将其挂载到指定目录下"><a href="#生成一个大小为1-44mb软盘，并且将其挂载到指定目录下" class="headerlink" title="生成一个大小为1.44mb软盘，并且将其挂载到指定目录下"></a>生成一个大小为1.44mb软盘，并且将其挂载到指定目录下</h3><p><img src="https://img-blog.csdnimg.cn/20200805010917822.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FkdmVudHVyYWw=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h3 id="实现过程"><a href="#实现过程" class="headerlink" title="实现过程"></a>实现过程</h3><ul>
+<li>先生成一个空的大小为1.44MB的磁盘<br><img src="https://img-blog.csdnimg.cn/20200805011455649.png" alt="在这里插入图片描述"><br><code>mkdosfs</code>命令<br><a target="_blank" rel="noopener" href="https://www.runoob.com/linux/linux-comm-mkdosfs.html">详解</a><br>-F 指定 FAT 表的大小，通常是 12 或是 16 个位元组。12 位元组通常用于磁碟片，16 位元组用于一般硬盘的分割区，也就是所谓的 FAT16 格式。这个值通常系统会自己选定适当的值。在磁碟片上用 FAT16 通常不会发生作用，反之在硬盘上用 FAT12 亦然。<br><code>xxd</code>命令查看其内容<br><code>xxd -u -a -g l -c 16 floopy</code><br><img src="https://img-blog.csdnimg.cn/20200805012032330.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FkdmVudHVyYWw=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>其前512字节是一个引导扇区（Boot Sector），前62字节是BPB的结构，BPB数据结构的字段是windows文件系统和操作系统约定好的，用于描述磁盘的物理布局，可以适用于FAT系列文件系统和NTFS文件系统。这里我们看到最后的文件系统类型为FAT12</li>
+</ul>
+<h2 id="FAT引导扇区结构"><a href="#FAT引导扇区结构" class="headerlink" title="FAT引导扇区结构"></a>FAT引导扇区结构</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u012323667/article/details/79522783">详细介绍链接</a></p>
+<h2 id="引导代码"><a href="#引导代码" class="headerlink" title="引导代码"></a>引导代码</h2><p>boot.asm程序：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">jmp init; BS_jmpBoot短跳转指令（加上nop填充后为3个字节）</span><br><span class="line">nop</span><br><span class="line">Bs_OEMName db &quot;Jiaxgong&quot;;Bs_OEMName 厂商名称 8字节</span><br><span class="line">BPB_BytsPerSec dw 512;每扇区字节数</span><br><span class="line">BPB_SecPerClus db 1;每簇扇区数</span><br><span class="line">BPB_RsvdSecCnt dw 1;保留区中的保留扇区数FAT12必须为1,(引导记录占用的扇区数)</span><br><span class="line">BPB_NumFATs db 2;此卷中FAT表的份数，建议为2</span><br><span class="line">BPB_RootEntCnt dw 512;根目录中的目录项数 FAT12中建议取值512</span><br><span class="line">BPB_TotSec16 dw 2880;扇区总数</span><br><span class="line">BPB_Media db 0xf0;BPB_Media 存储介质f0表示可移动介质，f8表示固定介质</span><br><span class="line">BPB_FATSz16 dw 9;一个FAT表所占的扇区数</span><br><span class="line">BPB_SecPerTrk dw 18;每磁道扇区数</span><br><span class="line">BPB_NumHeaders dw 2;磁头数</span><br><span class="line">BPB_HiddSec dd 0;FAT分区之前的隐藏扇区数，对于未分区介质必须为0</span><br><span class="line">BPB_TotSec32 dd 0</span><br><span class="line">BS_drveNum db 0;int13得到的驱动器号</span><br><span class="line">BS_Reserved1 db 0;保留（供NT使用）</span><br><span class="line">BS_BootSig db 0x29;扩展引导标记，指明此后的3个域可用</span><br><span class="line">BS_VolID dd 0;卷标序列号</span><br><span class="line">BS_VolLab db &quot;VirtualBoot&quot;;磁盘卷标，此域必须与根目录中11字节长的卷标一致</span><br><span class="line">BS_FilSysType db &quot;FAT12   &quot;;文件系统类型</span><br><span class="line"></span><br><span class="line">init:</span><br><span class="line">    mov    ax, 7c00h</span><br><span class="line">    mov    ds, ax</span><br><span class="line">    mov    es, ax</span><br><span class="line">    mov    ss, ax</span><br><span class="line">    mov    sp, 180h</span><br><span class="line">    call    DispStr</span><br><span class="line"></span><br><span class="line">loop:</span><br><span class="line">    jmp     loop</span><br><span class="line"></span><br><span class="line">DispStr:</span><br><span class="line">    mov    ax, BootMsg</span><br><span class="line">    mov    bp, ax</span><br><span class="line">    mov    cx, 16</span><br><span class="line">    mov    ax, 01301h</span><br><span class="line">    mov    bx, 000ch</span><br><span class="line">    mov    dl, 0</span><br><span class="line">    int     10h</span><br><span class="line">    ret</span><br><span class="line"></span><br><span class="line">BootMsg: db  &quot;Hello, OS World!&quot;</span><br><span class="line"></span><br><span class="line">times 510-($-$$) db 0</span><br><span class="line"></span><br><span class="line">dw 0xaa55</span><br></pre></td></tr></table></figure>
+
+<p>以上程序写好后，使用<code>nasm</code>命令汇编成二进制文件<br><code>nasm boot.asm -o boot.bin</code><br>汇编完成后，可以使用以下命令查看boot.bin的大小，刚好为512字节<br><code>wc -c boot.bin</code><br><img src="https://img-blog.csdnimg.cn/20200805215134726.png" alt="在这里插入图片描述"><br>plus：反汇编指令<code>ndisasm boot.bin -o 0x7c00&gt;&gt; disboot.asm</code>可以查看处理过后的汇编代码</p>
+<h2 id="将引导代码写入floopy软盘中"><a href="#将引导代码写入floopy软盘中" class="headerlink" title="将引导代码写入floopy软盘中"></a>将引导代码写入floopy软盘中</h2><p><code>dd if=boot.bin ibs=512 of=floopy obs=512 count=1 seek=0 conv=notrunc</code><br>notrunc意味着不缩减输出文件，也就是说，如果输出文件已经存在，只改变指定的字节，然后退出，并保留输出文件的剩余部分。没有这个选项，dd将创建一个512字节长的文件。</p>
+<p>写入完成后，使用qemu启动软盘(a.img就是上面的floppy软盘，为了和命令区分，改为了a.img)<br><code>qemu-system-x86_64 -drive file=a.img,of=floppy</code><br><img src="https://img-blog.csdnimg.cn/20200806220506249.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2FkdmVudHVyYWw=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+
       
     </div>
 

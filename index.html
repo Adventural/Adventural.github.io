@@ -278,7 +278,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-07-22 16:14:01 / 修改时间：16:32:05" itemprop="dateCreated datePublished" datetime="2022-07-22T16:14:01+08:00">2022-07-22</time>
+              <time title="创建时间：2022-07-22 16:14:01 / 修改时间：17:37:26" itemprop="dateCreated datePublished" datetime="2022-07-22T16:14:01+08:00">2022-07-22</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -315,10 +315,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>本文从makefile的角度分析 Linux 的几种映像格式bzImage、Image和zImage</p>
+          <h1 id="Linux-映像结构"><a href="#Linux-映像结构" class="headerlink" title="Linux 映像结构"></a>Linux 映像结构</h1><p>编译完的 Linux 映像文件有几种，bzImage、Image以及zImage和uImage。可以从 makefile 分析他们的区别。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2022/07/22/Linux%E6%98%A0%E5%83%8F%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90/">
+              <a class="btn" href="/2022/07/22/Linux%E6%98%A0%E5%83%8F%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -367,7 +367,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-07-22 16:03:55 / 修改时间：16:41:20" itemprop="dateCreated datePublished" datetime="2022-07-22T16:03:55+08:00">2022-07-22</time>
+              <time title="创建时间：2022-07-22 16:03:55 / 修改时间：17:37:42" itemprop="dateCreated datePublished" datetime="2022-07-22T16:03:55+08:00">2022-07-22</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -404,10 +404,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>MBR的磁盘映像结构</p>
+          <h2 id="MBR（主引导记录）硬盘"><a href="#MBR（主引导记录）硬盘" class="headerlink" title="MBR（主引导记录）硬盘"></a>MBR（主引导记录）硬盘</h2><p>MBR早在1983年的IBM PC DOS 2.0中就已经提出，比Linux诞生的时间还要早。主引导记录是指采用MBR分区的第一个扇区，这个扇区由三个部分组成：bootloader、硬盘分区表DPT和结束标志字（0x55AA）。 mbr磁盘结构如下图所示:</p>
+<p><img src="./mbr.svg" alt="mbr"></p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2022/07/22/MBR/">
+              <a class="btn" href="/2022/07/22/MBR/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -456,7 +457,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-07-22 16:03:48 / 修改时间：16:10:31" itemprop="dateCreated datePublished" datetime="2022-07-22T16:03:48+08:00">2022-07-22</time>
+              <time title="创建时间：2022-07-22 16:03:48 / 修改时间：17:39:08" itemprop="dateCreated datePublished" datetime="2022-07-22T16:03:48+08:00">2022-07-22</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -493,15 +494,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>点开看看吧~</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/07/22/x86%E6%B1%87%E7%BC%96/">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
+          <h2 id="记录一下不太熟悉的指令"><a href="#记录一下不太熟悉的指令" class="headerlink" title="记录一下不太熟悉的指令"></a>记录一下不太熟悉的指令</h2><h4 id="wbinvd-amp-invd"><a href="#wbinvd-amp-invd" class="headerlink" title="wbinvd &amp; invd"></a>wbinvd &amp; invd</h4><p>写回处理器内部缓存中所有修改的缓存线，并使这些内部缓存失效（清除）。接着，指令发出一个特殊功能的总线周期，指示外部缓存写回修改的数据；并发出另一个总线周期，指示应该使外部缓存失效。</p>
+<p>执行此指令之后，处理器并不等待外部缓存完成写回与清除操作，而是继续执行指令。缓存写回与清除信号的响应由硬件负责。</p>
+<p>WBINVD 指令是特权指令。处理器在保护模式中运行时，程序或过程的 CPL 必须是 0 才能执行此指令。此指令也是序列化指令（请参阅“IA-32 英特尔(R) 体系结构软件开发人员手册”第 3 卷第 7 章中的“序列化指令”）。</p>
+<p>在缓存与主内存是否一致无关紧要的情况下，软件可以使用 INVD 指令。</p>
+
       
     </div>
 
@@ -545,7 +542,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-07-22 15:59:44 / 修改时间：16:30:15" itemprop="dateCreated datePublished" datetime="2022-07-22T15:59:44+08:00">2022-07-22</time>
+              <time title="创建时间：2022-07-22 15:59:44 / 修改时间：17:36:14" itemprop="dateCreated datePublished" datetime="2022-07-22T15:59:44+08:00">2022-07-22</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -582,10 +579,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>分析GRUB是如何自加载到内存的</p>
+          <h2 id="GRUB-引导阶段过程分析"><a href="#GRUB-引导阶段过程分析" class="headerlink" title="GRUB 引导阶段过程分析"></a>GRUB 引导阶段过程分析</h2><h4 id="boot-阶段分析（boot-img）"><a href="#boot-阶段分析（boot-img）" class="headerlink" title="boot 阶段分析（boot.img）"></a>boot 阶段分析（boot.img）</h4><p>boot.img由boot.S编译而来。<br>boot.S涉及到的宏定义在&lt;grub/machine/boot.h&gt;, i386下会展开为include/grub/i386/coreboot/boot/.h<br>boot.S主要做了一件事情，加载下一阶段代码到内存，然后jmp到kernel_address。
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2022/07/22/GRUB%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/">
+              <a class="btn" href="/2022/07/22/GRUB%E5%90%AF%E5%8A%A8%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -634,7 +631,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-07-22 15:59:44 / 修改时间：16:35:20" itemprop="dateCreated datePublished" datetime="2022-07-22T15:59:44+08:00">2022-07-22</time>
+              <time title="创建时间：2022-07-22 15:59:44 / 修改时间：17:35:49" itemprop="dateCreated datePublished" datetime="2022-07-22T15:59:44+08:00">2022-07-22</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -671,10 +668,12 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>记录一下常用的 GCC 编译属性</p>
+          <h2 id="记录一下常用的-GCC-编译属性"><a href="#记录一下常用的-GCC-编译属性" class="headerlink" title="记录一下常用的 GCC 编译属性"></a>记录一下常用的 GCC 编译属性</h2><h4 id="attribute-packed"><a href="#attribute-packed" class="headerlink" title="__attribute__ ((packed));"></a>__attribute__ ((packed));</h4><p>The packed attribute specifies that a structure member should have the smallest possible alignment—one bit for a bit-field and one byte otherwise, unless a larger value is specified with the aligned attribute. The attribute does not apply to non-member objects.</p>
+<p>For example in the structure below, the member array x is packed so that it immediately follows a with no intervening padding:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">foo</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">char</span> a;</span><br><span class="line">  <span class="keyword">int</span> x[<span class="number">2</span>] __attribute__ ((packed));</span><br><span class="line">&#125;;</span><br><span class="line">Note: The <span class="number">4.1</span>, <span class="number">4.2</span> <span class="keyword">and</span> <span class="number">4.3</span> series of GCC ignore the packed attribute on bit-fields of type <span class="keyword">char</span>. This has been fixed in GCC <span class="number">4.4</span> but the change can lead to differences in the structure layout. See the documentation of -Wpacked-bitfield-compat <span class="keyword">for</span> more information.</span><br></pre></td></tr></table></figure>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2022/07/22/GCC%E7%BC%96%E8%AF%91%E5%B1%9E%E6%80%A7/">
+              <a class="btn" href="/2022/07/22/GCC%E7%BC%96%E8%AF%91%E5%B1%9E%E6%80%A7/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -723,7 +722,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-07-22 15:35:11 / 修改时间：16:35:01" itemprop="dateCreated datePublished" datetime="2022-07-22T15:35:11+08:00">2022-07-22</time>
+              <time title="创建时间：2022-07-22 15:35:11 / 修改时间：17:35:34" itemprop="dateCreated datePublished" datetime="2022-07-22T15:35:11+08:00">2022-07-22</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -760,10 +759,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>配置uefi开发环境，编译qemu下的ovmf固件</p>
+          <h2 id="UEFI-开发环境-EDK2-配置"><a href="#UEFI-开发环境-EDK2-配置" class="headerlink" title="UEFI 开发环境 EDK2 配置"></a>UEFI 开发环境 EDK2 配置</h2><p>EDK2 是一个开源的 UEFI 实现，使用 EDK2 可以自行编译 UEFI 固件和 UEFI 驱动。<br></p>
+<h4 id="下载代码"><a href="#下载代码" class="headerlink" title="下载代码"></a>下载代码</h4><p>直接下载最新版代码（edk2-stable202205），注意使用 –recursive 下载 submodule，不然会出现缺少文件的问题</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 裸连 Github 可能连不上，可以设置一下 http 代理（如果有的话）</span></span><br><span class="line"><span class="built_in">set</span> http_proxy = http:<span class="comment">//127.0.0.1:1080</span></span><br><span class="line"><span class="built_in">set</span> https_proxy = http:<span class="comment">//127.0.0.1:1080</span></span><br><span class="line">git clone --recursive https:<span class="comment">//github.com/tianocore/edk2.git</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># nasm 需要 2.15 以上版本</span></span><br><span class="line">apt-get install nasm uuid-dev iasl gcc</span><br></pre></td></tr></table></figure>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2022/07/22/EDK2%20%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">
+              <a class="btn" href="/2022/07/22/EDK2%20%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -818,7 +821,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-22 16:43:19" itemprop="dateModified" datetime="2022-07-22T16:43:19+08:00">2022-07-22</time>
+                <time title="修改时间：2022-07-22 17:38:13" itemprop="dateModified" datetime="2022-07-22T17:38:13+08:00">2022-07-22</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -855,10 +858,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>python项目结构</p>
+          <h3 id="python项目结构"><a href="#python项目结构" class="headerlink" title="python项目结构"></a>python项目结构</h3><p>一个典型的python项目结构如下所示</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">└── projectname</span><br><span class="line">  ├── __init__.py</span><br><span class="line">  ├── main.py</span><br><span class="line">  └── modules</span><br><span class="line">      ├── __init__.py</span><br><span class="line">      └── module1.py</span><br><span class="line">      └── module2.py</span><br><span class="line">  └── ui</span><br><span class="line">      ├── __init__.py</span><br><span class="line">      └── view.py</span><br><span class="line">      └── item.py</span><br></pre></td></tr></table></figure>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2021/11/25/python%E6%A8%A1%E5%9D%97%E7%BC%96%E7%A8%8B/">
+              <a class="btn" href="/2021/11/25/python%E6%A8%A1%E5%9D%97%E7%BC%96%E7%A8%8B/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -913,7 +917,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-22 16:40:46" itemprop="dateModified" datetime="2022-07-22T16:40:46+08:00">2022-07-22</time>
+                <time title="修改时间：2022-07-22 17:37:04" itemprop="dateModified" datetime="2022-07-22T17:37:04+08:00">2022-07-22</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -950,10 +954,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>分析顶层的makefile</p>
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>分析的内核为版本2.6.11</p>
+<h3 id="顶层MakeFile"><a href="#顶层MakeFile" class="headerlink" title="顶层MakeFile"></a>顶层MakeFile</h3><p>顶层Makefile存在于内核源码根目录中，顶层的makefile不会控制具体的编译规则。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2021/11/20/linux2-6%E5%86%85%E6%A0%B8%E2%80%94%E2%80%94makefile%E5%88%86%E6%9E%90/">
+              <a class="btn" href="/2021/11/20/linux2-6%E5%86%85%E6%A0%B8%E2%80%94%E2%80%94makefile%E5%88%86%E6%9E%90/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1008,7 +1013,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-22 16:44:54" itemprop="dateModified" datetime="2022-07-22T16:44:54+08:00">2022-07-22</time>
+                <time title="修改时间：2022-07-22 17:38:31" itemprop="dateModified" datetime="2022-07-22T17:38:31+08:00">2022-07-22</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1045,10 +1050,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>点开看看吧~</p>
+          <h4 id="with语句"><a href="#with语句" class="headerlink" title="with语句"></a>with语句</h4><p>在阅读tornado源码时看到</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> RequestHandler._template_loader_lock</span><br><span class="line"></span><br><span class="line"><span class="comment"># 其他用法</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;1.c&quot;</span>) <span class="keyword">as</span> file:</span><br><span class="line">    data = file.read()</span><br></pre></td></tr></table></figure>
+
+<p>这里记录一下with的基础用法和原理</p>
+<h4 id="with的使用场景"><a href="#with的使用场景" class="headerlink" title="with的使用场景"></a>with的使用场景</h4><p>with 语句适用于对资源进行访问的场合，确保不管使用过程中是否发生异常都会执行必要的“清理”操作，释放资源，比如文件使用后自动关闭／线程中锁的自动获取和释放等。在这些情况下代码通常需要考虑到资源打开或者获取失败的场景，因此需要加入try except finally等语句，比如一次文件打开可能需要写成</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2021/11/15/Python%E4%B8%AD%E7%9A%84with/">
+              <a class="btn" href="/2021/11/15/Python%E4%B8%AD%E7%9A%84with/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>

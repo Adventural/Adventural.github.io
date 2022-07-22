@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":false,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="点开看看吧~">
+  <meta name="description" content="RequestHandler——处理HTTP请求这个类的实现代码很多，内置了很多方法，在使用的时候根据自己的业务类型对需要方法做重写。RequestHandler类的方法基本上可以根据名称来判断用途。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="tornado——RequestHandler和Application类分析">
 <meta property="og:url" content="http://example.com/2021/11/10/tornado%E8%AF%A6%E8%A7%A3/index.html">
 <meta property="og:site_name" content="记录日常">
-<meta property="og:description" content="点开看看吧~">
+<meta property="og:description" content="RequestHandler——处理HTTP请求这个类的实现代码很多，内置了很多方法，在使用的时候根据自己的业务类型对需要方法做重写。RequestHandler类的方法基本上可以根据名称来判断用途。">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-11-10T08:19:37.000Z">
-<meta property="article:modified_time" content="2021-11-16T08:38:20.150Z">
+<meta property="article:modified_time" content="2022-07-22T09:39:13.966Z">
 <meta property="article:author" content="adventural">
 <meta property="article:tag" content="tornado">
 <meta name="twitter:card" content="summary">
@@ -198,7 +198,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-11-16 16:38:20" itemprop="dateModified" datetime="2021-11-16T16:38:20+08:00">2021-11-16</time>
+                <time title="修改时间：2022-07-22 17:39:13" itemprop="dateModified" datetime="2022-07-22T17:39:13+08:00">2022-07-22</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -232,7 +232,6 @@
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
               <span>1 分钟</span>
             </span>
-            <div class="post-description">点开看看吧~</div>
 
         </div>
       </header>
@@ -244,10 +243,10 @@
 
       
         <h3 id="RequestHandler——处理HTTP请求"><a href="#RequestHandler——处理HTTP请求" class="headerlink" title="RequestHandler——处理HTTP请求"></a>RequestHandler——处理HTTP请求</h3><p>这个类的实现代码很多，内置了很多方法，在使用的时候根据自己的业务类型对需要方法做重写。RequestHandler类的方法基本上可以根据名称来判断用途。</p>
+<span id="more"></span>
+
 <h5 id="SUPPORTED-METHODS"><a href="#SUPPORTED-METHODS" class="headerlink" title="SUPPORTED_METHODS"></a>SUPPORTED_METHODS</h5><p>定义该RequestHandler支持的方法</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SUPPORTED_METHODS = (<span class="string">&quot;GET&quot;</span>, <span class="string">&quot;HEAD&quot;</span>, <span class="string">&quot;POST&quot;</span>, <span class="string">&quot;DELETE&quot;</span>, <span class="string">&quot;PATCH&quot;</span>, <span class="string">&quot;PUT&quot;</span>, <span class="string">&quot;OPTIONS&quot;</span>)</span><br></pre></td></tr></table></figure>
-
-
 
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RequestHandler</span>(<span class="params"><span class="built_in">object</span></span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, application, request, **kwargs</span>)</span></span><br><span class="line"><span class="function">    </span></span><br></pre></td></tr></table></figure>
 
