@@ -29,7 +29,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2022/07/22/16%E4%BD%8D%E4%B8%8B%E4%BD%BF%E7%94%A8c%E8%AF%AD%E8%A8%80%E7%BC%96%E7%A8%8B-%E5%88%86%E6%9E%90Linux%20setup%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81/image-20220722165007581.png">
 <meta property="article:published_time" content="2022-07-22T08:47:33.000Z">
-<meta property="article:modified_time" content="2022-07-22T16:08:47.620Z">
+<meta property="article:modified_time" content="2022-07-22T16:17:38.380Z">
 <meta property="article:author" content="adventural">
 <meta property="article:tag" content="Linux">
 <meta name="twitter:card" content="summary">
@@ -200,7 +200,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-23 00:08:47" itemprop="dateModified" datetime="2022-07-23T00:08:47+08:00">2022-07-23</time>
+                <time title="修改时间：2022-07-23 00:17:38" itemprop="dateModified" datetime="2022-07-23T00:17:38+08:00">2022-07-23</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -225,7 +225,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>3.6k</span>
+              <span>3.7k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -266,7 +266,7 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 64 位程序</span></span><br><span class="line">gcc src.c -o src</span><br><span class="line"><span class="comment"># 32 位程序</span></span><br><span class="line">gcc src.c -o src -m32</span><br></pre></td></tr></table></figure>
 
 <p>上面两行大家或多或少都用过，链接 32 位程序失败的朋友请先安装 gcc-multilib，目前的 64 位 Ubuntu 发行版已经默认不带 32 位的动态库了，所以会报链接错误。</p>
-<p>那么如何编译 16 位程序呢，有这个问题的应该比较少见，网上找到的资料也比较少。实际上这个问题很简单，既然<code>-m32</code>是生成 32 位代码，那么<code> -m16</code> 就是告诉 gcc 生成 16 位的代码。下面是 Linux 内核代码中的部分注释。</p>
+<p>那么如何编译 16 位程序呢，有这个问题的应该比较少见，网上找到的资料也比较少。实际上这个问题很简单，既然<code>-m32</code>是生成 32 位代码，那么<code>-m16</code> 就是告诉 gcc 生成 16 位的代码。下面是 Linux 内核代码中的部分注释。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># How to compile the <span class="number">16</span>-bit code.  Note we always compile <span class="keyword">for</span> -march=i386;</span><br><span class="line"><span class="meta"># that way we can complain to the user <span class="meta-keyword">if</span> the CPU is insufficient.</span></span><br><span class="line">#</span><br><span class="line"># The -m16 option is supported by GCC &gt;= <span class="number">4.9</span> <span class="keyword">and</span> clang &gt;= <span class="number">3.5</span>. For</span><br><span class="line"><span class="meta"># older versions of GCC, <span class="meta-keyword">include</span> an *assembly* header to make sure that</span></span><br><span class="line"><span class="meta"># gcc doesn<span class="meta-string">&#x27;t play any games behind our back.</span></span></span><br></pre></td></tr></table></figure>
 
 <p>需要注意的是 gcc 虽然支持 -m16 选项，但是并不意味着可以编译出 16 位的可执行程序。可执行程序需要经过编译、链接才能直接执行，而操作系统中是没有 16 位链接库的，这意味着我们需要自己手动链接并且指定一个入口。</p>
@@ -281,6 +281,7 @@
 <p>左边是使用 -m32 选项编译，使用-m i8086 反汇编，对应在16位模式下的执行。可以看出来程序的中间直接成了 bad 指令，直接执行肯定会出错。</p>
 <p>中间的使用 -m32 选项编译，反汇编成 32 位代码的情况，可以看到正常的程序流，这是代码在32位环境下正常执行的情况。</p>
 <p>右边使用 -m16 选项编译，使用 -m i8086 反汇编，对应在16位模式下的执行。反汇编出来的程序流是正常的，和中间的基本相同，只是所有的 call、levae、ret 都变成了calll、leavel、retl，部分的 push 指令变成了 pushl。从二进制码来看，几乎所有的指令前面都多出来了66或者67，其余的二进制码和 32 位下的保持相同（除了地址会有变动）。总结一下就是，gcc 仍然生成 32 位的指令，但是 -m16 选项会让 gcc 在指令前插入一个字节告诉 16 位下的 cpu，该指令的操作数为 4 字节。</p>
+<p>反过来看为什么左边的代码在 16 位下不可执行呢？很简单，以 call 指令为例，在 16 位下其操作数为 2 字节，而编译出来的代码操作数是4字节，所以多出来的 2 个字节就会被cpu当成一条指令执行，从而导致之后的指令流出错。</p>
 <h3 id="从-16-位汇编跳转到-c-函数"><a href="#从-16-位汇编跳转到-c-函数" class="headerlink" title="从 16 位汇编跳转到 c 函数"></a>从 16 位汇编跳转到 c 函数</h3><p>既然我们的代码是运行在 16 位环境下的，那么相应的我们也应该编译出 16 位的代码。GNU AS汇编的 .S 文件可以使用 .code16 来告诉 gcc 生成 16 位</p>
 <p>从汇编跳转到 c 执行的方式有两种，一种是 call，另一个是jmp。</p>
 <p>gcc 既然无法编译出 elf16 的程序，那么如何告诉 gcc 生成16位代码呢？如果看过 Linux setup 部分代码的朋友应该知道，setup 部分实际上是通过 -m32 编译出来的，最后输出的也是 32 位的程序setup.elf，然后通过 objcopy 生成 setup，也就是实模式下最终目标，这个过程可以参考我的另一篇博客 <a target="_blank" rel="noopener" href="https://www.adventural.top/2022/07/22/Linux%E6%98%A0%E5%83%8F%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90/">Linux 映像结构</a>。</p>
