@@ -28,8 +28,9 @@
 <meta property="og:description" content="从Linux实模式代码入手，分析16位下如何使用c语言编程">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2022/07/22/16%E4%BD%8D%E4%B8%8B%E4%BD%BF%E7%94%A8c%E8%AF%AD%E8%A8%80%E7%BC%96%E7%A8%8B-%E5%88%86%E6%9E%90Linux%20setup%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81/image-20220722165007581.png">
+<meta property="og:image" content="http://example.com/2022/07/22/16%E4%BD%8D%E4%B8%8B%E4%BD%BF%E7%94%A8c%E8%AF%AD%E8%A8%80%E7%BC%96%E7%A8%8B-%E5%88%86%E6%9E%90Linux%20setup%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81/image-20220722232938649.png">
 <meta property="article:published_time" content="2022-07-22T08:47:33.000Z">
-<meta property="article:modified_time" content="2022-07-22T16:17:38.380Z">
+<meta property="article:modified_time" content="2022-07-25T08:39:56.553Z">
 <meta property="article:author" content="adventural">
 <meta property="article:tag" content="Linux">
 <meta name="twitter:card" content="summary">
@@ -200,7 +201,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-23 00:17:38" itemprop="dateModified" datetime="2022-07-23T00:17:38+08:00">2022-07-23</time>
+                <time title="修改时间：2022-07-25 16:39:56" itemprop="dateModified" datetime="2022-07-25T16:39:56+08:00">2022-07-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -225,7 +226,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>3.7k</span>
+              <span>3.2k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -276,19 +277,21 @@
 <h5 id="m16-为什么-work，它有什么影响？"><a href="#m16-为什么-work，它有什么影响？" class="headerlink" title="-m16 为什么 work，它有什么影响？"></a>-m16 为什么 work，它有什么影响？</h5><p>先上图，这里有三份反汇编出来的代码，下面是生成源文件和反汇编的指令。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 左边</span></span><br><span class="line">-m32</span><br><span class="line">objdump -d -m i8086</span><br><span class="line"><span class="comment"># 中间</span></span><br><span class="line">-m32</span><br><span class="line">objdump -d</span><br><span class="line"><span class="comment"># 右边</span></span><br><span class="line">-m16</span><br><span class="line">objdump -d -m i8086</span><br></pre></td></tr></table></figure>
 
-<p>![image-20220722232938649](16位下使用c语言编程-分析Linux setup部分代码/image-20220722232938649.png)</p>
+<p><img src="./image-20220722232938649.png" alt="image-20220722232938649"></p>
 <p>上面给出了三个对照，对应的是同一个c代码在不同情况下编译和执行的过程。</p>
 <p>左边是使用 -m32 选项编译，使用-m i8086 反汇编，对应在16位模式下的执行。可以看出来程序的中间直接成了 bad 指令，直接执行肯定会出错。</p>
 <p>中间的使用 -m32 选项编译，反汇编成 32 位代码的情况，可以看到正常的程序流，这是代码在32位环境下正常执行的情况。</p>
 <p>右边使用 -m16 选项编译，使用 -m i8086 反汇编，对应在16位模式下的执行。反汇编出来的程序流是正常的，和中间的基本相同，只是所有的 call、levae、ret 都变成了calll、leavel、retl，部分的 push 指令变成了 pushl。从二进制码来看，几乎所有的指令前面都多出来了66或者67，其余的二进制码和 32 位下的保持相同（除了地址会有变动）。总结一下就是，gcc 仍然生成 32 位的指令，但是 -m16 选项会让 gcc 在指令前插入一个字节告诉 16 位下的 cpu，该指令的操作数为 4 字节。</p>
 <p>反过来看为什么左边的代码在 16 位下不可执行呢？很简单，以 call 指令为例，在 16 位下其操作数为 2 字节，而编译出来的代码操作数是4字节，所以多出来的 2 个字节就会被cpu当成一条指令执行，从而导致之后的指令流出错。</p>
-<h3 id="从-16-位汇编跳转到-c-函数"><a href="#从-16-位汇编跳转到-c-函数" class="headerlink" title="从 16 位汇编跳转到 c 函数"></a>从 16 位汇编跳转到 c 函数</h3><p>既然我们的代码是运行在 16 位环境下的，那么相应的我们也应该编译出 16 位的代码。GNU AS汇编的 .S 文件可以使用 .code16 来告诉 gcc 生成 16 位</p>
-<p>从汇编跳转到 c 执行的方式有两种，一种是 call，另一个是jmp。</p>
-<p>gcc 既然无法编译出 elf16 的程序，那么如何告诉 gcc 生成16位代码呢？如果看过 Linux setup 部分代码的朋友应该知道，setup 部分实际上是通过 -m32 编译出来的，最后输出的也是 32 位的程序setup.elf，然后通过 objcopy 生成 setup，也就是实模式下最终目标，这个过程可以参考我的另一篇博客 <a target="_blank" rel="noopener" href="https://www.adventural.top/2022/07/22/Linux%E6%98%A0%E5%83%8F%E7%BB%93%E6%9E%84%E5%88%86%E6%9E%90/">Linux 映像结构</a>。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * setup.ld</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Linker script for the i386 setup code</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">OUTPUT_FORMAT(<span class="string">&quot;elf32-i386&quot;</span>, <span class="string">&quot;elf32-i386&quot;</span>, <span class="string">&quot;elf32-i386&quot;</span>)</span><br><span class="line">OUTPUT_ARCH(i386)</span><br><span class="line">ENTRY(_start)</span><br><span class="line"></span><br><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">	. = <span class="number">0</span>;</span><br><span class="line">	.bstext		: &#123; *(.bstext) &#125;</span><br><span class="line">	.bsdata		: &#123; *(.bsdata) &#125;</span><br><span class="line"></span><br><span class="line">	. = <span class="number">495</span>;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="从-16-位汇编跳转到-c-函数"><a href="#从-16-位汇编跳转到-c-函数" class="headerlink" title="从 16 位汇编跳转到 c 函数"></a>从 16 位汇编跳转到 c 函数</h3><p>从汇编跳转到 c 执行的方式有两种，一种是 call，另一个是jmp。我们分别讨论这两种情况</p>
+<h4 id="jmp"><a href="#jmp" class="headerlink" title="jmp"></a>jmp</h4><p>考虑到 16 位的运行环境， jmp 也分为两种情况，一种是段内跳转，另外一个是段间跳转。分别对应 jmp 和 ljmp。</p>
+<p>对于段内的运行的c函数直接</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jmp function_name</span><br></pre></td></tr></table></figure>
 
-<p>如果从实模式 Linux 代码得出使用 -m32 然后链接成 32 位的 elf 程序就可以在 16 位环境下运行那就大错特错了。32 位的程序显然无法在 16 位下运行，</p>
-<p>解决两个问题，一个是顺序指令的执行问题，一个是</p>
+<p>段间跳转</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ljmp $seg, function_name</span><br></pre></td></tr></table></figure>
+
+<h4 id="call"><a href="#call" class="headerlink" title="call"></a>call</h4><p>call 指令和 jmp 的不同之处在于 call 模拟的是函数调用，既然是函数调用那么就应该会返回，而 jmp 不考虑返回的问题。</p>
 <h3 id="initcall-函数分析"><a href="#initcall-函数分析" class="headerlink" title="initcall 函数分析"></a>initcall 函数分析</h3><p>BIOS 中断是 16 位下编程经常使用到的，例如读磁盘 int 0x13、打印字符串 int 0x10 等等。BIOS 在初始化完成后会在物理地址 0 的地方放置一张中断向量表，指向了一系列非常有用的函数。BIOS 调用只能发生在 16 位环境下，因此在进入保护模式之前我们需要尽可能多的收集 BIOS 信息，传递给操作系统。</p>
 <p>既然我们的目标是使用 c 语言编程，那么 BIOS 中断也需要做一层封装，这个封装是比较困难的，BIOS 的各个中断使用到的寄存器都不尽相同，想要适用所有的 BIOS 中断，只能把寄存器和中断号作为参数，</p>
 <p>压栈和出栈看操作数类型，</p>
@@ -379,7 +382,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%A3%E6%96%87"><span class="nav-number">2.</span> <span class="nav-text">正文</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E7%BC%96%E8%AF%91-16-%E4%BD%8D%E7%9A%84-c-%E7%A8%8B%E5%BA%8F"><span class="nav-number">2.1.</span> <span class="nav-text">如何编译 16 位的 c 程序</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#m16-%E4%B8%BA%E4%BB%80%E4%B9%88-work%EF%BC%8C%E5%AE%83%E6%9C%89%E4%BB%80%E4%B9%88%E5%BD%B1%E5%93%8D%EF%BC%9F"><span class="nav-number">2.1.0.1.</span> <span class="nav-text">-m16 为什么 work，它有什么影响？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E-16-%E4%BD%8D%E6%B1%87%E7%BC%96%E8%B7%B3%E8%BD%AC%E5%88%B0-c-%E5%87%BD%E6%95%B0"><span class="nav-number">2.2.</span> <span class="nav-text">从 16 位汇编跳转到 c 函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#initcall-%E5%87%BD%E6%95%B0%E5%88%86%E6%9E%90"><span class="nav-number">2.3.</span> <span class="nav-text">initcall 函数分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#int-%E4%B8%AD%E6%96%AD"><span class="nav-number">3.</span> <span class="nav-text">int 中断</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%A3%E6%96%87"><span class="nav-number">2.</span> <span class="nav-text">正文</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E7%BC%96%E8%AF%91-16-%E4%BD%8D%E7%9A%84-c-%E7%A8%8B%E5%BA%8F"><span class="nav-number">2.1.</span> <span class="nav-text">如何编译 16 位的 c 程序</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#m16-%E4%B8%BA%E4%BB%80%E4%B9%88-work%EF%BC%8C%E5%AE%83%E6%9C%89%E4%BB%80%E4%B9%88%E5%BD%B1%E5%93%8D%EF%BC%9F"><span class="nav-number">2.1.0.1.</span> <span class="nav-text">-m16 为什么 work，它有什么影响？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E-16-%E4%BD%8D%E6%B1%87%E7%BC%96%E8%B7%B3%E8%BD%AC%E5%88%B0-c-%E5%87%BD%E6%95%B0"><span class="nav-number">2.2.</span> <span class="nav-text">从 16 位汇编跳转到 c 函数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#jmp"><span class="nav-number">2.2.1.</span> <span class="nav-text">jmp</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#call"><span class="nav-number">2.2.2.</span> <span class="nav-text">call</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#initcall-%E5%87%BD%E6%95%B0%E5%88%86%E6%9E%90"><span class="nav-number">2.3.</span> <span class="nav-text">initcall 函数分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#int-%E4%B8%AD%E6%96%AD"><span class="nav-number">3.</span> <span class="nav-text">int 中断</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -450,7 +453,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">86k</span>
+    <span title="站点总字数">85k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
