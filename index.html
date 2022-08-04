@@ -162,6 +162,349 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/08/04/openeuler%20summer%202021/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="adventural">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录日常">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/08/04/openeuler%20summer%202021/" class="post-title-link" itemprop="url">openeuler summer 2021</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-08-04 11:05:35 / 修改时间：11:13:41" itemprop="dateCreated datePublished" datetime="2022-08-04T11:05:35+08:00">2022-08-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">操作系统</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>23k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>21 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h4 id="项目名称"><a href="#项目名称" class="headerlink" title="项目名称"></a>项目名称</h4><p>统计一个内核模块占用的内存</p>
+<p>项目描述：</p>
+<p>本项目需要统计openEuler系统中内核模块所使用的内存，统计主体为系统启动后加载的一系列模块，例如ext4。具体的模块列表信息可以通过cat /proc/modules列出。</p>
+<p>内核内存有两种分配方式，即slab和buddy。buddy分配系统以页为粒度进行内存分配，但是对于小内存分配场景下以页为单位进行内存分配就不太合适，如频繁的使用内核里面的某种结构体，以页为粒度就会产生很多内存碎片。为了提高这种小内存分配场景下的内存使用效率，Linux内核引入了slab分配器。对于常用的一些结构体使用slab进行缓存，当内核或者内核模块的某一部分需要使用一个结构体，即从slab缓存中取出一个预先初始化好的结构体，这样不仅提升了内存利用率，也削减了重复对一个结构体进行初始化的开销。slab的内存也是来自于buddy，当slab中的内存不够分配时就会向buddy申请页。</p>
+<h4 id="方案描述"><a href="#方案描述" class="headerlink" title="方案描述"></a>方案描述</h4><p>内核模块在加载后会在/sys/module下创建一个目录，通过目录下面的文件可以访问内核模块的相关信息。本项目的最终结果展示为在/sys/module下面为每个内核模块创建一个文件，使用cat访问文件即可输出相关内存分配的统计信息。</p>
+<p>内核内存统计功能通过在内存分配函数当中添加相关记录代码，汇总到模块的结构体当中存储，统计的内存为slab、buddy、percpu。</p>
+<h4 id="时间规划"><a href="#时间规划" class="headerlink" title="时间规划"></a>时间规划</h4><p><strong>7.1-7.15:</strong></p>
+<p>文档代码和阅读阶段，在这个阶段阅读了mm模块的相关代码以及相关博客，重点学习了slab分配器的相关源代码文件linux/slab.h、mm/slab.h、slab_common.c以及slub.c，对于相关函数调用整理出调用图。</p>
+<p><strong>7.15-7.31:</strong></p>
+<p>配置初始开发环境，初始开发环境为ubuntu宿主机，qemu虚拟机，使用aarch64下的defconfig进行交叉编译。考虑到需要频繁的测试修改后的内核，一次改动需要重新编译的内核文件较多，使用defconfig文件进行编译，然后使用qemu进行模拟启动这样可以将一次重新编译和启动的时间缩短到几分钟以内，便于测试代码。</p>
+<p><strong>8.1-8.15:</strong></p>
+<p>初步完成slab统计功能，完成中期项目考核。</p>
+<p><strong>8.15-8.31:</strong></p>
+<p>等待中期考核结果，解决项目当中遇到的一些问题。</p>
+<p><strong>9.1-9.15:</strong></p>
+<p>完成buddy系统、percpu的内存统计功能。</p>
+<p><strong>9.1-9.15:</strong></p>
+<p>整理代码，准备结项。</p>
+<h2 id="项目总结"><a href="#项目总结" class="headerlink" title="项目总结"></a>项目总结</h2><h4 id="项目产出"><a href="#项目产出" class="headerlink" title="项目产出"></a>项目产出</h4><ol>
+<li><p>/sys/module目录下创建可供用户态访问统计内存结果的接口</p>
+<p>已完成。</p>
+<p>项目成果描述见后面章节R1：/sys/module目录下创建usedmemory文件夹。</p>
+<p>项目代码成果为<code>0001-add-usedmemory-to-sysfs.patch</code></p>
+</li>
+<li><p>完成slab内存统计</p>
+<p>已完成。</p>
+<p>项目成果描述见后面章节R2：slab分析。</p>
+<p>项目代码成果为<code>0002-slab.patch</code></p>
+</li>
+<li><p>完成buddy内存统计</p>
+<p>已完成。</p>
+<p>项目成果描述见后面章节R3：buddy分析。</p>
+<p>项目代码成果为<code>0003-buddy.patch</code></p>
+</li>
+<li><p>完成percpu内存统计</p>
+<p>已完成。</p>
+<p>项目成果描述见后面章节R4：percpu分析。</p>
+<p>项目代码成果为<code>0004-percpu.patch</code></p>
+</li>
+<li><p>完成mempool内存统计</p>
+<p>已完成。</p>
+<p>项目成果描述见后面章节R5：mempool分析。</p>
+<p>项目代码成果为<code>0006-mempool.patch</code></p>
+</li>
+<li><p>slab当中添加krealloc以及kmem_cache_alloc_bulk，buddy中添加split_page</p>
+<p>已完成。</p>
+<p>主要针对slab以及buddy当中额外增加的函数。</p>
+<p>项目代码成果为<code>0006-mempool.patch</code></p>
+</li>
+</ol>
+<h4 id="方案进度"><a href="#方案进度" class="headerlink" title="方案进度"></a>方案进度</h4><p><strong>7.15-7.31:</strong></p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> 针对内存分配的统计框架设计完成，并且初步完成kmalloc分配内存的统计</li>
+<li><input checked="" disabled="" type="checkbox"> 熟悉了内核module的加载过程，理解了以及其在sysfs下创建相关文件进行读写的逻辑</li>
+<li><input checked="" disabled="" type="checkbox"> 在每个模块的module_kobject中创建了用于保存内存分配信息的结构体成员</li>
+<li><input checked="" disabled="" type="checkbox"> 在动态加载的每个模块下面创建了usedmemory文件，用于展示输出</li>
+</ul>
+<p><strong>8.1-8.15：</strong></p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> 完成slab分配器其余内存分配函数的统计功能（针对slub.c、slub_common.c以及slab.h）</li>
+<li><input checked="" disabled="" type="checkbox"> 完成了mm模块下内存池（mempool.h、mempool.c）相关函数统计功能</li>
+<li><input checked="" disabled="" type="checkbox"> 移植到open Euler系统上进行测试</li>
+<li><input checked="" disabled="" type="checkbox"> 完成块设备IO子系统下的相关函数的统计测试功能</li>
+</ul>
+<p><strong>8.15-8.30：</strong></p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> free调用次数比alloc多的问题已经解决，dm_mod释放了内核代码fs当中申请的内存，即模块可能会释放不属于自己申请的内存</li>
+<li><input checked="" disabled="" type="checkbox"> 多free的情况表明不能直接将每次free操作直接统计为内核模块的释放操作，需要加一段代码来记录每次alloc的地址，当free的指针不是已经记录过的地址则直接pass，该部分功能已经完成。完成后无负数的情况出现</li>
+</ul>
+<p><strong>9.1-9.15：</strong></p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> 完成buddy系统统计功能</li>
+<li><input checked="" disabled="" type="checkbox"> 完成percpu系统统计功能</li>
+<li><input checked="" disabled="" type="checkbox"> 阅读mm模块当中其他具有内存分配功能的函数</li>
+</ul>
+<p><strong>9.15-9.30：</strong></p>
+<ul>
+<li><input checked="" disabled="" type="checkbox"> 优化已完成的功能的代码，去除冗余代码</li>
+<li><input checked="" disabled="" type="checkbox"> 添加dmapool统计</li>
+<li><input checked="" disabled="" type="checkbox"> 添加slub、buddy当中的未考虑到的函数</li>
+<li><input checked="" disabled="" type="checkbox"> 使用测试模块测试已完成统计的相关函数</li>
+<li><input checked="" disabled="" type="checkbox"> 完成patch制作</li>
+<li><input checked="" disabled="" type="checkbox"> 完成结项报告</li>
+</ul>
+<h4 id="遇到的问题及解决方案"><a href="#遇到的问题及解决方案" class="headerlink" title="遇到的问题及解决方案"></a>遇到的问题及解决方案</h4><h5 id="P1：需要确定内存分配是来自于内核代码自身还是来自于内核模块"><a href="#P1：需要确定内存分配是来自于内核代码自身还是来自于内核模块" class="headerlink" title="P1：需要确定内存分配是来自于内核代码自身还是来自于内核模块"></a>P1：需要确定内存分配是来自于内核代码自身还是来自于内核模块</h5><p>总体解决思路</p>
+<p>通过获取每一次调用内存分配函数的调用者地址来区分该次调用是属于模块还是内核自身，Linux内核维护了一个模块链表modules，除了直接编译进内核的模块，后续加载的所有模块都会通过这个modules连接起来。每一个通过load_module加载到内核的模块内核都会为其创建一个唯一的struct module结构体，这个结构体内部存放了该模块的位置信息，包括代码段所在的位置。如果能够获取每一次内存分配函数的调用者地址，判断其是否在一个模块的.text节内，即可判断该次调用是属于内核自身还是某一个内核模块。</p>
+<p>（1）获取调用者地址</p>
+<p>gcc内建函数中实现了__builtin_return_address(level)，其中level有0~3四种取值，取值0代表当前运行函数返回地址，取值1代表当前运行函数调用者的返回地址。Linux当中提供了一个宏可以直接使用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// linux/kernel.h</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _RET_IP_		(unsigned long)__builtin_return_address(0)</span></span><br></pre></td></tr></table></figure>
+
+<p>对于定义为inline的函数，其代码会被展开到调用者的代码中，相应的”返回地址”应该为当前代码的地址，可以定义一个get_pc函数获取当前的代码地址</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> __attribute__ ((__noinline__)) <span class="function"><span class="keyword">void</span>* <span class="title">get_pc</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (<span class="keyword">void</span>*)__builtin_return_address(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于内核模块直接调用的内存分配函数，使用上述两种方式即可以完成调用地址的判定（内核自身or内核模块）。但是Linux内核中还存在函数的间接调用关系，这种情况表现为内核模块自身并没有直接使用slab中的内存分配函数（kmalloc、kmem_cache_alloc等），对应的场景之一为内核模块使用内存池进行内存分配。</p>
+<p>以内存池为例，如果仅仅通过kmalloc函数或者kmem_cache_alloc进行一层调用地址的判定是无法准确得出该次调用是来自哪里的，因为此时调用的内存分配函数为mempool_alloc，mempool_alloc最终又调用了pool-&gt;alloc来完成实际的内存分配，而pool-&gt;alloc大概率就是kmem_cache_alloc或者kmalloc。这样使用_RET_IP_或者get_pc获取到的地址都是mempool_alloc，而这个函数的地址是属于内核的，这样就会出现误判。</p>
+<p>实际测试发现无法在内核中使用非0参数的__builtin_return_address，非0参数调用会导致无法启动（后续会排查原因），也就是最多只能获取一层调用地址，因此解决办法为hook每一个可能被内核模块调用的函数。</p>
+<p>（2）根据调用者地址判断属于哪个模块</p>
+<p>通过load_module加载的内核模块在内核当中的位置是不确定的，但是一旦内核模块被加载到内核中其位置就是一个固定值。具体的来说load_module函数会调用layout_and_allocate函数为加载的内核模块分配内存，并且填充struct module结构体当中的core_layout以及init_layout</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">module</span> &#123;</span></span><br><span class="line">	...</span><br><span class="line">        </span><br><span class="line">	<span class="comment">/* Core layout: rbtree is accessed frequently, so keep together. */</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">module_layout</span> <span class="title">core_layout</span> __<span class="title">module_layout_align</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">module_layout</span> <span class="title">init_layout</span>;</span></span><br><span class="line">    </span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">&#125; ____cacheline_aligned __randomize_layout;</span><br></pre></td></tr></table></figure>
+
+<p>module_layout是一个描述模块位置信息的结构体，其中base为基地址，text_size描述了.text节的大小</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">module_layout</span> &#123;</span></span><br><span class="line">	<span class="comment">/* The actual code + data. */</span></span><br><span class="line">	<span class="keyword">void</span> *base;</span><br><span class="line">	<span class="comment">/* Total size. */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> size;</span><br><span class="line">	<span class="comment">/* The size of the executable code.  */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> text_size;</span><br><span class="line">	<span class="comment">/* Size of RO section of the module (text+rodata) */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> ro_size;</span><br><span class="line">	<span class="comment">/* Size of RO after init section */</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> ro_after_init_size;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_MODULES_TREE_LOOKUP</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">mod_tree_node</span> <span class="title">mtn</span>;</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>对于来自于内核模块的内存分配，其调用地址一定在该模块的.text节内，因此只需要获取调用内存分配函数的调用者地址，与内核模块链表当中记录的模块地址去比对即可获取该调用地址属于哪个模块。</p>
+<p>内核当中的module.c中实现了对应功能的函数：__module_text_address，传入一个地址判断该地址是否在任一模块的.text节内，是则返回对应的模块，否则返回NULL。使用EXPORT_SYMBOL将__module_text_address符号导出即可使用。</p>
+<h5 id="P2：内核的内存分配函数存在一级调用一级的关系，需要避免重复统计"><a href="#P2：内核的内存分配函数存在一级调用一级的关系，需要避免重复统计" class="headerlink" title="P2：内核的内存分配函数存在一级调用一级的关系，需要避免重复统计"></a>P2：内核的内存分配函数存在一级调用一级的关系，需要避免重复统计</h5><p>解决方案是仅在非inline函数中进行统计，inline函数不统计。</p>
+<p>inline函数最终一定是展开到一个非inline函数，因此只需要在非inline函数中调用_RET_IP进行一次统计即可。</p>
+<p>特例：kmalloc_large这个函数使用了get_pc()进行判断并且进行统计。kmalloc_large的调用者来自于kmalloc（inline函数）或者__kmalloc（非inline函数），二者需要分别统计。</p>
+<h5 id="P3：部分模块的usedmemory显示为非常大（unsigned值向下溢出了）"><a href="#P3：部分模块的usedmemory显示为非常大（unsigned值向下溢出了）" class="headerlink" title="P3：部分模块的usedmemory显示为非常大（unsigned值向下溢出了）"></a>P3：部分模块的usedmemory显示为非常大（unsigned值向下溢出了）</h5><p>一开始的方案是如果一个内核模块申请了一块内存，就在相对应的一个<code>size_t used</code>变量加上这块内存的大小，如果释放了就减去释放内存的大小。</p>
+<p>出现这个问题的原因是因为内核模块会释放不属于自己申请的内存。相对应的典型模块是dm_mod，其中的endio函数会释放block模块申请的bio结构体。</p>
+<p>解决方案是添加一项数据结构，存储每次统计申请的内存的指针，如果释放了不在存储当中的内存指针，那么就不进行减操作。相关代码在<code>0002-slab.patch</code>中实现。</p>
+<h4 id="项目完成质量"><a href="#项目完成质量" class="headerlink" title="项目完成质量"></a>项目完成质量</h4><p>项目开发初期的方案考虑不是很成熟，对应产生的patch在old-patch/0001-9-15.patch，虽然完成了功能需求，但是引入了很多冗余的代码。同时相同的函数因为config的不同产生了两个副本，代码质量不佳，patch当中的新增加的代码行数超过4000行。</p>
+<p>在导师的意见下，后续针对代码进行了重新优化，针对冗余代码进行删除，在保持功能不变的情况下极大的减少了代码行数。将一个patch划分成了多个功能不同的patch解决了patch过大，实现的功能过多不适合阅读的问题。改动后的patch分为6个：</p>
+<p><code>0001-add-usedmemory-to-sysfs.patch</code>：完成sys目录下每个模块usedmemory的创建，在struct module及module_kobject当中添加了相应的数据结构，新增代码行数为163行。</p>
+<p><code>0002-slab.patch</code>：完成slab统计的功能，因为需要添加相应的统计函数及记录结构体，新增加了两个文件statis_memory.c以及statis_memory.h，新增代码行数为253行。</p>
+<p><code>0003-buddy.patch</code>：完成buddy系统的统计功能，新增代码行数为71行。</p>
+<p><code>0004-percpu.patch</code>：完成percpu系统的统计功能，新增代码行数为43行。</p>
+<p><code>0005-add-split_page-krealloc.patch</code>：增加slab和buddy系统当中的几个额外函数，新增代码为51行</p>
+<p><code>0006-mempool.patch</code>：完成mempool的统计功能，新增代码行数为37行。</p>
+<h4 id="与导师沟通及反馈情况"><a href="#与导师沟通及反馈情况" class="headerlink" title="与导师沟通及反馈情况"></a>与导师沟通及反馈情况</h4><p>在完成项目的过程中遇到了一些困难，均与导师进行了沟通并且得到了相应的修改意见。</p>
+<h3 id="R1：-sys-module目录下创建usedmemory文件夹"><a href="#R1：-sys-module目录下创建usedmemory文件夹" class="headerlink" title="R1：/sys/module目录下创建usedmemory文件夹"></a>R1：/sys/module目录下创建usedmemory文件夹</h3><p>在sysfs下为每一个模块创建一个文件，通过cat文件即可看到内存使用情况。内核模块有直接编译进内核的部分和动态加载进内核两种方式：</p>
+<p>第一种情况内核模块直接编译进内核，这种情况下内核模块和内核自身的代码已经编译链接到一起了，通过lsmod以及/proc/modules已经无法列出这类模块，但是在sys/modules下面仍然存在着相关模块的文件夹。</p>
+<p>第二种情况是通过lsmod和/proc/modules能查看到的模块，也就是非builtin模块。这类模块在加载时通过load_module完成，目前项目针对的模块是通过load_module加载的模块。</p>
+<p><strong>具体过程如下</strong></p>
+<p>动态加载进入内核的模块会在sys/module下面创建一个和模块名相同的文件夹，这个过程是在load_module中完成的。load_module函数首先会为每一个模块创建一个struct module的结构体，这个结构体当中就保存了这个模块的所有信息，load_module函数会填充这个结构体的内容然后将这个struct module指针插入到全局的模块链表中去。</p>
+<p>struct module结构体当中保存了该模块的module_kobject，module_kobject描述了该模块在sysfs下展示的信息。为了统计模块占用的内存，在module_kobject当中加入了used_memory以及used_pages记录模块分配的内存信息（used_memory应当定义为size_t，但是当前版本的代码还存在一些bug，使用int来进行调试）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_DEBUG_KMALLOC</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">alloc_addr_list</span> &#123;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">alloc_addr_list</span> *<span class="title">next</span>;</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">page</span> *<span class="title">page</span>;</span></span><br><span class="line">	<span class="keyword">atomic_t</span> page_elements;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">used_memory_t</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">alloc_addr_list</span> *<span class="title">addr_list</span>;</span></span><br><span class="line">	<span class="keyword">atomic64_t</span> used;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">module_kobject</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">kobject</span> <span class="title">kobj</span>;</span></span><br><span class="line">	<span class="keyword">spinlock_t</span> used_memory_lock;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">used_memory_t</span> <span class="title">slab_t</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">used_memory_t</span> <span class="title">page_t</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">used_memory_t</span> <span class="title">percpu_t</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">used_memory_t</span> <span class="title">dmapool_t</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">module</span> *<span class="title">mod</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">kobject</span> *<span class="title">drivers_dir</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">module_param_attrs</span> *<span class="title">mp</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">completion</span> *<span class="title">kobj_completion</span>;</span></span><br><span class="line">&#125; __randomize_layout;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>load_module通过mod_sysfs_setup函数完成该模块在sysfs下需要展示的文件和文件夹。为了显示当前内核模块所占用的内存，需要在/sys/module下面创建一个usedmemory文件，该文件的描述符如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">module_usedmemory_attribute</span> &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">module_attribute</span> <span class="title">mattr</span>;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">module</span>* <span class="title">mod</span>;</span></span><br><span class="line">	<span class="keyword">const</span> <span class="keyword">char</span> *used;</span><br><span class="line">&#125; __attribute__ ((__aligned__(<span class="keyword">sizeof</span>(<span class="keyword">void</span> *))));</span><br></pre></td></tr></table></figure>
+
+<p>在load_module当中通过sysfs_create_file创建usedmemory文件</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">load_module</span><span class="params">(struct load_info *info, <span class="keyword">const</span> <span class="keyword">char</span> __user *uargs,</span></span></span><br><span class="line"><span class="params"><span class="function">		       <span class="keyword">int</span> flags)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">module</span> *<span class="title">mod</span>;</span></span><br><span class="line">    </span><br><span class="line">	<span class="comment">/* Link in to sysfs. */</span></span><br><span class="line">	err = mod_sysfs_setup(mod, info, mod-&gt;kp, mod-&gt;num_kp);</span><br><span class="line">	<span class="keyword">if</span> (err &lt; <span class="number">0</span>)</span><br><span class="line">		<span class="keyword">goto</span> coming_cleanup;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (is_livepatch_module(mod)) &#123;</span><br><span class="line">		err = copy_module_elf(mod, info);</span><br><span class="line">		<span class="keyword">if</span> (err &lt; <span class="number">0</span>)</span><br><span class="line">			<span class="keyword">goto</span> sysfs_cleanup;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_DEBUG_KMALLOC</span></span><br><span class="line">	uattr = kzalloc(<span class="keyword">sizeof</span>(struct module_usedmemory_attribute), GFP_KERNEL);</span><br><span class="line">	uattr-&gt;mattr.attr.name = <span class="string">&quot;usedmemory&quot;</span>;</span><br><span class="line">	uattr-&gt;mattr.attr.mode = S_IRUGO;</span><br><span class="line">	uattr-&gt;mattr.show = __module_usedmemory_show;</span><br><span class="line">	uattr-&gt;mod = mod;</span><br><span class="line">	uattr-&gt;used = <span class="string">&quot;NULL&quot;</span>;</span><br><span class="line"></span><br><span class="line">	atomic64_set(&amp;mod-&gt;mkobj.<span class="keyword">slab_t</span>.used, <span class="number">0</span>);</span><br><span class="line">	atomic64_set(&amp;mod-&gt;mkobj.<span class="keyword">page_t</span>.used, <span class="number">0</span>);</span><br><span class="line">	atomic64_set(&amp;mod-&gt;mkobj.<span class="keyword">percpu_t</span>.used, <span class="number">0</span>);</span><br><span class="line">	atomic64_set(&amp;mod-&gt;mkobj.<span class="keyword">dmapool_t</span>.used, <span class="number">0</span>);</span><br><span class="line">	mod-&gt;mkobj.<span class="keyword">slab_t</span>.addr_list = <span class="literal">NULL</span>;</span><br><span class="line">	mod-&gt;mkobj.<span class="keyword">page_t</span>.addr_list = <span class="literal">NULL</span>;</span><br><span class="line">	mod-&gt;mkobj.<span class="keyword">percpu_t</span>.addr_list = <span class="literal">NULL</span>;</span><br><span class="line">	mod-&gt;mkobj.<span class="keyword">dmapool_t</span>.addr_list = <span class="literal">NULL</span>;</span><br><span class="line">	spin_lock_init(&amp;mod-&gt;mkobj.used_memory_lock);</span><br><span class="line"></span><br><span class="line">	err = sysfs_create_file(&amp;mod-&gt;mkobj.kobj, &amp;uattr-&gt;mattr.attr);</span><br><span class="line">	<span class="keyword">if</span> (err &lt; <span class="number">0</span>)</span><br><span class="line">		<span class="keyword">goto</span> coming_cleanup;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>文件创建好后需要控制该文件的读操作，<code>uattr-&gt;mattr.show = __module_usedmemory_show</code>指定了读取该文件时调用的函数，在params.c中定义函数代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ssize_t</span> __module_usedmemory_show(struct module_attribute * mattr,</span><br><span class="line">				     struct module_kobject *mk, <span class="keyword">char</span>* buf)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">int</span> record_pages = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">int</span> all_elements = <span class="number">0</span>;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">alloc_addr_list</span> *<span class="title">addr_list</span> =</span> mk-&gt;<span class="keyword">slab_t</span>.addr_list;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> used_slab = atomic64_read(&amp;mk-&gt;<span class="keyword">slab_t</span>.used);</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> used_pages = atomic64_read(&amp;mk-&gt;<span class="keyword">page_t</span>.used);</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> used_percpu = atomic64_read(&amp;mk-&gt;<span class="keyword">percpu_t</span>.used);</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> used_dmapool = atomic64_read(&amp;mk-&gt;<span class="keyword">dmapool_t</span>.used);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span>(used_slab &gt;= <span class="number">1024</span>*<span class="number">100</span>)</span><br><span class="line">		<span class="keyword">return</span> scnprintf(buf, PAGE_SIZE, <span class="string">&quot;Slab:%ldkb\nPages:%ld\nPercpu:%ld\ndmapool:%ld\n&quot;</span>,\</span><br><span class="line">			used_slab/<span class="number">1024</span>, used_pages, used_percpu, used_dmapool);</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		<span class="keyword">return</span> scnprintf(buf, PAGE_SIZE, <span class="string">&quot;Slab:%ldbytes\nPages:%ld\nPercpu:%ld\ndmapool:%ld\n&quot;</span>,\</span><br><span class="line">			used_slab, used_pages, used_percpu, used_dmapool);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样通过cat即可输出模块的占用内存信息</p>
+<h3 id="R2：slab分析"><a href="#R2：slab分析" class="headerlink" title="R2：slab分析"></a>R2：slab分析</h3><p>slab系统函数调用流程图如下：</p>
+<p><img src="./image-20210930162705970-16595825499232.png" alt="image-20210930162705970"></p>
+<p>上图当中所描述的函数即是我们需要统计的函数。下面分别对相关函数及统计思路进行分析</p>
+<ul>
+<li>kzalloc和kmalloc函数</li>
+</ul>
+<p>kzalloc和kmalloc都是slab.h当中声明的内联函数，kzalloc是kmalloc的一层封装。由于其都是内联函数，在编译后的文件当中不存在实际的函数体，实际的内存分配工作都是由c文件当中的函数来完成。以kmalloc函数为例，其调用函数关系如下：</p>
+<p><img src="./image-20210925193225778.png" alt="image-20210925193225778"></p>
+<p>通过函数调用关系图可以发现虽然kmalloc函数可能会有很多条函数调用路径，但是最终内存分配的工作就是由slab_alloc_node或者kmalloc_order函数来完成，前者完成slab可以处理的内存分配，后者直接分配buddy的内存页。</p>
+<p>之前考虑的简单方法，对于每一个涉及到的函数都进行一层caller_address的参数传递，inline函数使用get_pc()来获取调用地址，非inline函数使用_RET_IP_来获取返回地址。这种方法简单，但是需要改动的函数较多，每一个内存分配函数需要提供一个接口转换的新函数，改动量大并且冗余代码偏多，不利于参与实际的内核开发。</p>
+<p>一种改进的方法是不考虑inline函数，只考虑在.c文件当中的函数，因为inline函数在编译时会展开到实际的调用地点，最终的工作还是由具有函数体的函数来完成。因此对于调用图当中的inline函数节点可以与前一个节点进行收缩，只考虑最终调用的函数，对kmalloc函数进行收缩后的图如下：</p>
+<p><img src="./image-20210925193138538.png" alt="image-20210925193138538"></p>
+<p>上图表明kmalloc函数可以通过一系列inline函数到达五种具有实际函数体的函数，最上面两个函数和buddy系统交互（后面分析），下面的三个函数是slab的内存分配函数，这三个最终都会调用slab_alloc，而slab_alloc又会调用slab_alloc_node，这两个函数都是inline函数，因此在slab_alloc_node加上一层统计即可完成当前路线当中所有函数（kmalloc、__kmalloc、kmem_cache_alloc_trace、kmem_cache_alloc）的统计功能。</p>
+<p>由于kzalloc是kmalloc的一层简单内联封装，kmem_cache_zalloc是kmem_cache_alloc的简单内联封装，因此统计也适用于kzalloc和kmem_cache_zalloc。</p>
+<ul>
+<li>kcalloc和kmalloc_array函数</li>
+</ul>
+<p><img src="./image-20210925193521052.png" alt="image-20210925193521052"></p>
+<p>由调用关系图可知，kcalloc和kmalloc_array本身是内联函数，并且可以通过内联的方式到达kmalloc或者__kmalloc函数，因此kcalloc和kmalloc_array可以视为是一种kmalloc或__kmalloc的调用。其统计也可以通过slab_alloc_node函数来实现。</p>
+<ul>
+<li>kmalloc_node和kmem_cache_alloc_node函数</li>
+</ul>
+<p><img src="./image-20210925205349579.png" alt="image-20210925205349579"></p>
+<p>kmalloc_node有两条路径，调用kmem_cache_alloc_node_trace或者__kmalloc_node，__kmalloc_node会选择从slab或者buddy分配内存，从slab分配的内存最终都会调用slab_alloc_node，因此这两个函数的统计可以通过slab_alloc_node函数来实现。</p>
+<p>kzalloc_node、kcalloc_node、kmalloc_array_node这三个函数都是inline函数，都会展开成kmalloc_node或者__kamlloc_node，也就是从slab分配的内存也可以通过slab_alloc_node统计到。</p>
+<p><img src="./image-20210925210125815.png" alt="image-20210925210125815"></p>
+<p>总结：slab侧的内存分配可以通过slab_alloc_node函数统计到，无需对其他函数做改动。除slab_alloc和slab_alloc_node外其余函数到达slab_alloc_node的路径只会存在一个非inline的函数，这个非inline的函数可能不一样但是都会内联slab_alloc_node函数，因此在slab_alloc_node中加一个_RET_IP_即可获取最上层函数的实际调用地址。slab_alloc和slab_alloc_node并没有通过EXPORT_SYMBOL导出，也没有在.h文件中声明，是一个不能直接访问的函数。</p>
+<h5 id="slab直接分配页的情况"><a href="#slab直接分配页的情况" class="headerlink" title="slab直接分配页的情况"></a>slab直接分配页的情况</h5><p>slab分配的内存有KMALLOC_MAX_CACHE_SIZE的限制，如果一次性分配的内存超过这个极限值就会直接从buddy中分配内存。与之相关的内存分配函数为非NUMA下的kmalloc_large以及NUMA下的kmalloc_large_node。kmalloc_large最终调用alloc_pages，kmalloc_large_node最终调用alloc_pages_node。slab侧的页分配直接在这两个函数内部统计。</p>
+<p>kmalloc_large的声明放在slab.h，是一个内联函数，其返回值是页的虚拟地址。kmalloc_large可以被kmalloc直接调用或者__kmalloc调用，而kmalloc是内联函数__kmalloc不是，因此需要在__kmalloc和kmalloc_large两处记录。kmalloc_large被kmalloc调用时属于直接内联，使用get_pc()获取返回地址。kmalloc_large被__kmalloc调用时中间经过了一层c函数__kmalloc，kmalloc_large中使用get_pc()获取到的地址为__kmalloc的地址，不会被记录，需要在__kmalloc当中单独记录一次。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> __always_inline <span class="keyword">void</span> *<span class="title">kmalloc_large</span><span class="params">(<span class="keyword">size_t</span> size, <span class="keyword">gfp_t</span> flags)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> order = get_order(size);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_DEBUG_KMALLOC</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> caller_address = (<span class="keyword">unsigned</span> <span class="keyword">long</span>)get_pc();</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> addr = kmalloc_order_trace(size, flags, order);</span><br><span class="line">	record_to_sysfs_page(caller_address, addr, order));</span><br><span class="line">	<span class="keyword">return</span> addr;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">	<span class="keyword">return</span> kmalloc_order_trace(size, flags, order);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">void</span> *__kmalloc(<span class="keyword">size_t</span> size, <span class="keyword">gfp_t</span> flags)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_DEBUG_KMALLOC</span></span><br><span class="line">	<span class="keyword">if</span> (unlikely(size &gt; KMALLOC_MAX_CACHE_SIZE))&#123;</span><br><span class="line">		<span class="keyword">void</span> *ret = kmalloc_large(size, flags);</span><br><span class="line">		record_to_sysfs_page((<span class="keyword">unsigned</span> <span class="keyword">long</span>(_RET_IP_), (<span class="keyword">unsigned</span> <span class="keyword">long</span>)ret, <span class="number">1</span>&lt;&lt;get_order(size)));</span><br><span class="line">		<span class="keyword">return</span> ret;</span><br><span class="line">	&#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">	<span class="keyword">if</span> (unlikely(size &gt; KMALLOC_MAX_CACHE_SIZE))</span><br><span class="line">		<span class="keyword">return</span> kmalloc_large(size, flags);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>kmalloc_large_node的函数体在slub.c中，为非内联函数，kmalloc_large_node只被__kmalloc_node调用，因此记录放在__kmalloc_node中</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> *__kmalloc_node(<span class="keyword">size_t</span> size, <span class="keyword">gfp_t</span> flags, <span class="keyword">int</span> node)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_DEBUG_KMALLOC</span></span><br><span class="line">		<span class="keyword">if</span>(ret)</span><br><span class="line">			record_to_sysfs_page((<span class="keyword">unsigned</span> <span class="keyword">long</span>)_RET_IP_, (<span class="keyword">unsigned</span> <span class="keyword">long</span>)ret, <span class="number">1</span>&lt;&lt;get_order(size));</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">		<span class="keyword">return</span> ret;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="slab内存释放"><a href="#slab内存释放" class="headerlink" title="slab内存释放"></a>slab内存释放</h5><p>与slab相关的内存释放函数为kfree、kzfree、kmem_cache_free，都是非内联函数。这三个函数的区别在于kfree以及kzfree可能会释放slab的内存也可能会释放页，取决于传入的地址是否是一个合法的slab地址，而kmem_cache_free只会释放slab的内存。</p>
+<p>kzfree会调用kfree，具体是释放slab还是页需要进行一次判断。</p>
+<p>例如kzfree的修改如下，其余两个类似（kmem_cache_free不做页的判断）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kzfree</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span> *p)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">size_t</span> ks;</span><br><span class="line">	<span class="keyword">void</span> *mem = (<span class="keyword">void</span> *)p;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (unlikely(ZERO_OR_NULL_PTR(mem)))</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	ks = ksize(mem);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_DEBUG_KMALLOC</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">page</span> *<span class="title">page</span> =</span> virt_to_head_page(mem);</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> caller_address = (<span class="keyword">unsigned</span> <span class="keyword">long</span>)_RET_IP_;</span><br><span class="line">	<span class="keyword">if</span> (unlikely(!PageSlab(page)))</span><br><span class="line">		free_mem_record_page(caller_address, (<span class="keyword">unsigned</span> <span class="keyword">long</span>)page_address(page), compound_order(page));</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		free_mem_record_type(caller_address, mem, ks, SLAB);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">	memzero_explicit(mem, ks);</span><br><span class="line">	kfree(mem);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="其余函数"><a href="#其余函数" class="headerlink" title="其余函数"></a>其余函数</h5><p>slab当中与内存分配相关的还有krealloc以及__krealloc，批量申请对象接口kmem_cache_alloc_bulk以及kmem_cache_free_bulk，下面分别对这几个函数进行描述：</p>
+<ul>
+<li>krealloc以及__krealloc</li>
+</ul>
+<p>krealloc以及__krealloc是slab_common.c中提供的函数，两个函数的主要功能都是为一个对象重新分配大小。这两个函数的核心处理函数是__do_krealloc，__do_krealloc是一个内联函数，这个函数会判断对象p的内存大小ks和需要新分配的new_size，如果ks&gt;new_size就直接返回p</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (p)</span><br><span class="line">	ks = ksize(p);</span><br><span class="line"><span class="keyword">if</span> (ks &gt;= new_size) &#123;</span><br><span class="line">	kasan_krealloc((<span class="keyword">void</span> *)p, new_size, flags);</span><br><span class="line">	<span class="keyword">return</span> (<span class="keyword">void</span> *)p;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>否则重新分配一块新的大小然后将p的内容拷贝到新分配的内存上</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ret = kmalloc_track_caller(new_size, flags);</span><br><span class="line">	<span class="keyword">if</span> (ret &amp;&amp; p)</span><br><span class="line">		<span class="built_in">memcpy</span>(ret, p, ks);	</span><br></pre></td></tr></table></figure>
+
+<p>直接返回p的情况不需要做内存记录，重新分配内存时调用了kmalloc_track_caller，kmalloc_track_caller根据new_size的大小判断是从buddy还是slab重新分配内存，因此记录时使用new_size与KMALLOC_MAX_CACHE_SIZE进行比较，判断记录到页还是slab。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_DEBUG_KMALLOC</span></span><br><span class="line">	<span class="keyword">if</span>(new_size &gt; KMALLOC_MAX_CACHE_SIZE)</span><br><span class="line">		record_to_sysfs_page((<span class="keyword">unsigned</span> <span class="keyword">long</span>)_RET_IP_, (<span class="keyword">unsigned</span> <span class="keyword">long</span>)ret, <span class="number">1</span>&lt;&lt;get_order(new_size));</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		record_to_sysfs_type((<span class="keyword">unsigned</span> <span class="keyword">long</span>)_RET_IP_, ret, ksize(ret), SLAB);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p>krealloc以及__krealloc的区别在于__krealloc不会释放掉原有的内存地址，而krealloc一旦重新分配就会free原有的地址。</p>
+<ul>
+<li>kmem_cache_alloc_bulk、kmem_cache_free_bulk</li>
+</ul>
+<p>kmem_cache_alloc_bulk是批量申请slab内存的一个接口，kmem_cache_free_bulk是批量释放的接口，使用for循环来记录和释放所有申请的内存。</p>
+<h3 id="R3：buddy分析"><a href="#R3：buddy分析" class="headerlink" title="R3：buddy分析"></a>R3：buddy分析</h3><p>主要分析了gfp.h，mm.h，page_alloc.c以及mempolicy.c。</p>
+<h5 id="常规页分配函数"><a href="#常规页分配函数" class="headerlink" title="常规页分配函数"></a>常规页分配函数</h5><p>选取了以下函数做统计。gfp.h当中的其余函数：alloc_hugepage_vma、alloc_page_vma、alloc_page_vma_node是alloc_pages_vma的特例，alloc_page是alloc_pages的特例，__get_free_page、__get_dma_pages是__get_free_pages的特例。</p>
+<p><img src="./image-20210925213204602.png" alt="image-20210925213204602"></p>
+<p>上面所有的函数最终会由__alloc_pages_nodemask来完成页分配，之前的考虑是对每一个上面的每一个函数添加了一层调用者返回地址caller_address，然后通过函数流传递到__alloc_pages_nodemask进行统一记录，原先的方法是在function_memhook函数中拷贝一份函数体，这样会导致冗余代码的出现，即一个函数因为config的不同写了两个类似的函数。</p>
+<p>虽然上面所有函数的最终分配工作仍然是由一个函数（__alloc_pages_nodemask）来完成的，但是这里无法像slab那样对最终函数添加统计功能来完成所有函数的记录，slab当中的函数从上层调用到最终slab_alloc_node之间只存在一个非内联函数，而buddy系统中的函数可能存在多个非inline函数(例如从get_zeroed_page到__alloc_pages_nodemask)，多个非inline的函数会导致从__alloc_pages_nodemask获取到的__RET_IP_为内核自身的函数地址。</p>
+<p>改进的方法类似slab的处理，对于inline函数不做处理，在每个非inline函数中添加一层记录。例如对于alloc_pages函数，非NUMA下其会通过一系列inline函数展开到__alloc_pages_nodemask，__alloc_pages_nodemask内的_RET_IP_会定位到调用者地址，NUMA情况下alloc_pages_current函数会记录返回地址，之后再次调用__alloc_pages_nodemask，由于其返回地址为alloc_pages_current的地址是内核地址所以不会出现重复记录的问题。</p>
+<p>对于返回为unsigned long的函数使用</p>
+<p><code>record_to_sysfs_page((unsigned long)_RET_IP_, virt_to_page((void *)addr), 1&lt;&lt;order);</code></p>
+<p>返回为page的使用</p>
+<p><code>record_to_sysfs_page((unsigned long)_RET_IP_, page, 1&lt;&lt;order);</code></p>
+<h5 id="buddy内存释放函数："><a href="#buddy内存释放函数：" class="headerlink" title="buddy内存释放函数："></a>buddy内存释放函数：</h5><p>针对页的释放函数较多，有的参数为页的虚拟地址，有的参数为struct page*，但是二者之间可以相互转换。主要函数有下图的上面几个（free_the_page及之后就是内部实现代码，不可以直接调用）。</p>
+<p><img src="./image-20210929213347391.png" alt="image-20210929213347391"></p>
+<p>inline函数的统计会在c函数当中完成，因此不考虑。free_pages的参数为页的虚拟地址以及页的order，free_pages会将页的虚拟地址转换为struct page*然后调用__free_pages。page_frag_free也是针对页的虚拟地址，首先使用virt_to_head_page()获取头部的页，然后使用compound_order()得到整个页面的order，然后测试页面的引用计数，如果为0则调用free_the_page进行页面回收。__page_frag_cache_drain函数类似page_frag_free。</p>
+<h5 id="alloc-pages-exact、alloc-pages-exact-nid函数"><a href="#alloc-pages-exact、alloc-pages-exact-nid函数" class="headerlink" title="alloc_pages_exact、alloc_pages_exact_nid函数"></a>alloc_pages_exact、alloc_pages_exact_nid函数</h5><p>上面分析的函数都是以2的次方的形式来分配页的，alloc_pages_exact和alloc_pages_exact_nid可以根据传入size的不同来精确确定所需要的分配的页数，一开始由__get_free_pages来粗粒度分配所需要的页，然后调用make_alloc_exact对多余的页进行释放。</p>
+<p><img src="./image-20210926191704996.png" alt="image-20210926191704996"></p>
+<p>alloc_pages_exact首先根据调用者传递的size，使用__get_free_pages进行一次粗粒度的分配，这个时候还是以2的次方形式进行分配。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">alloc_pages_exact</span><span class="params">(<span class="keyword">size_t</span> size, <span class="keyword">gfp_t</span> gfp_mask)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">	addr = __get_free_pages(gfp_mask, order);</span><br><span class="line">	<span class="keyword">return</span> make_alloc_exact(addr, order, size);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>粗粒度分配完成后调用make_alloc_exact进行一次细粒度分配，细粒度分配下使用alloc_end来标记__get_free_pages分配的地址上界，然后计算实际需要使用的used大小——addr + PAGE_ALIGN(size)可以确定以页为对齐的最小分配。split_page对页切割为一个个单个页面，然后释放掉used —— alloc_end之间多余的页。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> *<span class="title">make_alloc_exact</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">long</span> addr, <span class="keyword">unsigned</span> <span class="keyword">int</span> order,</span></span></span><br><span class="line"><span class="params"><span class="function">		<span class="keyword">size_t</span> size)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (addr) &#123;</span><br><span class="line">		<span class="keyword">unsigned</span> <span class="keyword">long</span> alloc_end = addr + (PAGE_SIZE &lt;&lt; order);</span><br><span class="line">		<span class="keyword">unsigned</span> <span class="keyword">long</span> used = addr + PAGE_ALIGN(size);</span><br><span class="line">		split_page(virt_to_page((<span class="keyword">void</span> *)addr), order);</span><br><span class="line">		<span class="keyword">while</span> (used &lt; alloc_end) &#123;</span><br><span class="line">			free_page(used);</span><br><span class="line">			used += PAGE_SIZE;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> (<span class="keyword">void</span> *)addr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>alloc_pages_exact_nid的分配过程基本一致。</p>
+<p>整个分配过程分为两步，先调用普通页分配函数进行粗粒度分配，然后再free不需要使用的页。make_alloc_exact函数会对页进行切割，切割后的页面每一个都需要单独释放，所以对每一页都需要记录，end是上界，virt_to_page计算出当前页struct page地址。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> *<span class="title">alloc_pages_exact</span><span class="params">(<span class="keyword">size_t</span> size, <span class="keyword">gfp_t</span> gfp_mask)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">int</span> order = get_order(size);</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> addr;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (WARN_ON_ONCE(gfp_mask &amp; __GFP_COMP))</span><br><span class="line">		gfp_mask &amp;= ~__GFP_COMP;</span><br><span class="line"></span><br><span class="line">	addr = __get_free_pages(gfp_mask, order);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_DEBUG_KMALLOC</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> end, caller_address;</span><br><span class="line">	<span class="keyword">void</span>* ret = make_alloc_exact(addr, order, size);</span><br><span class="line">	end = addr + PAGE_ALIGN(size);</span><br><span class="line">	caller_address = (<span class="keyword">unsigned</span> <span class="keyword">long</span>)_RET_IP_;</span><br><span class="line">	<span class="keyword">while</span> (addr &lt; end) &#123;</span><br><span class="line">		record_to_sysfs_page(caller_address, addr, <span class="number">1</span>);</span><br><span class="line">		addr += PAGE_SIZE;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> ret;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">	<span class="keyword">return</span> make_alloc_exact(addr, order, size);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="内存释放——free-pages-exact"><a href="#内存释放——free-pages-exact" class="headerlink" title="内存释放——free_pages_exact"></a>内存释放——free_pages_exact</h5><p>alloc_pages_exact、alloc_pages_exact_nid对应的释放函数为free_pages_exact，free_pages_exact函数对每一个页进行释放，修改的函数如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">free_pages_exact</span><span class="params">(<span class="keyword">void</span> *virt, <span class="keyword">size_t</span> size)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> addr = (<span class="keyword">unsigned</span> <span class="keyword">long</span>)virt;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> end = addr + PAGE_ALIGN(size);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_DEBUG_KMALLOC</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> caller_address = (<span class="keyword">unsigned</span> <span class="keyword">long</span>)_RET_IP_;</span><br><span class="line">	<span class="keyword">while</span> (addr &lt; end) &#123;</span><br><span class="line">		free_page(addr);</span><br><span class="line">		free_mem_record_page(caller_address, addr, <span class="number">1</span>);</span><br><span class="line">		addr += PAGE_SIZE;</span><br><span class="line">	&#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">	<span class="keyword">while</span> (addr &lt; end) &#123;</span><br><span class="line">		free_page(addr);</span><br><span class="line">		addr += PAGE_SIZE;</span><br><span class="line">	&#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h5 id="其余相关函数"><a href="#其余相关函数" class="headerlink" title="其余相关函数"></a>其余相关函数</h5><ul>
+<li><p>新增free_highmem_page</p>
+</li>
+<li><p>新增splite_page</p>
+<p>splie_page将页切割成单个页，释放的时候每个页需要单独释放，调用一次splite_page需要将原来记录的大小为1&lt;&lt;order的记录删除，然后单独记录切割后的每个页</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">split_page</span><span class="params">(struct page *page, <span class="keyword">unsigned</span> <span class="keyword">int</span> order)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_DEBUG_KMALLOC</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> caller_address = (<span class="keyword">unsigned</span> <span class="keyword">long</span>)_RET_IP_;</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> page_start = (<span class="keyword">unsigned</span> <span class="keyword">long</span>)page_address(page);</span><br><span class="line">	free_mem_record_page(caller_address, (<span class="keyword">unsigned</span> <span class="keyword">long</span>)page_address(page), <span class="number">1</span>&lt;&lt;order);</span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; (<span class="number">1</span> &lt;&lt; order); i++)</span><br><span class="line">		record_to_sysfs_page(caller_address, page_start+i*PAGE_SIZE, <span class="number">1</span>);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">	VM_BUG_ON_PAGE(PageCompound(page), page);</span><br><span class="line">	VM_BUG_ON_PAGE(!page_count(page), page);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> (i = <span class="number">1</span>; i &lt; (<span class="number">1</span> &lt;&lt; order); i++)</span><br><span class="line">		set_page_refcounted(page + i);</span><br><span class="line">	split_page_owner(page, order);</span><br><span class="line">&#125;</span><br><span class="line">EXPORT_SYMBOL_GPL(split_page);</span><br></pre></td></tr></table></figure>
+
+<h3 id="R4：percpu分析"><a href="#R4：percpu分析" class="headerlink" title="R4：percpu分析"></a>R4：percpu分析</h3><p>percpu部分主要分析了两个文件percpu.h与percpu.c</p>
+<h4 id="percpu内存分配"><a href="#percpu内存分配" class="headerlink" title="percpu内存分配"></a>percpu内存分配</h4><p>percpu中与内存分配的函数有：__alloc_percpu_gfp、__alloc_percpu、__alloc_reserved_percpu。另外的alloc_percpu_gfp与alloc_percpu是上面函数的简单包装。在c文件当中这几个函数的调用关系如下：</p>
+<p><img src="./image-20210926202745377.png" alt="image-20210926202745377"></p>
+<p>统计的对象为__alloc_percpu_gfp、__alloc_percpu、__alloc_reserved_percpu这三个函数，pcpu_alloc是完成内存分配的核心函数，并且只被上面的三个函数所调用。需要记录的是分配内存的地址以及分配的大小，pcpu_alloc的返回值即是分配的内存地址，pcpu_alloc_area中表明了分配的内存区域大小是以unit为单位，unit的数量为alloc_bits，而alloc_bits由需要分配的size指定，相关的代码为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> __percpu *<span class="title">pcpu_alloc</span><span class="params">(<span class="keyword">size_t</span> size, <span class="keyword">size_t</span> align, <span class="keyword">bool</span> reserved,</span></span></span><br><span class="line"><span class="params"><span class="function">				 <span class="keyword">gfp_t</span> gfp)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    size = ALIGN(size, PCPU_MIN_ALLOC_SIZE);</span><br><span class="line">	bits = size &gt;&gt; PCPU_MIN_ALLOC_SHIFT;</span><br><span class="line">  </span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    off = pcpu_alloc_area(chunk, bits, bit_align, off);</span><br><span class="line">	<span class="keyword">if</span> (off &gt;= <span class="number">0</span>)</span><br><span class="line">		<span class="keyword">goto</span> area_found;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">pcpu_alloc_area</span><span class="params">(struct pcpu_chunk *chunk, <span class="keyword">int</span> alloc_bits,</span></span></span><br><span class="line"><span class="params"><span class="function">			   <span class="keyword">size_t</span> align, <span class="keyword">int</span> start)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    chunk-&gt;free_bytes -= alloc_bits * PCPU_MIN_ALLOC_SIZE;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>统计策略为：pcpu_alloc仅为上述三个函数调用，为了在三个函数中出现重复代码，将统计放在一个统一的函数中pcpu_alloc_memhook中（如果放在pcpu_alloc函数中，需要修改函数原型添加一个参数caller_address，使用config来区分就需要复制pcpu_alloc函数从而造成大量的修改）。pcpu_alloc_memhook函数如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_DEBUG_KMALLOC</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> __percpu *<span class="title">pcpu_alloc_memhook</span><span class="params">(<span class="keyword">size_t</span> size, <span class="keyword">size_t</span> align, <span class="keyword">bool</span> reserved,</span></span></span><br><span class="line"><span class="params"><span class="function">				 <span class="keyword">gfp_t</span> gfp, <span class="keyword">unsigned</span> <span class="keyword">long</span> caller_address)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">void</span> __percpu *ptr;</span><br><span class="line">	<span class="keyword">size_t</span> bits;</span><br><span class="line"></span><br><span class="line">	ptr = pcpu_alloc(size, align, reserved, gfp);</span><br><span class="line">	size = ALIGN(size, PCPU_MIN_ALLOC_SIZE);</span><br><span class="line">	bits = size &gt;&gt; PCPU_MIN_ALLOC_SHIFT;</span><br><span class="line">	<span class="keyword">if</span>(ptr)</span><br><span class="line">		record_to_sysfs_percpu(caller_address, ptr, bits * PCPU_MIN_ALLOC_SIZE);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> ptr;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p>__alloc_percpu_gfp等三个函数修改为：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> __percpu *__alloc_percpu_gfp(<span class="keyword">size_t</span> size, <span class="keyword">size_t</span> align, <span class="keyword">gfp_t</span> gfp)</span><br><span class="line">&#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_DEBUG_KMALLOC</span></span><br><span class="line">    <span class="keyword">return</span> pcpu_alloc_memhook(size, align, <span class="literal">false</span>, gfp, (<span class="keyword">unsigned</span> <span class="keyword">long</span>)_RET_IP_);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">	<span class="keyword">return</span> pcpu_alloc(size, align, <span class="literal">false</span>, gfp);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">&#125;</span><br><span class="line">EXPORT_SYMBOL_GPL(__alloc_percpu_gfp);</span><br></pre></td></tr></table></figure>
+
+<h5 id="percpu内存释放"><a href="#percpu内存释放" class="headerlink" title="percpu内存释放"></a>percpu内存释放</h5><p>与分配内存相对应的free函数为free_percpu，记录free操作需要知道free的地址以及free地址的大小，free_percpu的参数就是需要释放的地址，percpu按unit来分配，因此需要知道获取了多少个unit。free_percpu函数会调用pcpu_free_area来释放已分配的unit，相关代码为</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">pcpu_free_area</span><span class="params">(struct pcpu_chunk *chunk, <span class="keyword">int</span> off)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    bit_off = off / PCPU_MIN_ALLOC_SIZE;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* find end index */</span></span><br><span class="line">	end = find_next_bit(chunk-&gt;bound_map, pcpu_chunk_map_bits(chunk),</span><br><span class="line">			    bit_off + <span class="number">1</span>);</span><br><span class="line">	bits = end - bit_off;</span><br><span class="line">	bitmap_clear(chunk-&gt;alloc_map, bit_off, bits);</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* update metadata */</span></span><br><span class="line">	chunk-&gt;free_bytes += bits * PCPU_MIN_ALLOC_SIZE;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>chunk和off是free_percpu传递的参数，因此可以在free_percpu中计算出分配的unit数</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">free_percpu</span><span class="params">(<span class="keyword">void</span> __percpu *ptr)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    </span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_DEBUG_KMALLOC</span></span><br><span class="line">	<span class="keyword">int</span> bit_off, end, bits;</span><br><span class="line">	bit_off = off / PCPU_MIN_ALLOC_SIZE;</span><br><span class="line">	end = find_next_bit(chunk-&gt;bound_map, pcpu_chunk_map_bits(chunk),</span><br><span class="line">			    bit_off + <span class="number">1</span>);</span><br><span class="line">	bits = end - bit_off;</span><br><span class="line">	free_mem_record_percpu((<span class="keyword">unsigned</span> <span class="keyword">long</span>)_RET_IP_, ptr, bits * PCPU_MIN_ALLOC_SIZE);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="R5：mempool分析"><a href="#R5：mempool分析" class="headerlink" title="R5：mempool分析"></a>R5：mempool分析</h3><p>linux内核提供了内存池分配内存的方法，通过内存池可以预先留出指定量的内存node，确保在内存紧张的情况下仍然能够成功分配内存。linux内存池的实现在include/linux/mempool.h及mm/mempool.c中。</p>
+<p>内存池通过一个结构体<code>mempool_t</code>来表示</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">mempool_s</span> &#123;</span></span><br><span class="line">	<span class="keyword">spinlock_t</span> lock;</span><br><span class="line">	<span class="keyword">int</span> min_nr;		<span class="comment">/* nr of elements at *elements */</span></span><br><span class="line">	<span class="keyword">int</span> curr_nr;		<span class="comment">/* Current nr of elements at *elements */</span></span><br><span class="line">	<span class="keyword">void</span> **elements;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">void</span> *pool_data;</span><br><span class="line">	<span class="keyword">mempool_alloc_t</span> *alloc;</span><br><span class="line">	<span class="keyword">mempool_free_t</span> *<span class="built_in">free</span>;</span><br><span class="line">	<span class="keyword">wait_queue_head_t</span> wait;</span><br><span class="line">&#125; <span class="keyword">mempool_t</span>;</span><br></pre></td></tr></table></figure>
+
+<p>min_nr代表了当前内存池中拥有的最少节点，在创建内存池的时候会预先分配min_nr个节点以保证内存不足的时候还能分配。<code>mempool_alloc_t</code>和<code>mempool_free_t</code> 是从内存池分配内存的统一接口，由mempool_alloc进行统一调用，mempool当中提供了三种类型的mempool可以直接使用，分别是kmalloc_pool、page_pool以及slab_pool。对mempool处的统计以这三种类型为准，不考虑内核模块自己传入<code>mempool_alloc_t</code>的情况。</p>
+<p>由于每种类型的pool返回的指针类型不一致，因此使用pool-&gt;alloc来区分对应的指指针类型，使用如下函数来进行记录。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> CONFIG_DEBUG_KMALLOC</span></span><br><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">void</span> __do_statis_alloc_mempool(<span class="keyword">void</span>* element, <span class="keyword">mempool_t</span>* pool)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">page</span> *<span class="title">page</span>;</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> caller_address = (<span class="keyword">unsigned</span> <span class="keyword">long</span>)_RET_IP_;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (unlikely(ZERO_OR_NULL_PTR(element)))</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">if</span>(pool-&gt;alloc == mempool_alloc_pages)&#123;</span><br><span class="line">		<span class="keyword">int</span> order = (<span class="keyword">int</span>)(<span class="keyword">long</span>)pool-&gt;pool_data;</span><br><span class="line">		page = (struct page*)element;</span><br><span class="line">		record_to_sysfs_page(caller_address, (<span class="keyword">unsigned</span> <span class="keyword">long</span>)page_address(page), <span class="number">1</span>&lt;&lt;order);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span>(pool-&gt;alloc == mempool_alloc_slab)&#123;</span><br><span class="line">		struct kmem_cache *mem = pool-&gt;pool_data;</span><br><span class="line">		record_to_sysfs_type(caller_address, element, mem-&gt;object_size, SLAB);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span> <span class="keyword">if</span>(pool-&gt;alloc == mempool_kmalloc)&#123;</span><br><span class="line">		<span class="keyword">size_t</span> size = (<span class="keyword">size_t</span>)pool-&gt;pool_data;</span><br><span class="line">		page = virt_to_head_page(element);</span><br><span class="line">		<span class="keyword">if</span> (unlikely(!PageSlab(page)))</span><br><span class="line">			record_to_sysfs_page(caller_address, (<span class="keyword">unsigned</span> <span class="keyword">long</span>)element, <span class="number">1</span>&lt;&lt;get_order(size));</span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">			record_to_sysfs_type(caller_address, element, size, SLAB);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+
+<p>相应的在mempool_alloc函数内部调用<code>__do_statis_alloc_mempool</code></p>
+<p>mempool分配的内存不需要在<code>mempool_free</code>中进行单独的释放操作，<code>mempool_free</code>会调用对应的内存的free函数。</p>
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><p>相关测试以及使用说明在gitee以及gitlab当中的README文件。</p>
+<p><a target="_blank" rel="noopener" href="https://gitlab.adventural.top/adventural/210010062">https://gitlab.adventural.top/adventural/210010062</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/22/16%E4%BD%8D%E4%B8%8B%E4%BD%BF%E7%94%A8c%E8%AF%AD%E8%A8%80%E7%BC%96%E7%A8%8B-%E5%88%86%E6%9E%90Linux%20setup%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -193,7 +536,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-26 20:32:31" itemprop="dateModified" datetime="2022-07-26T20:32:31+08:00">2022-07-26</time>
+                <time title="修改时间：2022-08-01 01:05:17" itemprop="dateModified" datetime="2022-08-01T01:05:17+08:00">2022-08-01</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -211,7 +554,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>3.4k</span>
+              <span>3.2k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -976,102 +1319,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/20/linux2-6%E5%86%85%E6%A0%B8%E2%80%94%E2%80%94makefile%E5%88%86%E6%9E%90/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="adventural">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="记录日常">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/11/20/linux2-6%E5%86%85%E6%A0%B8%E2%80%94%E2%80%94makefile%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">linux2.6内核——makefile分析</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-11-20 16:07:50" itemprop="dateCreated datePublished" datetime="2021-11-20T16:07:50+08:00">2021-11-20</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-07-22 17:37:04" itemprop="dateModified" datetime="2022-07-22T17:37:04+08:00">2022-07-22</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">操作系统</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>7.7k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>7 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>分析的内核为版本2.6.11</p>
-<h3 id="顶层MakeFile"><a href="#顶层MakeFile" class="headerlink" title="顶层MakeFile"></a>顶层MakeFile</h3><p>顶层Makefile存在于内核源码根目录中，顶层的makefile不会控制具体的编译规则。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/11/20/linux2-6%E5%86%85%E6%A0%B8%E2%80%94%E2%80%94makefile%E5%88%86%E6%9E%90/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1141,7 +1388,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-count">22</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1154,7 +1401,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1198,12 +1445,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">85k</span>
+    <span title="站点总字数">109k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:18</span>
+    <span title="站点阅读时长">1:39</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
   </div>
